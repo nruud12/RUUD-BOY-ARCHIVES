@@ -131,9 +131,9 @@ box-shadow:
 
     display:flex;
     align-items:center;
-    gap:22px;
+    gap: 30px;
 
-    padding:18px;
+    padding: 24px;
 
     background:rgba(12,12,12,.88);
 
@@ -198,8 +198,8 @@ box-shadow:
 
 .ruud-player-artwork img{
 
-    width:80px;
-    height:80px;
+    width:120px;
+height:120px;
 
     object-fit:cover;
 
@@ -208,11 +208,13 @@ box-shadow:
     background:#111;
 
     box-shadow:
-        0 0 22px rgba(255,0,255,.18);
+    0 0 var(--artwork-glow,18px)
+        rgba(255,0,255,.22);
 
     transition:
-        transform .25s ease,
-        box-shadow .25s ease;
+    transform .04s linear,
+    box-shadow .10s linear;
+    transform: scale(var(--artwork-scale,1));
 }
 
 .ruud-player-artwork img:hover{
@@ -241,22 +243,25 @@ box-shadow:
 
 .ruud-player-header{
 
-    margin-bottom:12px;
+    margin-bottom:18px;
+
 }
 
 #ruud-global-title{
 
     position:relative;
 
-    color:white;
+    color:#ffffff;
 
-    font-size:20px;
+    font-size:24px;
 
-    font-weight:700;
+    font-weight:800;
 
-    letter-spacing:.05em;
+    letter-spacing:.18em;
 
     text-transform:uppercase;
+
+    line-height:1.1;
 
     transition:
         opacity .18s ease,
@@ -280,15 +285,16 @@ box-shadow:
 
 #ruud-global-subtitle{
 
-    margin-top:4px;
+    margin-top:10px;
 
-    color:#a8a8a8;
+    color:#8f8f8f;
 
-    font-size:12px;
+    font-size:11px;
 
-    letter-spacing:.08em;
+    letter-spacing:.24em;
 
     text-transform:uppercase;
+
 }
 
 /* ===========================
@@ -421,7 +427,7 @@ box-shadow:
 
     gap:14px;
 
-    margin-top:18px;
+    margin-top:24px;
 
     padding:10px 18px;
 
@@ -650,6 +656,9 @@ box-shadow:
     letter-spacing:.18em;
 
     text-transform:uppercase;
+    transition:
+        opacity .18s ease,
+        transform .18s ease;
 
 }
 @keyframes ruudNowPlaying{
@@ -862,5 +871,45 @@ box-shadow:
 .product-card:hover::after{
 
     opacity:1;
+
+}
+/* ==========================================================
+   ARCHIVEOS LIVE EQUALIZER
+========================================================== */
+
+.ruud-equalizer {
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+
+    gap: 6px;
+
+    height: 34px;
+
+    margin: 18px 0 16px;
+}
+
+.ruud-bar {
+
+    width: 6px;
+    height: 12px;
+
+    border-radius: 999px;
+
+    background: #ff00ff;
+
+    opacity: .35;
+
+    transform: scaleY(.25);
+    transform-origin: bottom center;
+
+    box-shadow:
+        0 0 12px rgba(255,0,255,.35);
+
+    transition:
+        transform .06s linear,
+        opacity .06s linear,
+        box-shadow .06s linear;
 
 }

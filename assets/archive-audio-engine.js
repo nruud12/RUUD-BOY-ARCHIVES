@@ -124,6 +124,39 @@ function updateFrequency() {
     ArchiveEngine.frequency.mid = (mid / 32) / 255;
     ArchiveEngine.frequency.high =
         (high / (data.length - 40)) / 255;
+        // Update live equalizer
+const bars = document.querySelectorAll(".ruud-bar");
+
+if (bars.length === 5) {
+
+    const values = [
+
+        ArchiveEngine.frequency.sub,
+        ArchiveEngine.frequency.kick,
+        ArchiveEngine.frequency.mid,
+        ArchiveEngine.frequency.high,
+        (
+            ArchiveEngine.frequency.sub +
+            ArchiveEngine.frequency.kick +
+            ArchiveEngine.frequency.mid +
+            ArchiveEngine.frequency.high
+        ) / 4
+
+    ];
+
+    bars.forEach((bar, index) => {
+
+        const level = Math.max(values[index], 0.08);
+
+        bar.style.transform =
+            `scaleY(${0.25 + level * 2.8})`;
+
+        bar.style.opacity =
+            0.35 + level * 0.65;
+
+    });
+
+}
 
     ArchiveEngine.frequency.volume =
         (
@@ -195,7 +228,34 @@ function updateVisuals() {
     root.style.setProperty("--archive-kick", visual.kick);
     root.style.setProperty("--archive-mid", visual.mid);
     root.style.setProperty("--archive-high", visual.high);
+// Speaker cone artwork
+const artwork =
+    document.querySelector(".ruud-player-artwork img");
 
+if (artwork) {
+
+    const bass =
+        Math.max(
+            ArchiveEngine.frequency.sub,
+            ArchiveEngine.frequency.kick
+        );
+
+    const scale =
+        1 + bass * 0.09;
+
+    artwork.style.setProperty(
+        "--artwork-scale",
+        scale.toFixed(3)
+    );
+    const glow =
+    18 + bass * 30;
+
+artwork.style.setProperty(
+    "--artwork-glow",
+    `${glow}px`
+);
+
+}
     requestAnimationFrame(updateVisuals);
 
 }

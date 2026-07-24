@@ -9,6 +9,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const globalTitle = document.getElementById("ruud-global-title");
   const globalImage = document.getElementById("ruud-global-image");
+  const playerStatus = document.getElementById("ruud-player-status");
+
+function setPlayerStatus(text) {
+
+    if (!playerStatus) return;
+
+    playerStatus.style.opacity = "0";
+    playerStatus.style.transform = "translateY(4px)";
+
+    setTimeout(() => {
+
+        playerStatus.textContent = text;
+
+        playerStatus.style.opacity = "1";
+        playerStatus.style.transform = "translateY(0)";
+
+    }, 180);
+
+}
   const playButton = document.getElementById("ruud-global-play");
   const prevButton =
     document.getElementById("ruud-global-prev");
@@ -102,6 +121,19 @@ function dispatchArchiveState(playing) {
   );
 }
  function play() {
+    setPlayerStatus("NOW ACCESSING...");
+
+setTimeout(() => {
+    setPlayerStatus("AUTHENTICATING...");
+}, 250);
+
+setTimeout(() => {
+    setPlayerStatus("ARCHIVE ONLINE");
+}, 500);
+
+setTimeout(() => {
+    setPlayerStatus("NOW PLAYING");
+}, 800);
   globalAudio.play();
 
 function updateBass() {
