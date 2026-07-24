@@ -1,0 +1,241 @@
+/* ==========================================
+   ARCHIVE PRODUCT CARD
+========================================== */
+
+.product-card{
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+
+}
+
+.product-card:hover{
+
+    transform:translateY(-6px);
+
+}
+
+.product-card .card-gallery{
+
+    overflow:hidden;
+
+    border-radius:18px;
+
+}
+
+.product-card img{
+
+    transition:transform .35s ease;
+
+}
+
+.product-card:hover img{
+
+    transform:scale(1.04);
+
+}
+/* ==========================================
+   COLLECTION CARD CLEANUP
+========================================== */
+
+.product-card .quick-add {
+    display: none !important;
+}
+
+/* ==========================================
+   ARCHIVEOS NOW PLAYING
+========================================== */
+
+[data-archive-card][data-state="playing"] {
+
+    transform: translateY(-6px);
+
+    box-shadow:
+    0 0 18px rgba(255,0,255,.30),
+    0 0 40px rgba(255,0,255,.18),
+    0 12px 30px rgba(0,0,0,.45);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+
+}
+
+[data-archive-card][data-state="playing"] .card-gallery {
+
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    transform:
+        scale(
+    calc(1 + var(--archive-kick, 0) * 0.08)
+);
+
+    box-shadow:
+        0 0
+        calc(20px + var(--archive-sub, 0) * 90px)
+        rgba(255,0,255,.45),
+
+        0 0
+        calc(50px + var(--archive-sub, 0) * 150px)
+        rgba(255,0,255,.20);
+
+    transition:
+        transform .05s linear,
+        box-shadow .05s linear;
+
+}
+[data-archive-card][data-state="playing"] .card-gallery::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            120deg,
+            transparent 30%,
+            rgba(255,255,255,.18) 50%,
+            transparent 70%
+        );
+
+    transform: translateX(-180%);
+
+    animation: archiveScan 4s linear infinite;
+
+    pointer-events: none;
+
+}
+
+[data-archive-card][data-state="playing"] .ruud-play-button {
+
+    background: #ff00ff;
+
+    color: #050505;
+
+    font-weight: 700;
+
+}
+/* ==========================================
+   ARCHIVEOS ANIMATIONS
+========================================== */
+
+@keyframes archivePulse {
+
+    0% {
+
+        box-shadow:
+            0 0 16px rgba(255,0,255,.18),
+            0 0 40px rgba(255,0,255,.08);
+
+    }
+
+    50% {
+
+        box-shadow:
+            0 0 30px rgba(255,0,255,.45),
+            0 0 75px rgba(255,0,255,.25);
+
+    }
+
+    100% {
+
+        box-shadow:
+            0 0 16px rgba(255,0,255,.18),
+            0 0 40px rgba(255,0,255,.08);
+
+    }
+
+}
+@keyframes archiveScan {
+
+    from {
+
+        transform: translateX(-180%);
+
+    }
+
+    to {
+
+        transform: translateX(180%);
+
+    }
+
+}
+/* ==========================================
+   ARCHIVEOS ARTWORK STAGE
+========================================== */
+
+[data-archive-card][data-state="playing"] .card-gallery {
+
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    isolation: isolate;
+
+}
+[data-archive-card][data-state="playing"] .card-gallery::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -20px;
+
+    border-radius: inherit;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,0,255,.55),
+            transparent 70%
+        );
+
+    opacity:
+        calc(.08 + var(--archive-sub, 0) * .9);
+
+    filter: blur(30px);
+
+    pointer-events: none;
+
+    z-index: 0;
+
+    transition: opacity .08s linear;
+
+}
+[data-archive-card][data-state="playing"] .card-gallery img {
+
+    position: relative;
+
+    z-index: 1;
+
+    transform:
+        scale(
+            calc(1 + var(--archive-kick, 0) * .08)
+        );
+
+    transition:
+        transform .05s linear;
+
+    will-change: transform;
+
+}
+[data-archive-card][data-state="playing"] .card-gallery img {
+
+    filter:
+        drop-shadow(
+            0 12px
+            calc(12px + var(--archive-kick,0) * 24px)
+            rgba(0,0,0,.55)
+        );
+
+}

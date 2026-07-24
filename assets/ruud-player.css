@@ -1,0 +1,866 @@
+.ruud-player{
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    margin-top:14px;
+    padding:12px;
+
+    background:#0a0a0a;
+
+    border:1px solid #1d1d1d;
+    border-radius:14px;
+}
+
+.ruud-audio{
+    display:none;
+}
+
+.ruud-play-button{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+
+    width:100%;
+    height:42px;
+
+    padding:0 18px;
+
+    border:1px solid rgba(255,0,255,.22);
+    border-radius:999px;
+
+    background:rgba(255,255,255,.04);
+
+    color:#ffffff;
+
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:.04em;
+
+    cursor:pointer;
+
+    transition:
+        background .25s ease,
+        border-color .25s ease,
+        transform .20s ease,
+        box-shadow .25s ease;
+
+}
+.ruud-play-button:hover{
+
+    background:rgba(255,0,255,.10);
+
+    border-color:rgba(255,0,255,.45);
+
+    box-shadow:
+        0 0 18px rgba(255,0,255,.16);
+
+    transform:translateY(-1px);
+
+}
+
+.ruud-play-button:active{
+
+    transform:translateY(0);
+
+}
+
+    color:#fff;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+    transition:.25s;
+}
+
+.ruud-play-button:hover{
+
+    transform:scale(1.08);
+
+box-shadow:
+
+0 0 25px #ff00ff,
+0 0 60px rgba(255,0,255,.35);
+}
+
+.ruud-player-body{
+
+    flex:1;
+}
+
+.ruud-progress{
+
+    width:100%;
+    accent-color:#ff00ff;
+}
+
+.ruud-times{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:6px;
+
+    font-size:11px;
+
+    color:#a8a8a8;
+}
+/* ===========================
+   RUUD Global Player v2
+=========================== */
+
+#ruud-global-player{
+
+    position: fixed;
+
+    left:50%;
+    bottom:20px;
+
+    transform:translateX(-50%);
+    
+    transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    background .25s ease;
+
+    width:min(900px,calc(100% - 32px));
+
+    display:flex;
+    align-items:center;
+    gap:22px;
+
+    padding:18px;
+
+    background:rgba(12,12,12,.88);
+
+    border:1px solid rgba(255,0,255,.18);
+
+box-shadow:
+    0 0 0 1px rgba(255,0,255,.08),
+    0 0 45px rgba(255,0,255,.12),
+    0 24px 60px rgba(0,0,0,.55);
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    backdrop-filter:blur(18px);
+
+
+    z-index:9999;
+}
+
+#ruud-global-player::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+        linear-gradient(
+            120deg,
+            transparent 20%,
+            rgba(255,255,255,.04) 50%,
+            transparent 80%
+        );
+
+    pointer-events:none;
+
+}
+
+#ruud-global-player:hover{
+
+    transform:
+        translateX(-50%)
+        translateY(-4px);
+
+}
+
+#ruud-global-player.ruud-global-player--hidden{
+
+    display:none;
+}
+
+/* ===========================
+   Artwork
+=========================== */
+
+.ruud-player-artwork{
+
+    flex:0 0 auto;
+}
+
+.ruud-player-artwork img{
+
+    width:80px;
+    height:80px;
+
+    object-fit:cover;
+
+    border-radius:14px;
+
+    background:#111;
+
+    box-shadow:
+        0 0 22px rgba(255,0,255,.18);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+}
+
+.ruud-player-artwork img:hover{
+
+    transform:
+        scale(1.04)
+        rotate(-1deg);
+
+    box-shadow:
+        0 0 35px rgba(255,0,255,.35);
+
+}
+
+/* ===========================
+   Main
+=========================== */
+
+.ruud-player-main{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.ruud-player-header{
+
+    margin-bottom:12px;
+}
+
+#ruud-global-title{
+
+    position:relative;
+
+    color:white;
+
+    font-size:20px;
+
+    font-weight:700;
+
+    letter-spacing:.05em;
+
+    text-transform:uppercase;
+
+    transition:
+        opacity .18s ease,
+        transform .18s ease;
+
+}
+#ruud-global-title.is-playing{
+
+    color:#ffffff;
+
+    animation:ruudTitleGlow 2s ease-in-out infinite;
+
+}
+#ruud-global-title.is-changing{
+
+    opacity:0;
+
+    transform:translateY(8px);
+
+}
+
+#ruud-global-subtitle{
+
+    margin-top:4px;
+
+    color:#a8a8a8;
+
+    font-size:12px;
+
+    letter-spacing:.08em;
+
+    text-transform:uppercase;
+}
+
+/* ===========================
+   Progress
+=========================== */
+
+#ruud-global-progress {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#ruud-progress-track{
+
+    position:relative;
+
+    width:100%;
+
+    height:6px;
+
+    background:#202020;
+
+    border-radius:999px;
+
+    overflow:hidden;
+
+    cursor:pointer;
+
+    transition:height .2s ease;
+}
+
+#ruud-progress-track:hover{
+
+    height:8px;
+}
+
+#ruud-progress-fill{
+
+    position:relative;
+
+    width:0%;
+
+    height:100%;
+
+    border-radius:999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff00ff,
+            #b300ff
+        );
+
+    box-shadow:
+        0 0 18px rgba(255,0,255,.45);
+
+    transition:width .15s linear;
+}
+
+#ruud-progress-thumb{
+
+    position:absolute;
+
+    right:-9px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    width:18px;
+    height:18px;
+
+    border-radius:50%;
+
+    background:white;
+
+    border:2px solid #ff00ff;
+
+    box-shadow:
+
+        0 0 14px #ff00ff,
+
+        0 0 30px rgba(255,0,255,.5);
+    transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+#ruud-progress-track:hover #ruud-progress-thumb{
+
+    transform:
+        translateY(-50%)
+        scale(1.15);
+
+     box-shadow:
+
+        0 0 20px #ff00ff,
+
+        0 0 45px rgba(255,0,255,.65);
+
+}
+
+/* ===========================
+   Time
+=========================== */
+
+.ruud-player-times{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:10px;
+
+    color:#9b9b9b;
+
+    font-size:12px;
+}
+
+/* ===========================
+   Controls
+=========================== */
+
+.ruud-player-controls{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:14px;
+
+    margin-top:18px;
+
+    padding:10px 18px;
+
+    width:fit-content;
+
+    margin-left:auto;
+    margin-right:auto;
+
+    background:rgba(255,255,255,.03);
+
+    border:1px solid rgba(255,255,255,.06);
+
+    border-radius:999px;
+
+    backdrop-filter:blur(10px);
+
+}
+#ruud-global-play,
+#ruud-global-prev,
+#ruud-global-next{
+
+    width:60px;
+    height:60px;
+
+    border:none;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+    color:white;
+
+    font-size:22px;
+
+    transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        background .22s ease;
+
+}
+#ruud-global-prev,
+#ruud-global-next{
+
+    width:50px;
+    height:50px;
+
+    background:#181818;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    font-size:18px;
+
+}
+#ruud-global-play{
+
+    width:60px;
+    height:60px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff00ff,
+            #b300ff
+        );
+
+    color:white;
+
+    font-size:22px;
+
+    cursor:pointer;
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+}
+
+
+#ruud-global-prev:hover,
+#ruud-global-next:hover{
+
+    background:#2b2b2b;
+
+    transform:scale(1.08);
+
+}
+
+#ruud-global-play:hover{
+
+    transform:
+        scale(1.08)
+        translateY(-2px);
+
+    box-shadow:
+        0 0 28px rgba(255,0,255,.5);
+
+}
+#ruud-global-prev:hover,
+#ruud-global-next:hover{
+
+    transform:translateY(-2px);
+
+    background:#242424;
+
+    box-shadow:
+        0 0 18px rgba(255,0,255,.25);
+
+}
+
+/* ===========================
+   Mobile
+=========================== */
+
+@media (max-width:640px){
+
+    #ruud-global-player{
+
+        left:12px;
+        right:12px;
+        bottom:12px;
+
+        width:auto;
+
+        transform:none;
+    }
+
+    .ruud-player-artwork img{
+
+        width:64px;
+        height:64px;
+    }
+
+    #ruud-global-title{
+
+        font-size:17px;
+    }
+
+}
+
+
+
+@keyframes ruudPulse{
+
+    0%{
+
+        transform:scale(1);
+
+        box-shadow:
+            0 0 15px rgba(255,0,255,.35);
+
+    }
+
+    50%{
+
+        transform:scale(1.05);
+
+        box-shadow:
+            0 0 35px rgba(255,0,255,.8);
+
+    }
+
+    100%{
+
+        transform:scale(1);
+
+        box-shadow:
+            0 0 15px rgba(255,0,255,.35);
+
+    }
+
+}
+
+#ruud-global-play.is-playing{
+
+    animation:ruudPulse 1.8s infinite;
+
+}
+/* ===========================
+   NOW PLAYING
+=========================== */
+
+.ruud-now-playing{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-bottom:8px;
+
+    opacity:.85;
+
+}
+
+.ruud-now-dot{
+
+    width:8px;
+    height:8px;
+
+    border-radius:50%;
+
+    background:#ff00ff;
+
+    box-shadow:
+        0 0 10px #ff00ff,
+        0 0 20px rgba(255,0,255,.6);
+
+}
+
+.ruud-now-text{
+
+    color:#ff66ff;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:.18em;
+
+    text-transform:uppercase;
+
+}
+@keyframes ruudNowPlaying{
+
+    0%{
+
+        transform:scale(.9);
+
+        opacity:.5;
+
+    }
+
+    50%{
+
+        transform:scale(1.3);
+
+        opacity:1;
+
+    }
+
+    100%{
+
+        transform:scale(.9);
+
+        opacity:.5;
+
+    }
+
+}
+
+.ruud-now-playing.is-playing .ruud-now-dot{
+
+    animation:ruudNowPlaying 1.4s infinite;
+
+}
+@keyframes ruudTitleGlow{
+
+    0%{
+
+        text-shadow:
+            0 0 8px rgba(255,255,255,.30),
+            0 0 16px rgba(255,0,255,.35);
+
+    }
+
+    50%{
+
+        text-shadow:
+            0 0 12px rgba(255,255,255,.45),
+            0 0 28px rgba(255,0,255,.75),
+            0 0 50px rgba(255,0,255,.35);
+
+    }
+
+    100%{
+
+        text-shadow:
+            0 0 8px rgba(255,255,255,.30),
+            0 0 16px rgba(255,0,255,.35);
+
+    }
+
+}
+/* ==========================
+   ArchiveOS Card Foundation
+========================== */
+
+.product-card{
+
+    transition:
+        transform .25s ease,
+        filter .25s ease;
+
+}
+
+.product-card__content{
+
+    background:#101010;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+
+}
+
+.product-card:hover .product-card__content{
+
+    transform:translateY(-6px);
+
+    border-color:rgba(255,0,255,.35);
+
+    box-shadow:
+        0 18px 45px rgba(0,0,0,.45),
+        0 0 22px rgba(255,0,255,.12);
+
+}
+/* =====================================
+   ARCHIVEOS PRODUCT ARTWORK
+===================================== */
+
+.card-gallery{
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    background:#090909;
+
+}
+
+.product-media-container{
+
+    overflow:hidden;
+
+    transition:
+        transform .35s ease,
+        filter .35s ease;
+
+}
+
+.product-media-container img{
+
+    transition:
+        transform .45s ease,
+        filter .45s ease;
+
+    will-change:
+        transform;
+
+}
+
+.product-card:hover .product-media-container img{
+
+    transform:scale(1.045);
+
+    filter:
+        brightness(1.05)
+        contrast(1.08)
+        saturate(1.05);
+
+}
+/* =====================================
+   ARCHIVEOS CARD DEPTH
+===================================== */
+
+.product-card__content{
+
+    backdrop-filter:blur(18px);
+
+}
+
+.product-card:hover{
+
+    z-index:5;
+
+}
+
+.product-card:hover .card-gallery{
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.04);
+
+}
+
+.product-card:hover{
+
+    filter:brightness(1.02);
+
+}
+/* =====================================
+   ARCHIVEOS BLACKLIGHT HOVER
+===================================== */
+
+.product-card{
+
+    isolation:isolate;
+
+}
+
+.product-card::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    border-radius:22px;
+
+    pointer-events:none;
+
+    opacity:0;
+
+    transition:opacity .30s ease;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.04),
+        0 0 0 1px rgba(255,0,255,.20),
+        0 0 30px rgba(255,0,255,.10);
+
+}
+
+.product-card:hover::after{
+
+    opacity:1;
+
+}

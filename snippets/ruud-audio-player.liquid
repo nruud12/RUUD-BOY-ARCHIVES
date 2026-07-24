@@ -1,0 +1,15 @@
+{% if product.metafields.product.audio.value != blank %}
+<div
+  class="ruud-player"
+  data-product-id="{{ product.id }}"
+  data-title="{{ product.title | escape }}"
+  data-audio="{{ product.metafields.product.audio.value.url }}"
+  data-image="{% if product.featured_image %}{{ product.featured_image | image_url: width: 240 }}{% endif %}"
+>
+
+  <button class="ruud-play-button" type="button">
+    ▶ Preview
+  </button>
+
+</div>
+{% endif %}
