@@ -140,9 +140,14 @@ box-shadow:
     border:1px solid rgba(255,0,255,.18);
 
 box-shadow:
-    0 0 0 1px rgba(255,0,255,.08),
+
+    0 0 0 1px rgba(255,0,255,.10),
+
     0 0 45px rgba(255,0,255,.12),
-    0 24px 60px rgba(0,0,0,.55);
+
+    0 0 90px rgba(0,234,255,.05),
+
+    0 30px 80px rgba(0,0,0,.60);
 
     border-radius:22px;
 
@@ -152,6 +157,49 @@ box-shadow:
 
 
     z-index:9999;
+    isolation: isolate;
+}
+#ruud-global-player::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:-70px;
+
+    border-radius:inherit;
+
+    background:
+    radial-gradient(
+        circle at center,
+
+        rgba(255,0,255,.55) 0%,
+
+        rgba(255,0,255,.30) 28%,
+
+        rgba(0,234,255,.18) 58%,
+
+        rgba(0,120,255,.10) 72%,
+
+        transparent 86%
+
+    );
+
+    opacity: var(--player-aura-opacity, .12);
+
+filter:
+    blur(var(--player-aura-blur,55px))
+    saturate(140%);
+
+transform: scale(var(--player-aura-scale, 1));
+
+    pointer-events:none;
+
+    z-index:-1;
+
+    transition:
+        opacity .05s linear;
+
 }
 
 #ruud-global-player::before{

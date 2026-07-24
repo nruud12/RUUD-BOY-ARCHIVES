@@ -258,10 +258,39 @@ console.log(window.ArchiveOS);
 });
 
   globalAudio.addEventListener("ended", () => {
-  playButton.textContent = "▶";
-  playButton.classList.remove("is-playing");
-  updateCardButton(currentCard, false);
+
+    playButton.textContent = "▶";
+
+    playButton.classList.remove("is-playing");
+
+    updateCardButton(currentCard, false);
+
+    const index = cards.indexOf(currentCard);
+
+    // More beats available
+    if (index < cards.length - 1) {
+
+        setPlayerStatus("LOADING NEXT ARCHIVE...");
+
+        setTimeout(() => {
+
+            loadTrack(cards[index + 1]);
+
+            play();
+
+        }, 900);
+
+        return;
+
+    }
+
+    // End of queue
+    window.ArchiveOS.isPlaying = false;
+
+    setPlayerStatus("SESSION COMPLETE");
+
 });
+  
   globalAudio.addEventListener("loadedmetadata", () => {
 
   duration.textContent = format(globalAudio.duration);

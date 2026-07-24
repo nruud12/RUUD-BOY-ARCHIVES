@@ -1,6 +1,30 @@
+window.ArchiveSession = {
+    queue: [],
+    currentIndex: -1
+};
+function buildQueue() {
+
+    const cards = [
+        ...document.querySelectorAll("[data-archive-card]")
+    ];
+
+    window.ArchiveSession.queue = cards.map(card => ({
+
+        productId: card.dataset.productId,
+
+        button: card.querySelector(".ruud-play-button")
+
+    }));
+
+}
 document.addEventListener("DOMContentLoaded", () => {
 
+    
     console.log("ArchiveOS initialized");
+    buildQueue();
+
+console.log(window.ArchiveSession);
+    
 
     function updateCards() {
 
@@ -34,8 +58,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+
 }
 
-    setInterval(updateCards, 100);
+    window.addEventListener(
+    "archive:trackchange",
+    updateCards
+);
+
+window.addEventListener(
+    "archive:playstate",
+    updateCards
+);
+
+updateCards();
 
 });

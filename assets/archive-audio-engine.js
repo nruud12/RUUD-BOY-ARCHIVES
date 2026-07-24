@@ -34,21 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     visual: {
 
-    sub: 0,
-
-    kick: 0,
-
-    mid: 0,
-
-    high: 0,
-
-    volume: 0,
+    pulse: 0,
 
     glow: 0,
 
     scale: 1,
 
-    depth: 0
+    bars: [0,0,0,0,0]
 
 }
 
@@ -146,15 +138,22 @@ if (bars.length === 5) {
 
     bars.forEach((bar, index) => {
 
-        const level = Math.max(values[index], 0.08);
+    const target =
+        Math.max(values[index], 0.08);
 
-        bar.style.transform =
-            `scaleY(${0.25 + level * 2.8})`;
+    ArchiveEngine.visual.bars[index] +=
+        (target - ArchiveEngine.visual.bars[index]) * 0.18;
 
-        bar.style.opacity =
-            0.35 + level * 0.65;
+    const level =
+        ArchiveEngine.visual.bars[index];
 
-    });
+    bar.style.transform =
+        `scaleY(${0.25 + level * 2.8})`;
+
+    bar.style.opacity =
+        0.35 + level * 0.65;
+
+});
 
 }
 

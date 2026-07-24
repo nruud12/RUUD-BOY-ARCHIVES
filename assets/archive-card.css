@@ -32,7 +32,7 @@
 
 .product-card:hover img{
 
-    transform:scale(1.04);
+    filter: brightness(1.05);
 
 }
 /* ==========================================
@@ -70,11 +70,7 @@
 
     border-radius: 18px;
 
-    transform:
-        scale(
-    calc(1 + var(--archive-kick, 0) * 0.08)
-);
-
+    transform: none;
     box-shadow:
         0 0
         calc(20px + var(--archive-sub, 0) * 90px)
@@ -218,13 +214,9 @@
 
     z-index: 1;
 
-    transform:
-        scale(
-            calc(1 + var(--archive-kick, 0) * .08)
-        );
+    transform: scale(1.02);
 
-    transition:
-        transform .05s linear;
+    transition: transform .05s linear;
 
     will-change: transform;
 
