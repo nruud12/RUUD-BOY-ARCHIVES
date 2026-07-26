@@ -46,45 +46,6 @@ console.log("archive-commerce.js loaded");
 
 },
 
-    renderLicenses: function () {
-
-        const container =
-            document.getElementById(
-                "archive-license-list"
-            );
-
-        if (!container) return;
-
-        container.innerHTML = "";
-
-        const licenses =
-            this.getVariants();
-
-        licenses.forEach(function (license) {
-
-            const button =
-                document.createElement("button");
-
-            button.className =
-                "ruud-license-option";
-
-            button.dataset.variantId =
-                license.id;
-
-            button.innerHTML = `
-                <div class="license-title">
-                    ${license.title}
-                </div>
-                <div class="license-price">
-                    ${license.priceText}
-                </div>
-            `;
-
-            container.appendChild(button);
-
-        });
-
-    }
 
 };
 
@@ -92,13 +53,92 @@ console.log("archive-commerce.js loaded");
         "ArchiveCommerce",
         window.ArchiveOS.commerce.getVariants()
     );
-    ArchiveOS.on(
-    "archive:trackchange",
-    function () {
+    
+    renderLicenses: function () {
 
-        ArchiveOS.commerce.renderLicenses();
+    const container =
+        document.getElementById("archive-license-list");
 
-    }
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const licenses = this.getVariants();
+
+    licenses.forEach((license) => {
+
+        const card = document.createElement("button");
+
+        card.type = "button";
+
+        card.className = "archive-edition-card";
+
+        card.dataset.variantId = license.id;
+
+        const features =
+    license.title === "Exclusive"
+        ? [
+            "Unlimited Commercial Use",
+            "Track Stems Included",
+            "Exclusive Ownership",
+            "Removed From Store"
+        ]
+        : [
+            "MP3 + WAV",
+            "Commercial Release",
+            "Instant Download",
+            "Non-Exclusive License"
+        ];
+        card.innerHTML = `
+            <div class="archive-edition-header">
+                ${license.title.toUpperCase()} EDITION
+            </div>
+
+            <div class="archive-edition-description">
+                ${
+                    license.title === "Exclusive"
+                        ? "Own the record exclusively."
+                        : "Perfect for independent releases."
+                }
+            </div>
+            <ul class="archive-edition-features">
+    ${features.map(feature => `
+        <li>✓ ${feature}</li>
+    `).join("")}
+</ul>
+
+
+            <div class="archive-edition-price">
+                ${license.priceText}
+            </div>
+
+            <div class="archive-edition-button">
+                SELECT EDITION →
+            </div>
+        `;
+
+        card.addEventListener("click", () => {
+
+            document
+                .querySelectorAll(".archive-edition-card")
+                .forEach(c =>
+                    c.classList.remove("selected")
+                );
+
+            card.classList.add("selected");
+
+            ArchiveOS.set(
+                "selectedVariant",
+                license
+            );
+
+        });
+
+        container.appendChild(card);
+
+    });
+
+}
 );
 
 })();

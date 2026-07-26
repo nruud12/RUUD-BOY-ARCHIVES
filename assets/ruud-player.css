@@ -70,14 +70,6 @@ transform:
 
 }
 
-    color:#fff;
-
-    cursor:pointer;
-
-    font-size:18px;
-
-    transition:.25s;
-}
 
 .ruud-play-button:hover{
 
@@ -1164,6 +1156,200 @@ transform .30s cubic-bezier(.2,.8,.2,1);
     margin-top .28s ease;
 
     margin-top:0;
+
+}
+.archive-edition-card{
+
+    width:100%;
+
+    text-align:left;
+
+    background:rgba(255,255,255,.03);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:18px;
+
+    padding:24px;
+
+    margin-bottom:18px;
+
+    transition:.2s;
+
+    cursor:pointer;
+
+}
+
+.archive-edition-card:hover{
+
+    transform:translateY(-4px);
+
+    border-color:#b300ff;
+
+    box-shadow:0 0 25px rgba(179,0,255,.35);
+
+}
+
+.archive-edition-card.selected{
+
+    border-color:#00ffff;
+
+    box-shadow:0 0 30px rgba(0,255,255,.35);
+
+}
+.archive-edition-card{
+
+    position:relative;
+    overflow:hidden;
+
+}
+
+.archive-edition-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:linear-gradient(
+        135deg,
+        rgba(255,255,255,.08),
+        transparent 45%
+    );
+
+    opacity:0;
+
+    transition:opacity .25s ease;
+
+    pointer-events:none;
+
+}
+
+.archive-edition-card:hover::before{
+
+    opacity:1;
+
+}
+
+.archive-edition-card{
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease;
+
+}
+
+.archive-edition-card:hover{
+
+    transform:translateY(-6px);
+
+}
+
+.archive-edition-card.selected{
+
+    transform:translateY(-3px) scale(1.01);
+
+}
+
+.archive-edition-header{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    margin-bottom:8px;
+
+}
+
+.archive-edition-description{
+
+    opacity:.7;
+
+    margin-bottom:18px;
+
+}
+
+.archive-edition-features{
+
+    list-style:none;
+
+    padding:0;
+
+    margin:0 0 22px;
+
+}
+
+.archive-edition-features li{
+
+    margin-bottom:8px;
+
+}
+
+.archive-edition-price{
+
+    font-size:26px;
+
+    font-weight:700;
+
+    margin-bottom:18px;
+
+}
+
+.archive-edition-button{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    width:100%;
+
+    height:48px;
+
+    margin-top:20px;
+
+    border-radius:12px;
+
+    background:linear-gradient(
+        135deg,
+        #7d00ff,
+        #c300ff
+    );
+
+    color:white;
+
+    font-weight:700;
+
+    letter-spacing:.08em;
+
+    transition:
+        transform .18s ease,
+        filter .18s ease;
+
+}
+
+.archive-edition-card:hover
+.archive-edition-button{
+
+    transform:scale(1.02);
+
+    filter:brightness(1.1);
+
+}
+
+.archive-edition-card.selected
+.archive-edition-button{
+
+    background:linear-gradient(
+        135deg,
+        #00c8ff,
+        #00ffff
+    );
+
+    color:#050505;
 
 }
 
