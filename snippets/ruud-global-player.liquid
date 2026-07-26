@@ -1,110 +1,200 @@
 <div id="ruud-global-player" class="ruud-global-player--hidden">
 
-  <audio id="ruud-global-audio" preload="none"></audio>
+    <audio id="ruud-global-audio" preload="none"></audio>
 
-  <div class="ruud-player-artwork">
-    <img
-      id="ruud-global-image"
-      src=""
-      alt=""
-      width="80"
-      height="80">
-  </div>
+    <div class="archive-player__artwork">
 
-  <div class="ruud-player-main">
-
-    <div class="ruud-player-header">
-
-  <div class="ruud-now-playing">
-
-    <span class="ruud-now-dot"></span>
-
-    <span
-  class="ruud-now-text"
-  id="ruud-player-status"
->
-  NOW PLAYING
-</span>
-
-  </div>
-
-  <div id="ruud-global-title">
-    Select a beat
-  </div>
-
-  <div id="ruud-global-subtitle">
-    RUUD BOY ARCHIVES
-  </div>
-  <div class="ruud-equalizer" aria-hidden="true">
-    <span class="ruud-bar"></span>
-    <span class="ruud-bar"></span>
-    <span class="ruud-bar"></span>
-    <span class="ruud-bar"></span>
-    <span class="ruud-bar"></span>
-</div>
-
-</div>
-
-    <div id="ruud-progress-track">
-
-    <input
-        id="ruud-global-progress"
-        type="range"
-        min="0"
-        max="100"
-        value="0">
-
-    <div id="ruud-progress-fill">
-
-        <div id="ruud-progress-thumb"></div>
+        <img
+            id="ruud-global-image"
+            src=""
+            alt=""
+            width="80"
+            height="80">
 
     </div>
 
+    <div class="archive-player__content">
+    <div class="archive-player__body">
+
+    existing header
+
+    transport
+
+    commerce
+
 </div>
 
-    <div class="ruud-player-times">
+        <!-- =========================
+             HEADER
+        ========================== -->
 
-      <span id="ruud-current-time">
-        0:00
-      </span>
+        <header class="archive-player__header">
 
-      <span id="ruud-duration">
-        0:00
-      </span>
+            <div class="ruud-now-playing">
+
+                <span class="ruud-now-dot"></span>
+
+                <span
+                    class="ruud-now-text"
+                    id="ruud-player-status">
+                    NOW PLAYING
+                </span>
+
+            </div>
+
+            <div id="ruud-global-title">
+
+                Select a beat
+
+            </div>
+
+            <div class="ruud-session-info">
+
+                <div id="ruud-up-next">
+
+                    Up Next:
+                    <span>—</span>
+
+                </div>
+
+                <div id="ruud-queue-position">
+
+                    0 / 0
+
+                </div>
+
+            </div>
+
+            <div id="ruud-global-subtitle">
+
+                RUUD BOY ARCHIVES
+
+            </div>
+
+            <div
+                class="ruud-equalizer"
+                aria-hidden="true">
+
+                <span class="ruud-bar"></span>
+                <span class="ruud-bar"></span>
+                <span class="ruud-bar"></span>
+                <span class="ruud-bar"></span>
+                <span class="ruud-bar"></span>
+
+            </div>
+
+        </header>
+
+        <!-- =========================
+             TRANSPORT
+        ========================== -->
+
+        <section class="archive-player__transport">
+
+            <div id="ruud-progress-track">
+
+                <input
+                    id="ruud-global-progress"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="0">
+
+                <div id="ruud-progress-fill">
+
+                    <div id="ruud-progress-thumb"></div>
+
+                </div>
+
+            </div>
+
+            <div class="ruud-player-times">
+
+                <span id="ruud-current-time">
+
+                    0:00
+
+                </span>
+
+                <span id="ruud-duration">
+
+                    0:00
+
+                </span>
+
+            </div>
+
+        </section>
+
+        <!-- =========================
+             COMMERCE
+        ========================== -->
+
+        <section class="archive-player__commerce">
+
+            <div class="ruud-player-controls">
+
+                <div class="ruud-player-actions">
+
+                    <a
+                        id="ruud-buy-button"
+                        class="ruud-buy-button"
+                        href="#">
+
+                        BUY LICENSE
+
+                    </a>
+
+                </div>
+
+                <div
+                    id="ruud-license-drawer"
+                    class="ruud-license-drawer">
+
+                    <div class="ruud-license-header">
+
+                        Choose Your License
+
+                    </div>
+
+                    <div
+                        id="archive-license-list"
+                        class="ruud-license-list">
+                    </div>
+
+                </div>
+
+                <button
+                    id="ruud-global-prev"
+                    type="button"
+                    aria-label="Previous">
+
+                    ⏮
+
+                </button>
+
+                <button
+                    id="ruud-global-play"
+                    type="button"
+                    aria-label="Play">
+
+                    ▶
+
+                </button>
+
+                <button
+                    id="ruud-global-next"
+                    type="button"
+                    aria-label="Next">
+
+                    ⏭
+
+                </button>
+
+            </div>
+
+        </section>
 
     </div>
-
-    <div class="ruud-player-controls">
-
-  <button
-    id="ruud-global-prev"
-    type="button"
-    aria-label="Previous">
-
-    ⏮
-
-  </button>
-
-  <button
-    id="ruud-global-play"
-    type="button"
-    aria-label="Play">
-
-    ▶
-
-  </button>
-
-  <button
-    id="ruud-global-next"
-    type="button"
-    aria-label="Next">
-
-    ⏭
-
-  </button>
-
-</div>
-
-  </div>
 
 </div>

@@ -1,0 +1,51 @@
+/* ==========================================================
+   ARCHIVEOS DESIGN SYSTEM
+   RUUD BOY ARCHIVES
+========================================================== */
+
+:root{
+
+    /* COLORS */
+
+    --archive-bg:#050505;
+    --archive-glass:rgba(12,12,12,.82);
+    --archive-panel:rgba(18,18,18,.92);
+
+    --archive-magenta:#ff00ff;
+    --archive-cyan:#00eaff;
+
+    --archive-white:#ffffff;
+    --archive-text:#f5f5f5;
+    --archive-text-muted:#8f8f8f;
+
+    --archive-border:rgba(255,255,255,.10);
+
+    /* GLASS */
+
+    --archive-blur:18px;
+
+    --archive-radius:26px;
+
+    /* SHADOW */
+
+    --archive-shadow:
+        0 18px 55px rgba(0,0,0,.55);
+
+    --archive-glow:
+        0 0 24px rgba(255,0,255,.08);
+
+    /* SPACING */
+
+    --archive-space-xs:8px;
+    --archive-space-sm:12px;
+    --archive-space-md:20px;
+    --archive-space-lg:28px;
+    --archive-space-xl:36px;
+
+    /* MOTION */
+
+    --archive-fast:180ms;
+    --archive-normal:280ms;
+    --archive-slow:450ms;
+
+}

@@ -296,7 +296,26 @@
   defer
 ></script>
 <script
+  src="{{ 'archive-core.js' | asset_url }}"
+  type="module"
+></script>
+<script
+  src="{{ 'archive-context.js' | asset_url }}"
+  type="module"
+></script>
+<script
+  src="{{ 'archive-commerce.js' | asset_url }}"
+  type="module"
+></script>
+
+
+<script
   src="{{ 'archive-player.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+<script
+  src="{{ 'archive-effects.js' | asset_url }}"
   type="module"
   fetchpriority="low"
 ></script>

@@ -1,76 +1,111 @@
-window.ArchiveSession = {
-    queue: [],
-    currentIndex: -1
-};
-function buildQueue() {
+/* ==========================================================
+   ArchiveOS Player
+========================================================== */
 
-    const cards = [
-        ...document.querySelectorAll("[data-archive-card]")
-    ];
+(function () {
 
-    window.ArchiveSession.queue = cards.map(card => ({
+    const audio = new Audio();
 
-        productId: card.dataset.productId,
+    ArchiveOS.audio.element = audio;
 
-        button: card.querySelector(".ruud-play-button")
+    ArchiveOS.player = {
 
-    }));
+        play() {
 
-}
-document.addEventListener("DOMContentLoaded", () => {
+            audio.play();
 
-    
-    console.log("ArchiveOS initialized");
-    buildQueue();
+            ArchiveOS.set("playing", true);
 
-console.log(window.ArchiveSession);
-    
+ArchiveOS.emit("archive:play", {
 
-    function updateCards() {
-
-    console.log("ArchiveOS State:", window.ArchiveOS);
-
-    if (!window.ArchiveOS) return;
-
-    document
-        .querySelectorAll("[data-archive-card]")
-        .forEach(card => card.dataset.state = "idle");
-
-    if (!window.ArchiveOS.isPlaying) {
-        console.log("Not playing");
-        return;
-    }
-
-    const selector =
-        `[data-product-id="${window.ArchiveOS.activeProductId}"][data-archive-card]`;
-
-    console.log("Selector:", selector);
-
-    const card = document.querySelector(selector);
-
-    console.log("Found card:", card);
-
-    if (card) {
-
-        card.dataset.state = "playing";
-
-        console.log("Playing state applied");
-
-    }
-
-
-}
-
-    window.addEventListener(
-    "archive:trackchange",
-    updateCards
-);
-
-window.addEventListener(
-    "archive:playstate",
-    updateCards
-);
-
-updateCards();
+    track: ArchiveOS.get("activeTrack")
 
 });
+
+        },
+
+        pause() {
+
+            audio.pause();
+
+            ArchiveOS.set("playing", false);
+
+ArchiveOS.emit("archive:pause");
+
+        },
+
+        load(track) {
+
+            if (!track) return;
+
+            audio.src = track.audio;
+
+            ArchiveOS.emit("archive:trackchange", {
+
+    track
+
+});
+
+        },
+
+        seek(seconds) {
+
+            audio.currentTime = seconds;
+
+        },
+
+        next() {
+
+            const queue =
+                ArchiveOS.get("queue");
+
+            let index =
+                ArchiveOS.get("currentIndex");
+
+            index++;
+
+            if (index >= queue.length)
+                index = 0;
+
+            this.load(queue[index]);
+
+            ArchiveOS.set(
+                "currentIndex",
+                index
+            );
+
+            this.play();
+
+        },
+
+        previous() {
+
+            const queue =
+                ArchiveOS.get("queue");
+
+            let index =
+                ArchiveOS.get("currentIndex");
+
+            index--;
+
+            if (index < 0)
+                index = queue.length - 1;
+
+            this.load(queue[index]);
+
+            ArchiveOS.set(
+                "currentIndex",
+                index
+            );
+
+            this.play();
+
+        }
+
+    };
+
+    console.log(
+        "Archive Player Loaded"
+    );
+
+})();

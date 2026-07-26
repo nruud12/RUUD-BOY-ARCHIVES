@@ -382,61 +382,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const queuePosition =
         document.getElementById("ruud-queue-position");
 
-    const buyButton =
-        document.getElementById("ruud-buy-button");
-
     const index =
         cards.indexOf(currentCard);
 
     const total =
         cards.length;
 
-    // Queue
+    // Queue position
 
     if (queuePosition) {
 
         queuePosition.textContent =
             `${index + 1} / ${total}`;
+            const buyButton =
+    document.getElementById("ruud-buy-button");
 
-    }
+if (buyButton) {
 
-    // Buy Button
+    const productCard =
+        currentCard.closest("[data-archive-card]");
 
     if (buyButton) {
 
-        buyButton.href =
-            currentTrack.productUrl || "#";
+    buyButton.href =
+        currentTrack.productUrl || "#";
 
-        buyButton.textContent =
-            "BUY LICENSE";
-
-    }
-
-    // Up Next
-
-    if (upNext) {
-
-        if (index < total - 1) {
-
-            upNext.textContent =
-                cards[index + 1].dataset.title;
-
-        } else {
-
-            upNext.textContent =
-                "End of Session";
-
-        }
-
-    }
-
+    buyButton.textContent =
+        `BUY ${currentTrack.title}`;
 }
 function renderLicenseDrawer() {
 
     const container =
-        document.getElementById(
-            "archive-license-list"
-        );
+        document.getElementById("archive-license-list");
 
     if (!container) return;
 
@@ -487,6 +464,31 @@ function renderLicenseDrawer() {
         container.appendChild(button);
 
     });
+
+}
+
+
+}
+
+    }
+
+    // Up Next
+
+    if (upNext) {
+
+        if (index < total - 1) {
+
+            upNext.textContent =
+                cards[index + 1].dataset.title;
+
+        } else {
+
+            upNext.textContent =
+                "End of Session";
+
+        }
+
+    }
 
 }
 function dispatchArchiveState(playing) {
