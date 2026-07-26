@@ -7,6 +7,7 @@
   data-title="{{ product.title | escape }}"
   data-audio="{{ product.metafields.custom.audio_preview.value.url }}"
   data-image="{% if product.featured_image %}{{ product.featured_image | image_url: width: 240 }}{% endif %}"
+  data-product-url="{{ product.url }}"
   data-bpm="{{ product.metafields.custom.bpm }}"
   data-key="{{ product.metafields.custom.key }}"
   data-mood="{{ product.metafields.custom.mood }}"

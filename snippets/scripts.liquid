@@ -282,8 +282,12 @@
   src="{{ 'auto-close-details.js' | asset_url }}"
   defer="defer"
 ></script>
+{% comment %}
 <script
   src="{{ 'ruud-player.js' | asset_url }}"
+  type="module"
+></script>
+{% endcomment %}
   type="module"
   fetchpriority="low"
 ></script>
@@ -313,6 +317,10 @@
   src="{{ 'archive-player.js' | asset_url }}"
   type="module"
   fetchpriority="low"
+></script>
+<script
+  src="{{ 'archive-ui.js' | asset_url }}"
+  type="module"
 ></script>
 {% comment %}
 <script

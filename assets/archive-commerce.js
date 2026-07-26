@@ -6,39 +6,45 @@ console.log("archive-commerce.js loaded");
 
     getVariants: function () {
 
-        if (
-            !window.meta ||
-            !window.meta.product ||
-            !window.meta.product.variants
-        ) {
-            return [];
-        }
+    const track =
+        ArchiveOS.get("activeTrack");
 
-        return window.meta.product.variants.map(function (variant) {
+    if (
+        !track ||
+        !track.variants
+    ) {
+        return [];
+    }
 
-            return {
+    return track.variants.map(function (variant) {
 
-                id: variant.id,
+        return {
 
-                title:
-                    variant.public_title ||
-                    variant.name,
+            id: variant.id,
 
-                price: variant.price,
+            title:
+                variant.public_title ||
+                variant.name ||
+                "License",
 
-                priceText: new Intl.NumberFormat(
+            price: variant.price,
+
+            priceText:
+                new Intl.NumberFormat(
                     "en-US",
                     {
                         style: "currency",
                         currency: "USD"
                     }
-                ).format(variant.price / 100)
+                ).format(
+                    variant.price / 100
+                )
 
-            };
+        };
 
-        });
+    });
 
-    },
+},
 
     renderLicenses: function () {
 
@@ -86,6 +92,13 @@ console.log("archive-commerce.js loaded");
         "ArchiveCommerce",
         window.ArchiveOS.commerce.getVariants()
     );
-    // window.ArchiveOS.commerce.renderLicenses();
+    ArchiveOS.on(
+    "archive:trackchange",
+    function () {
+
+        ArchiveOS.commerce.renderLicenses();
+
+    }
+);
 
 })();

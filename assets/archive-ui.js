@@ -28,6 +28,11 @@
 
     const playButton =
         document.getElementById("ruud-global-play");
+        const buyButton =
+    document.getElementById("ruud-buy-button");
+
+const licenseDrawer =
+    document.getElementById("ruud-license-drawer");
 
     const cards =
         document.querySelectorAll(".ruud-player");
@@ -36,59 +41,69 @@
 
         return {
 
-            id: card.dataset.productId,
+    id: card.dataset.productId,
 
-            title: card.dataset.title,
+    title: card.dataset.title,
 
-            audio: card.dataset.audio,
+    audio: card.dataset.audio,
 
-            image: card.dataset.image,
+    image: card.dataset.image,
 
-            bpm: card.dataset.bpm,
+    productUrl: card.dataset.productUrl,
 
-            key: card.dataset.key,
+    bpm: card.dataset.bpm,
 
-            mood: card.dataset.mood,
+    key: card.dataset.key,
 
-            type: card.dataset.type,
+    mood: card.dataset.mood,
 
-            variants: JSON.parse(
-                card.dataset.variants || "[]"
-            )
+    type: card.dataset.type,
 
-        };
+    variants: JSON.parse(
+        card.dataset.variants || "[]"
+    )
+
+};
 
     }
 
-    cards.forEach(function (card, index) {
+    document.addEventListener("click", function (event) {
 
-        card.addEventListener("click", function (event) {
+    console.log("CLICK");
 
-            if (
-                !event.target.closest(".ruud-play-button")
-            ) return;
+    const button = event.target.closest(".ruud-play-button");
 
-            event.preventDefault();
+    if (!button) return;
 
-            const track =
-                buildTrack(card);
+    console.log("BUTTON");
 
-            ArchiveOS.set(
-                "queue",
-                Array.from(cards).map(buildTrack)
-            );
+    event.preventDefault();
 
-            ArchiveOS.set(
-                "currentIndex",
-                index
-            );
+    const card = button.closest(".ruud-player");
 
-            ArchiveOS.player.load(track);
-            ArchiveOS.player.play();
+    if (!card) return;
 
-        });
+    console.log("CARD", card);
 
-    });
+    const cards = Array.from(
+        document.querySelectorAll(".ruud-player")
+    );
+
+    console.log("TRACKS", cards.length);
+
+    const index = cards.indexOf(card);
+
+    const track = buildTrack(card);
+
+    console.log("TRACK", track);
+
+    ArchiveOS.set("queue", cards.map(buildTrack));
+    ArchiveOS.set("currentIndex", index);
+
+    ArchiveOS.player.load(track);
+    ArchiveOS.player.play();
+
+});
 
     ArchiveOS.on(
         "archive:trackchange",
@@ -105,6 +120,22 @@
             if (title)
                 title.textContent =
                     track.title || "";
+                    const buyButton =
+    document.getElementById("ruud-buy-button");
+
+if (buyButton) {
+
+    buyButton.addEventListener("click", function (event) {
+
+        event.preventDefault();
+
+        player.classList.toggle(
+            "archive-mode-commerce"
+        );
+
+    });
+
+}
 
             if (
                 artwork &&
@@ -188,5 +219,16 @@
     console.log(
         "Archive UI v2.0 Loaded"
     );
+    if (buyButton && licenseDrawer) {
+
+    buyButton.addEventListener("click", function (event) {
+
+        event.preventDefault();
+
+        licenseDrawer.classList.toggle("is-open");
+
+    });
+
+}
 
 })();
