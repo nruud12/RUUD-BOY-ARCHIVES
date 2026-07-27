@@ -1,144 +1,250 @@
-console.log("archive-commerce.js loaded");
+/* ==========================================================
+   ArchiveOS Commerce v3.0
+   Responsibility
+   ----------------
+   ✓ Variant parsing
+   ✓ Edition rendering
+   ✓ Edition selection
+   ✓ Buy button updates
+========================================================== */
 
 (function () {
 
-    window.ArchiveOS.commerce = {
-
-    getVariants: function () {
-
-    const track =
-        ArchiveOS.get("activeTrack");
-
-    if (
-        !track ||
-        !track.variants
-    ) {
-        return [];
+    if (!window.ArchiveOS) {
+        console.error("ArchiveOS Core missing.");
+        return;
     }
 
-    return track.variants.map(function (variant) {
+    const EDITIONS = {
 
-        return {
+        Lease: {
 
-            id: variant.id,
+            description:
+                "Perfect for independent releases.",
 
-            title:
-                variant.public_title ||
-                variant.name ||
-                "License",
+            features: [
 
-            price: variant.price,
+                "MP3 + WAV",
+                "Commercial Release",
+                "Instant Download",
+                "Non-Exclusive License"
 
-            priceText:
-                new Intl.NumberFormat(
-                    "en-US",
-                    {
-                        style: "currency",
-                        currency: "USD"
-                    }
-                ).format(
-                    variant.price / 100
-                )
+            ]
 
-        };
+        },
 
-    });
+        Exclusive: {
 
-},
+            description:
+                "Own the record exclusively.",
 
+            features: [
 
-};
+                "Unlimited Commercial Use",
+                "Track Stems Included",
+                "Exclusive Ownership",
+                "Removed From Store"
 
-    console.log(
-        "ArchiveCommerce",
-        window.ArchiveOS.commerce.getVariants()
-    );
-    
-    renderLicenses: function () {
+            ]
 
-    const container =
-        document.getElementById("archive-license-list");
+        }
 
-    if (!container) return;
+    };
 
-    container.innerHTML = "";
+    ArchiveOS.commerce = {
 
-    const licenses = this.getVariants();
+        getVariants() {
 
-    licenses.forEach((license) => {
+            const track =
+                ArchiveOS.get("activeTrack");
 
-        const card = document.createElement("button");
+            if (
+                !track ||
+                !Array.isArray(track.variants)
+            ) {
+                return [];
+            }
 
-        card.type = "button";
+            return track.variants.map((variant) => ({
 
-        card.className = "archive-edition-card";
+                id: variant.id,
 
-        card.dataset.variantId = license.id;
+                title:
+                    variant.public_title ||
+                    variant.name ||
+                    "License",
 
-        const features =
-    license.title === "Exclusive"
-        ? [
-            "Unlimited Commercial Use",
-            "Track Stems Included",
-            "Exclusive Ownership",
-            "Removed From Store"
-        ]
-        : [
-            "MP3 + WAV",
-            "Commercial Release",
-            "Instant Download",
-            "Non-Exclusive License"
-        ];
-        card.innerHTML = `
-            <div class="archive-edition-header">
-                ${license.title.toUpperCase()} EDITION
-            </div>
+                price: variant.price,
 
-            <div class="archive-edition-description">
-                ${
-                    license.title === "Exclusive"
-                        ? "Own the record exclusively."
-                        : "Perfect for independent releases."
-                }
-            </div>
-            <ul class="archive-edition-features">
-    ${features.map(feature => `
-        <li>✓ ${feature}</li>
-    `).join("")}
-</ul>
+                priceText:
+                    new Intl.NumberFormat(
+                        "en-US",
+                        {
+                            style: "currency",
+                            currency: "USD"
+                        }
+                    ).format(
+                        variant.price / 100
+                    )
 
+            }));
 
-            <div class="archive-edition-price">
-                ${license.priceText}
-            </div>
+        },
 
-            <div class="archive-edition-button">
-                SELECT EDITION →
-            </div>
-        `;
+        getEditionContent(title) {
 
-        card.addEventListener("click", () => {
+            return EDITIONS[title] || {
 
-            document
-                .querySelectorAll(".archive-edition-card")
-                .forEach(c =>
-                    c.classList.remove("selected")
+                description:
+                    "Professional license.",
+
+                features: [
+
+                    "Instant Download"
+
+                ]
+
+            };
+
+        },
+                renderLicenses() {
+
+            const container =
+                document.getElementById(
+                    "archive-license-list"
                 );
 
-            card.classList.add("selected");
+            if (!container) return;
+
+            container.innerHTML = "";
+
+            this.getVariants().forEach((license) => {
+
+                const content =
+                    this.getEditionContent(
+                        license.title
+                    );
+
+                const card =
+                    document.createElement("button");
+
+                card.type = "button";
+
+                card.className =
+                    "archive-edition-card";
+
+                card.dataset.variantId =
+                    license.id;
+
+                card.innerHTML = `
+                    <div class="archive-edition-header">
+                        ${license.title.toUpperCase()} EDITION
+                    </div>
+
+                    <div class="archive-edition-description">
+                        ${content.description}
+                    </div>
+
+                    <ul class="archive-edition-features">
+                        ${content.features.map(feature => `
+                            <li>✓ ${feature}</li>
+                        `).join("")}
+                    </ul>
+
+                    <div class="archive-edition-price">
+                        ${license.priceText}
+                    </div>
+
+                    <div class="archive-edition-button">
+                        SELECT EDITION
+                    </div>
+                `;
+
+                card.addEventListener(
+                    "click",
+                    () => {
+
+                        this.selectVariant(
+                            license
+                        );
+
+                    }
+                );
+
+                container.appendChild(
+                    card
+                );
+
+            });
+
+        },
+                selectVariant(license) {
+
+            document
+                .querySelectorAll(
+                    ".archive-edition-card"
+                )
+                .forEach((card) => {
+
+                    card.classList.remove(
+                        "selected"
+                    );
+
+                });
+
+            const selectedCard =
+                document.querySelector(
+                    `[data-variant-id="${license.id}"]`
+                );
+
+            if (selectedCard) {
+
+                selectedCard.classList.add(
+                    "selected"
+                );
+
+            }
 
             ArchiveOS.set(
                 "selectedVariant",
                 license
             );
 
-        });
+            this.updateBuyButton(
+                license
+            );
 
-        container.appendChild(card);
+        },
 
-    });
+        updateBuyButton(license) {
 
-}
-);
+            const button =
+                document.getElementById(
+                    "ruud-buy-button"
+                );
+
+            if (!button) return;
+
+            button.textContent =
+                `BUY ${license.title.toUpperCase()} • ${license.priceText}`;
+
+        },
+
+        init() {
+
+            ArchiveOS.on(
+                "archive:trackchange",
+                () => {
+
+                    this.renderLicenses();
+
+                }
+            );
+
+        }
+
+    };
+
+    ArchiveOS.commerce.init();
 
 })();

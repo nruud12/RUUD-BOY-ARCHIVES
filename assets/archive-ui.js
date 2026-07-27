@@ -1,10 +1,14 @@
 /* ==========================================================
-   ArchiveOS UI v2.0
-   Responsibility:
-   - Preview buttons
-   - Global player UI
-   - Progress updates
-   - Play / Pause controls
+   ArchiveOS UI v2.1
+   Responsibility
+   ----------------
+   ✓ Preview buttons
+   ✓ Global player updates
+   ✓ Progress updates
+   ✓ Drawer toggle
+
+   Commerce rendering is delegated to
+   ArchiveOS.commerce
 ========================================================== */
 
 (function () {
@@ -28,82 +32,90 @@
 
     const playButton =
         document.getElementById("ruud-global-play");
-        const buyButton =
-    document.getElementById("ruud-buy-button");
 
-const licenseDrawer =
-    document.getElementById("ruud-license-drawer");
+    const buyButton =
+        document.getElementById("ruud-buy-button");
 
-    const cards =
-        document.querySelectorAll(".ruud-player");
+    const licenseDrawer =
+        document.getElementById("ruud-license-drawer");
 
     function buildTrack(card) {
 
         return {
 
-    id: card.dataset.productId,
+            id: card.dataset.productId,
 
-    title: card.dataset.title,
+            title: card.dataset.title,
 
-    audio: card.dataset.audio,
+            audio: card.dataset.audio,
 
-    image: card.dataset.image,
+            image: card.dataset.image,
 
-    productUrl: card.dataset.productUrl,
+            productUrl: card.dataset.productUrl,
 
-    bpm: card.dataset.bpm,
+            bpm: card.dataset.bpm,
 
-    key: card.dataset.key,
+            key: card.dataset.key,
 
-    mood: card.dataset.mood,
+            mood: card.dataset.mood,
 
-    type: card.dataset.type,
+            type: card.dataset.type,
 
-    variants: JSON.parse(
-        card.dataset.variants || "[]"
-    )
+            variants: JSON.parse(
+                card.dataset.variants || "[]"
+            )
 
-};
+        };
 
     }
 
-    document.addEventListener("click", function (event) {
+    document.addEventListener(
+        "click",
+        function (event) {
 
-    console.log("CLICK");
+            const button =
+                event.target.closest(
+                    ".ruud-play-button"
+                );
 
-    const button = event.target.closest(".ruud-play-button");
+            if (!button) return;
 
-    if (!button) return;
+            event.preventDefault();
 
-    console.log("BUTTON");
+            const card =
+                button.closest(".ruud-player");
 
-    event.preventDefault();
+            if (!card) return;
 
-    const card = button.closest(".ruud-player");
+            const cards =
+                Array.from(
+                    document.querySelectorAll(
+                        ".ruud-player"
+                    )
+                );
 
-    if (!card) return;
+            const index =
+                cards.indexOf(card);
 
-    console.log("CARD", card);
+            const track =
+                buildTrack(card);
 
-    const cards = Array.from(
-        document.querySelectorAll(".ruud-player")
+            ArchiveOS.set(
+                "queue",
+                cards.map(buildTrack)
+            );
+
+            ArchiveOS.set(
+                "currentIndex",
+                index
+            );
+
+            ArchiveOS.player.load(track);
+
+            ArchiveOS.player.play();
+
+        }
     );
-
-    console.log("TRACKS", cards.length);
-
-    const index = cards.indexOf(card);
-
-    const track = buildTrack(card);
-
-    console.log("TRACK", track);
-
-    ArchiveOS.set("queue", cards.map(buildTrack));
-    ArchiveOS.set("currentIndex", index);
-
-    ArchiveOS.player.load(track);
-    ArchiveOS.player.play();
-
-});
 
     ArchiveOS.on(
         "archive:trackchange",
@@ -120,8 +132,7 @@ const licenseDrawer =
             if (title)
                 title.textContent =
                     track.title || "";
-                    const buyButton =
-    document.getElementById("ruud-buy-button");
+                    
 
 if (buyButton) {
 
@@ -149,6 +160,10 @@ if (buyButton) {
                     track.title;
 
             }
+            if (ArchiveOS.commerce) {
+    ArchiveOS.commerce.renderLicenses();
+}
+
 
         }
     );
