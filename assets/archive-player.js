@@ -80,12 +80,17 @@
             );
 
         },
-
         seek(seconds) {
 
-            audio.currentTime = seconds;
+    if (!Number.isFinite(seconds)) return;
 
-        },
+    audio.currentTime = Math.max(
+        0,
+        Math.min(seconds, audio.duration || 0)
+    );
+
+},
+
 
         next() {
 
@@ -142,7 +147,14 @@
 
             this.play();
 
-        }
+        },
+        
+
+getDuration() {
+
+    return audio.duration || 0;
+
+},
 
     };
 

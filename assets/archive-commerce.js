@@ -229,6 +229,62 @@
                 `BUY ${license.title.toUpperCase()} • ${license.priceText}`;
 
         },
+                open() {
+
+            const drawer =
+                document.getElementById(
+                    "ruud-license-drawer"
+                );
+
+            if (!drawer) return;
+
+            drawer.classList.add(
+                "is-open"
+            );
+
+            this.renderLicenses();
+
+        },
+
+        close() {
+
+            const drawer =
+                document.getElementById(
+                    "ruud-license-drawer"
+                );
+
+            if (!drawer) return;
+
+            drawer.classList.remove(
+                "is-open"
+            );
+
+        },
+
+        toggle() {
+
+            const drawer =
+                document.getElementById(
+                    "ruud-license-drawer"
+                );
+
+            if (!drawer) return;
+
+            if (
+                drawer.classList.contains(
+                    "is-open"
+                )
+            ) {
+
+                this.close();
+
+            } else {
+
+                this.open();
+
+            }
+
+        },
 
         init() {
 

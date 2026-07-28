@@ -1,14 +1,16 @@
 /* ==========================================================
-   ArchiveOS UI v2.1
-   Responsibility
-   ----------------
-   ✓ Preview buttons
-   ✓ Global player updates
-   ✓ Progress updates
-   ✓ Drawer toggle
+   ArchiveOS UI
+   Version: 3.1.0
 
-   Commerce rendering is delegated to
-   ArchiveOS.commerce
+   Owns:
+   ✓ Preview buttons
+   ✓ Global player UI
+   ✓ Drawer state
+   ✓ Progress updates
+
+   Does NOT own:
+   ✗ Commerce
+   ✗ Audio engine
 ========================================================== */
 
 (function () {
@@ -18,201 +20,324 @@
         return;
     }
 
-    const player =
-        document.getElementById("ruud-global-player");
+    ArchiveOS.ui = {
+        currentTime:
+    document.getElementById(
+        "ruud-current-time"
+    ),
 
-    const title =
-        document.getElementById("ruud-global-title");
+duration:
+    document.getElementById(
+        "ruud-duration"
+    ),
+        prevButton:
+    document.getElementById(
+        "ruud-global-prev"
+    ),
 
-    const artwork =
-        document.getElementById("ruud-global-image");
+nextButton:
+    document.getElementById(
+        "ruud-global-next"
+    ),
 
-    const progress =
-        document.getElementById("ruud-global-progress");
+        player:
+            document.getElementById(
+                "ruud-global-player"
+            ),
 
-    const playButton =
-        document.getElementById("ruud-global-play");
+        title:
+            document.getElementById(
+                "ruud-global-title"
+            ),
 
-    const buyButton =
-        document.getElementById("ruud-buy-button");
+        artwork:
+            document.getElementById(
+                "ruud-global-image"
+            ),
 
-    const licenseDrawer =
-        document.getElementById("ruud-license-drawer");
+        progressTrack:
+    document.getElementById(
+        "ruud-progress-track"
+    ),
 
-    function buildTrack(card) {
+progressFill:
+    document.getElementById(
+        "ruud-progress-fill"
+    ),
 
-        return {
+progressThumb:
+    document.getElementById(
+        "ruud-progress-thumb"
+    ),
 
-            id: card.dataset.productId,
+        playButton:
+            document.getElementById(
+                "ruud-global-play"
+            ),
 
-            title: card.dataset.title,
+        buyButton:
+            document.getElementById(
+                "ruud-buy-button"
+            ),
 
-            audio: card.dataset.audio,
+        licenseDrawer:
+            document.getElementById(
+                "ruud-license-drawer"
+            ),
 
-            image: card.dataset.image,
+        buildTrack(card) {
 
-            productUrl: card.dataset.productUrl,
+            return {
 
-            bpm: card.dataset.bpm,
+                id:
+                    card.dataset.productId,
 
-            key: card.dataset.key,
+                title:
+                    card.dataset.title,
 
-            mood: card.dataset.mood,
+                audio:
+                    card.dataset.audio,
 
-            type: card.dataset.type,
+                image:
+                    card.dataset.image,
 
-            variants: JSON.parse(
-                card.dataset.variants || "[]"
-            )
+                productUrl:
+                    card.dataset.productUrl,
 
-        };
+                bpm:
+                    card.dataset.bpm,
 
-    }
+                key:
+                    card.dataset.key,
 
-    document.addEventListener(
-        "click",
-        function (event) {
+                mood:
+                    card.dataset.mood,
 
-            const button =
-                event.target.closest(
-                    ".ruud-play-button"
-                );
+                type:
+                    card.dataset.type,
 
-            if (!button) return;
-
-            event.preventDefault();
-
-            const card =
-                button.closest(".ruud-player");
-
-            if (!card) return;
-
-            const cards =
-                Array.from(
-                    document.querySelectorAll(
-                        ".ruud-player"
+                variants:
+                    JSON.parse(
+                        card.dataset.variants ||
+                        "[]"
                     )
-                );
 
-            const index =
-                cards.indexOf(card);
+            };
 
-            const track =
-                buildTrack(card);
+        },
 
-            ArchiveOS.set(
-                "queue",
-                cards.map(buildTrack)
+        bindPreview() {
+
+            document.addEventListener(
+                "click",
+                (event) => {
+
+                    const button =
+                        event.target.closest(
+                            ".ruud-play-button"
+                        );
+
+                    if (!button) return;
+
+                    event.preventDefault();
+
+                    const card =
+                        button.closest(
+                            ".ruud-player"
+                        );
+
+                    if (!card) return;
+
+                    const cards =
+                        Array.from(
+                            document.querySelectorAll(
+                                ".ruud-player"
+                            )
+                        );
+
+                    const index =
+                        cards.indexOf(card);
+
+                    const track =
+                        this.buildTrack(card);
+
+                    ArchiveOS.set(
+                        "queue",
+                        cards.map(card =>
+                            this.buildTrack(card)
+                        )
+                    );
+
+                    ArchiveOS.set(
+                        "currentIndex",
+                        index
+                    );
+
+                    ArchiveOS.player.load(
+                        track
+                    );
+
+                    ArchiveOS.player.play();
+
+                }
             );
 
-            ArchiveOS.set(
-                "currentIndex",
-                index
-            );
+        },
+                updateTrack(track) {
 
-            ArchiveOS.player.load(track);
+            if (this.player) {
 
-            ArchiveOS.player.play();
-
-        }
-    );
-
-    ArchiveOS.on(
-        "archive:trackchange",
-        function (event) {
-
-            const track =
-                event.detail.track;
-
-            if (player)
-                player.classList.remove(
+                this.player.classList.remove(
                     "ruud-global-player--hidden"
                 );
 
-            if (title)
-                title.textContent =
+            }
+
+            if (this.title) {
+
+                this.title.textContent =
                     track.title || "";
-                    
 
-if (buyButton) {
-
-    buyButton.addEventListener("click", function (event) {
-
-        event.preventDefault();
-
-        player.classList.toggle(
-            "archive-mode-commerce"
-        );
-
-    });
-
-}
+            }
 
             if (
-                artwork &&
+                this.artwork &&
                 track.image
             ) {
 
-                artwork.src =
+                this.artwork.src =
                     track.image;
 
-                artwork.alt =
+                this.artwork.alt =
                     track.title;
 
             }
+
             if (ArchiveOS.commerce) {
-    ArchiveOS.commerce.renderLicenses();
-}
 
+                ArchiveOS.commerce.renderLicenses();
 
-        }
+            }
+
+        },
+
+        updateProgress(current, duration) {
+
+    ArchiveOS.timeline.render(
+        current,
+        duration
     );
 
-    ArchiveOS.on(
-        "archive:timeupdate",
-        function (event) {
+},
+formatTime(seconds) {
 
-            if (!progress) return;
+    const minutes =
+        Math.floor(seconds / 60);
 
-            const current =
-                event.detail.currentTime;
+    const remaining =
+        Math.floor(seconds % 60)
+            .toString()
+            .padStart(2, "0");
 
-            const duration =
-                event.detail.duration;
+    return `${minutes}:${remaining}`;
 
-            if (!duration) return;
+},
 
-            progress.value =
-                (current / duration) * 100;
+updateTime(current, duration) {
 
-        }
-    );
+    const currentTime =
+        document.getElementById(
+            "ruud-current-time"
+        );
 
-    ArchiveOS.on(
-        "archive:play",
-        function () {
+    const totalTime =
+        document.getElementById(
+            "ruud-duration"
+        );
 
-            if (playButton)
-                playButton.textContent = "❚❚";
+    if (currentTime) {
 
-        }
-    );
+        currentTime.textContent =
+            this.formatTime(current);
 
-    ArchiveOS.on(
-        "archive:pause",
-        function () {
+    }
 
-            if (playButton)
-                playButton.textContent = "▶";
+    if (totalTime) {
 
-        }
-    );
+        totalTime.textContent =
+            this.formatTime(duration);
 
-    if (playButton) {
+    }
 
-        playButton.addEventListener(
+},
+
+        bindPlayerEvents() {
+
+            ArchiveOS.on(
+                "archive:trackchange",
+                (event) => {
+
+                    this.updateTrack(
+                        event.detail.track
+                    );
+
+                }
+            );
+
+            ArchiveOS.on(
+                "archive:timeupdate",
+                (event) => {
+
+                    this.updateProgress(
+                        event.detail.currentTime,
+                        event.detail.duration
+                    );
+
+                }
+            );
+
+            ArchiveOS.on(
+                "archive:play",
+                () => {
+
+                    if (
+                        this.playButton
+                    ) {
+
+                        this.playButton.textContent =
+                            "❚❚";
+
+                    }
+                    
+
+                }
+            );
+
+            ArchiveOS.on(
+                "archive:pause",
+                () => {
+
+                    if (
+                        this.playButton
+                    ) {
+
+                        this.playButton.textContent =
+                            "▶";
+
+                    }
+
+                }
+            );
+
+
+        },
+        bindTransport() {
+
+    if (this.playButton) {
+
+        this.playButton.addEventListener(
             "click",
-            function () {
+            () => {
 
                 if (
                     ArchiveOS.get("playing")
@@ -231,19 +356,129 @@ if (buyButton) {
 
     }
 
-    console.log(
-        "Archive UI v2.0 Loaded"
+    if (this.prevButton) {
+
+        this.prevButton.addEventListener(
+            "click",
+            () => {
+
+                ArchiveOS.player.previous();
+
+            }
+        );
+
+    }
+
+    if (this.nextButton) {
+
+        this.nextButton.addEventListener(
+            "click",
+            () => {
+
+                ArchiveOS.player.next();
+
+            }
+        );
+
+    }
+
+    if (this.progress) {
+
+    this.progress.addEventListener(
+    "input",
+    () => {
+
+        console.log("SCRUB!", this.progress.value);
+
+        const duration =
+            ArchiveOS.player.getDuration();
+
+        const seconds =
+            (this.progress.value / 100) * duration;
+
+        console.log("Seeking to", seconds);
+
+        ArchiveOS.player.seek(seconds);
+
+    }
+);
+
+}
+if (this.progressTrack) {
+
+    this.progressTrack.addEventListener(
+        "click",
+        (event) => {
+
+            const rect =
+                this.progressTrack.getBoundingClientRect();
+
+            const percent = Math.max(
+    0,
+    Math.min(
+        1,
+        (event.clientX - rect.left) / rect.width
+    )
+);
+
+            const duration =
+                ArchiveOS.player.getDuration();
+
+            ArchiveOS.player.seek(
+                percent * duration
+            );
+
+        }
     );
-    if (buyButton && licenseDrawer) {
-
-    buyButton.addEventListener("click", function (event) {
-
-        event.preventDefault();
-
-        licenseDrawer.classList.toggle("is-open");
-
-    });
 
 }
 
-})();
+},
+
+
+                bindDrawer() {
+
+            if (
+                !this.buyButton ||
+                !this.licenseDrawer
+            ) {
+                return;
+            }
+
+            this.buyButton.addEventListener(
+                "click",
+                (event) => {
+
+                    event.preventDefault();
+
+                    ArchiveOS.set(
+    "playerMode",
+    ArchiveOS.get("playerMode") === "purchase"
+        ? "listen"
+        : "purchase"
+);
+
+
+ArchiveOS.commerce.toggle();
+
+                }
+            );
+
+        },
+
+        init() {
+
+    this.bindPreview();
+
+    this.bindTransport();
+
+    this.bindDrawer();
+
+    this.bindPlayerEvents();
+
+}
+
+    };
+
+    ArchiveOS.ui.init();
+    })();
