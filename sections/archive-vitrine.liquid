@@ -1,0 +1,163 @@
+{%- comment -%}
+  ==========================================================
+  ARCHIVEOS — THE VITRINE
+  RUUD BOY ARCHIVES
+
+  The artifact display case. The centrepiece of the site and
+  the only section that is allowed to occupy a full viewport.
+
+  It is NOT a hero image and NOT a modal. It is a permanent
+  fixture that reflects whatever is currently playing, and it
+  is designed to sit at the top of the homepage and the
+  catalogue alike.
+
+  Behaviour lives in assets/archive-vitrine.js.
+  Appearance lives in assets/archive-vitrine.css.
+  ==========================================================
+{%- endcomment -%}
+
+{%- liquid
+  assign default_product = section.settings.default_artifact
+  assign wordmark = section.settings.wordmark | default: shop.name
+-%}
+
+<section
+  class="vitrine archive-shell{% if default_product.featured_image %} is-loaded{% endif %}"
+  data-vitrine
+  {% if default_product != blank %}
+    data-vitrine-default="{{ default_product.id }}"
+  {% endif %}
+>
+  {%- comment -%} Atmosphere. Decorative only. {%- endcomment -%}
+  <div class="vitrine__room" aria-hidden="true"></div>
+  <div class="vitrine__floor" aria-hidden="true"></div>
+
+  {%- if section.settings.show_wordmark -%}
+    <div class="vitrine__monument">
+      <h1 class="vitrine__wordmark">{{ wordmark }}</h1>
+
+      {%- if section.settings.standfirst != blank -%}
+        <p class="vitrine__standfirst">{{ section.settings.standfirst }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%}
+    The case. Everything inside is decorative except the artwork
+    itself — the artifact's identity is announced by the label
+    below, which is a live region so screen readers are told when
+    the displayed artifact changes.
+  {%- endcomment -%}
+  <div class="vitrine__stage">
+    <div class="vitrine__case">
+      <div class="vitrine__glass" aria-hidden="true"></div>
+
+      <div class="vitrine__artifact">
+        <div class="vitrine__core" aria-hidden="true"></div>
+        <div class="vitrine__fractures" aria-hidden="true"></div>
+
+        {%- comment -%}
+          With no default artifact the src is a 1×1 transparent GIF rather than
+          a theme asset — the element is opacity:0 until .is-loaded, and this
+          avoids a 404 for a placeholder nobody ever sees.
+        {%- endcomment -%}
+        <img
+          class="vitrine__art"
+          data-vitrine-art
+          src="{% if default_product.featured_image %}{{ default_product.featured_image | image_url: width: 1400 }}{% else %}data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7{% endif %}"
+          alt="{{ default_product.title | escape }}"
+          width="1400"
+          height="1400"
+          fetchpriority="high"
+          decoding="async"
+        >
+
+        {%- comment -%} Shown until an artifact is selected. {%- endcomment -%}
+        <div class="vitrine__placeholder" aria-hidden="true">
+          <div class="vitrine__placeholder-mark"></div>
+        </div>
+      </div>
+
+      <div class="vitrine__plinth" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  {%- comment -%} The wall label. {%- endcomment -%}
+  <div class="vitrine__label" aria-live="polite" aria-atomic="true">
+    <div class="vitrine__catalog" data-vitrine-catalog>
+      {%- if default_product.metafields.custom.archive.value != blank -%}
+        Archive {{ default_product.metafields.custom.archive.value }}
+      {%- else -%}
+        Archive —
+      {%- endif -%}
+    </div>
+
+    <h2 class="vitrine__title" data-vitrine-title>
+      {{- default_product.title | default: section.settings.empty_title -}}
+    </h2>
+
+    <div class="vitrine__meta">
+      <span data-vitrine-bpm>
+        {%- if default_product.metafields.custom.bpm.value != blank -%}
+          {{ default_product.metafields.custom.bpm.value }} BPM
+        {%- endif -%}
+      </span>
+      <span data-vitrine-key>{{ default_product.metafields.custom.key.value }}</span>
+      <span data-vitrine-mood>{{ default_product.metafields.custom.mood.value }}</span>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Artifact vitrine",
+  "tag": "section",
+  "class": "section-vitrine",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Monument"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wordmark",
+      "label": "Show wordmark above the case",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "wordmark",
+      "label": "Wordmark",
+      "info": "Defaults to the store name.",
+      "default": "Ruud Boy Archives"
+    },
+    {
+      "type": "text",
+      "id": "standfirst",
+      "label": "Supporting line",
+      "default": "Original artifacts, carefully catalogued for modern artists"
+    },
+    {
+      "type": "header",
+      "content": "Display case"
+    },
+    {
+      "type": "product",
+      "id": "default_artifact",
+      "label": "Artifact on display",
+      "info": "Shown before a visitor plays anything. The case updates itself as beats are previewed."
+    },
+    {
+      "type": "text",
+      "id": "empty_title",
+      "label": "Empty state title",
+      "default": "Select an artifact"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Artifact vitrine"
+    }
+  ]
+}
+{% endschema %}

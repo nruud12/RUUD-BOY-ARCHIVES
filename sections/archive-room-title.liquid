@@ -1,0 +1,72 @@
+{%- comment -%}
+  ==========================================================
+  ARCHIVEOS — ROOM TITLE
+  RUUD BOY ARCHIVES
+
+  A wall caption that introduces the next room. Deliberately
+  tiny: an eyebrow rule, a title, and an optional quiet link.
+
+  It exists because hierarchy in this design comes from space
+  and type, not from section backgrounds or borders — so the
+  thing that separates two areas of the page is a caption and
+  a large gap, nothing more.
+  ==========================================================
+{%- endcomment -%}
+
+<div class="archive-shell archive-room archive-room--tight">
+  <div class="archive-section-head">
+    <div>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="archive-eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.title != blank -%}
+        <h2 class="archive-section-head__title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.link_label != blank and section.settings.link != blank -%}
+      <a class="archive-link" href="{{ section.settings.link }}">
+        {{ section.settings.link_label }}
+      </a>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Room title",
+  "tag": "section",
+  "class": "section-room-title",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "The Collection"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Recently catalogued"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link label",
+      "default": "Browse the archive"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Room title"
+    }
+  ]
+}
+{% endschema %}

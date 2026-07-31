@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ArchiveOS — design preview</title>
+
+    <!--
+      ==========================================================
+      ARCHIVEOS — STANDALONE DESIGN PREVIEW
+
+      Open this file directly in a browser. No Shopify, no build,
+      no server required.
+
+      It loads the REAL stylesheets from /assets, so what you see
+      here is what the theme renders. It exists to review the
+      design language and the vitrine's playback behaviour without
+      waiting on `shopify theme dev`.
+
+      The only thing faked is the audio: a slider stands in for
+      the Web Audio analyser and writes the same three custom
+      properties the real controller writes (--v-energy, --v-bass,
+      --v-air). Everything downstream of those is production CSS.
+
+      Safe to delete — nothing references it.
+      ==========================================================
+    -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Raleway:wght@200;300;400;500;700&display=swap">
+
+    <link rel="stylesheet" href="assets/archive-tokens.css">
+    <link rel="stylesheet" href="assets/archive-shell.css">
+    <link rel="stylesheet" href="assets/archive-card.css">
+    <link rel="stylesheet" href="assets/archive-vitrine.css">
+    <link rel="stylesheet" href="assets/archive-player.css">
+
+    <style>
+      /* Preview harness only — not part of the theme. */
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; }
+
+      .preview-nav {
+        position: sticky; top: 0; z-index: 800;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 2.5rem; padding: 1.5rem clamp(1.25rem, 5vw, 4.5rem);
+        background: linear-gradient(to bottom, rgba(5,5,5,.82), rgba(5,5,5,0));
+        backdrop-filter: blur(20px);
+      }
+      .preview-nav__mark {
+        font-family: var(--archive-font-display); font-size: .95rem;
+        font-weight: 500; letter-spacing: var(--archive-track-label);
+        text-transform: uppercase;
+      }
+      .preview-nav__links { display: flex; gap: 1.75rem; }
+      .preview-nav__links a {
+        font-size: var(--archive-type-micro); font-weight: 500;
+        letter-spacing: var(--archive-track-label); text-transform: uppercase;
+        color: var(--archive-text-subtle); text-decoration: none;
+        transition: color var(--archive-speed) var(--archive-ease);
+      }
+      .preview-nav__links a:hover { color: var(--archive-text); }
+
+      .preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 3rem 1.5rem;
+        padding-bottom: 8rem;
+      }
+
+      /* Stand-in for Horizon's card gallery. */
+      .preview-art { aspect-ratio: 1; width: 100%; display: block; }
+
+      /* The fake analyser console. */
+      .preview-console {
+        position: fixed; right: 1.25rem; bottom: 7.5rem; z-index: 950;
+        width: 232px; padding: 1rem 1.125rem;
+        background: rgba(10,10,10,.92); backdrop-filter: blur(20px);
+        border: 1px solid var(--archive-line-strong); border-radius: 8px;
+        font-size: var(--archive-type-micro); letter-spacing: .14em;
+        text-transform: uppercase; color: var(--archive-text-subtle);
+      }
+      .preview-console h4 {
+        margin: 0 0 .875rem; font-size: var(--archive-type-micro);
+        font-weight: 500; letter-spacing: var(--archive-track-label);
+        color: var(--archive-text);
+      }
+      .preview-console label { display: block; margin-bottom: .75rem; }
+      .preview-console input[type=range] { width: 100%; margin-top: .375rem; accent-color: #ff00ff; }
+      .preview-console button {
+        width: 100%; margin-top: .25rem; padding: .625rem;
+        font: inherit; letter-spacing: var(--archive-track-label);
+        color: var(--archive-text); background: transparent;
+        border: 1px solid var(--archive-line-strong); border-radius: 2px;
+        cursor: pointer; transition: all var(--archive-speed) var(--archive-ease);
+      }
+      .preview-console button:hover {
+        border-color: var(--archive-magenta-64); background: var(--archive-magenta-08);
+      }
+    </style>
+  </head>
+
+  <body class="archive-os">
+    <div class="page-wrapper">
+      <nav class="preview-nav">
+        <span class="preview-nav__mark">Ruud Boy Archives</span>
+        <div class="preview-nav__links">
+          <a href="#">Archive</a><a href="#">Collections</a>
+          <a href="#">Licenses</a><a href="#">About</a><a href="#">Contact</a>
+        </div>
+      </nav>
+
+      <main class="content-for-layout">
+        <!-- ============ THE VITRINE ============ -->
+        <section class="vitrine archive-shell is-loaded" data-vitrine>
+          <div class="vitrine__room" aria-hidden="true"></div>
+          <div class="vitrine__floor" aria-hidden="true"></div>
+
+          <div class="vitrine__monument">
+            <h1 class="vitrine__wordmark">Ruud Boy Archives</h1>
+            <p class="vitrine__standfirst">Original artifacts, carefully catalogued for modern artists</p>
+          </div>
+
+          <div class="vitrine__stage">
+            <div class="vitrine__case">
+              <div class="vitrine__glass" aria-hidden="true"></div>
+              <div class="vitrine__artifact">
+                <div class="vitrine__core" aria-hidden="true"></div>
+                <div class="vitrine__fractures" aria-hidden="true"></div>
+                <svg class="vitrine__art" data-vitrine-art viewBox="0 0 400 400" role="img" aria-label="Artifact">
+                  <defs>
+                    <linearGradient id="fx" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#2a1030"/>
+                      <stop offset="55%" stop-color="#12060f"/>
+                      <stop offset="100%" stop-color="#050505"/>
+                    </linearGradient>
+                  </defs>
+                  <polygon points="200,40 320,150 280,330 120,330 80,150" fill="url(#fx)" stroke="#ff00ff" stroke-opacity=".5" stroke-width="1"/>
+                  <path d="M200,40 L200,330 M80,150 L320,150 M120,330 L200,180 L280,330" stroke="#ff00ff" stroke-opacity=".65" stroke-width="1.2" fill="none"/>
+                  <path d="M200,40 L120,330 M200,40 L280,330" stroke="#ff2bd6" stroke-opacity=".3" stroke-width="1" fill="none"/>
+                </svg>
+                <div class="vitrine__placeholder" aria-hidden="true"><div class="vitrine__placeholder-mark"></div></div>
+              </div>
+              <div class="vitrine__plinth" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <div class="vitrine__label" aria-live="polite">
+            <div class="vitrine__catalog" data-vitrine-catalog>Archive 041</div>
+            <h2 class="vitrine__title" data-vitrine-title>Chrome Coffin</h2>
+            <div class="vitrine__meta">
+              <span data-vitrine-bpm>140 BPM</span>
+              <span data-vitrine-key>F#m</span>
+              <span data-vitrine-mood>Dark Trap</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ ROOM TITLE ============ -->
+        <div class="archive-shell archive-room archive-room--tight">
+          <div class="archive-section-head">
+            <div>
+              <p class="archive-eyebrow">The Collection</p>
+              <h2 class="archive-section-head__title">Recently catalogued</h2>
+            </div>
+            <a class="archive-link" href="#">Browse the archive</a>
+          </div>
+        </div>
+
+        <!-- ============ THE WALL ============ -->
+        <div class="archive-shell">
+          <div class="preview-grid" id="grid"></div>
+        </div>
+      </main>
+    </div>
+
+    <!-- ============ TRANSPORT DECK ============ -->
+    <div class="archive-player">
+      <div class="archive-player__left">
+        <div class="archive-player__artwork" style="background:#1a0a18"></div>
+        <div class="archive-player__meta">
+          <h2 class="archive-player__title" data-player-title>Chrome Coffin</h2>
+          <div class="archive-player__catalog"><span data-player-archive>Archive 041</span></div>
+          <div class="archive-player__details">
+            <span>140</span><span>BPM</span><span class="separator">·</span>
+            <span>F#m</span><span class="separator">·</span><span>Dark Trap</span>
+          </div>
+        </div>
+      </div>
+      <div class="archive-player__center">
+        <button class="archive-player__play" id="deck-play" aria-label="Play">▶</button>
+        <input type="range" min="0" max="100" value="34" class="archive-player__progress">
+      </div>
+      <div class="archive-player__right"><span class="archive-player__time">1:24 / 3:42</span></div>
+    </div>
+
+    <!-- ============ FAKE ANALYSER ============ -->
+    <div class="preview-console">
+      <h4>Analyser simulator</h4>
+      <label>Energy <input type="range" id="s-energy" min="0" max="100" value="0"></label>
+      <label>Bass <input type="range" id="s-bass" min="0" max="100" value="0"></label>
+      <label>Air <input type="range" id="s-air" min="0" max="100" value="0"></label>
+      <button id="toggle">Awaken artifact</button>
+    </div>
+
+    <script>
+      const ARTIFACTS = [
+        ['041', 'Chrome Coffin', '140 BPM', 'F#m', '#3a0f33'],
+        ['040', 'Neon Funeral', '132 BPM', 'Dm', '#2a0b2e'],
+        ['039', 'Midnight Protocol', '148 BPM', 'Gm', '#150a2c'],
+        ['038', 'Obsidian Waves', '150 BPM', 'Am', '#0d1030'],
+        ['037', 'Velvet Inferno', '128 BPM', 'Cm', '#3a0d1e'],
+        ['036', 'Black Cathedral', '152 BPM', 'Em', '#1d0a24'],
+        ['035', 'Ghost Protocol', '136 BPM', 'Bm', '#0a1428'],
+        ['034', 'Quantum Drift', '142 BPM', 'F#m', '#2c0f1a'],
+      ];
+
+      document.getElementById('grid').innerHTML = ARTIFACTS.map(([n, t, bpm, key, c], i) => `
+        <article class="archive-card${i === 0 ? ' is-playing' : ''}" data-track-id="${n}">
+          <div class="archive-card__media">
+            <svg class="preview-art" viewBox="0 0 100 100" aria-hidden="true">
+              <rect width="100" height="100" fill="${c}"/>
+              <polygon points="50,18 78,40 68,80 32,80 22,40" fill="none" stroke="#ff00ff" stroke-opacity=".55" stroke-width=".8"/>
+              <path d="M50,18 L50,80 M22,40 L78,40" stroke="#ff00ff" stroke-opacity=".35" stroke-width=".6"/>
+            </svg>
+            <div class="archive-card__overlay">
+              <button class="archive-play-button" data-archive-play aria-label="Preview ${t}">
+                <svg class="archive-play-button__icon archive-play-button__icon--play" width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="archive-play-button__icon archive-play-button__icon--pause" width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="archive-card__record">
+            <div class="archive-card__status"><span class="archive-card__status-dot"></span>Now Playing</div>
+            <div class="archive-card__catalog">Archive ${n}</div>
+            <h3 class="archive-card__title">${t}</h3>
+            <div class="archive-card__details"><span>${bpm}</span><span>${key}</span></div>
+          </div>
+        </article>`).join('');
+
+      const vitrine = document.querySelector('[data-vitrine]');
+      const sliders = { energy: 's-energy', bass: 's-bass', air: 's-air' };
+
+      function publish() {
+        for (const [k, id] of Object.entries(sliders)) {
+          vitrine.style.setProperty('--v-' + k, (document.getElementById(id).value / 100).toFixed(3));
+        }
+      }
+      Object.values(sliders).forEach((id) => document.getElementById(id).addEventListener('input', publish));
+
+      // Mirrors the real controller's synthetic-envelope fallback.
+      let awake = false, raf = null;
+      function envelope() {
+        const t = performance.now() / 1000;
+        const slow = (Math.sin(t * 0.7) + 1) / 2;
+        const slower = (Math.sin(t * 0.31 + 1.2) + 1) / 2;
+        const set = (id, v) => (document.getElementById(id).value = Math.round(v * 100));
+        set('s-bass', 0.22 + slow * 0.34);
+        set('s-air', 0.16 + slower * 0.2);
+        set('s-energy', 0.34 + (slow * 0.5 + slower * 0.5) * 0.36);
+        publish();
+        raf = requestAnimationFrame(envelope);
+      }
+
+      document.getElementById('toggle').addEventListener('click', function () {
+        awake = !awake;
+        vitrine.classList.toggle('is-awake', awake);
+        vitrine.classList.toggle('is-idle', !awake);
+        this.textContent = awake ? 'Return to rest' : 'Awaken artifact';
+        document.getElementById('deck-play').textContent = awake ? '❚❚' : '▶';
+
+        if (awake) {
+          envelope();
+        } else {
+          cancelAnimationFrame(raf);
+          ['s-energy', 's-bass', 's-air'].forEach((id) => (document.getElementById(id).value = 0));
+          publish();
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-archive-play]');
+        if (!btn) return;
+        const card = btn.closest('.archive-card');
+        const playing = card.classList.contains('is-playing');
+        document.querySelectorAll('.archive-card').forEach((c) => c.classList.remove('is-playing', 'is-active'));
+        if (!playing) {
+          card.classList.add('is-playing', 'is-active');
+          vitrine.querySelector('[data-vitrine-catalog]').textContent = 'Archive ' + card.dataset.trackId;
+          vitrine.querySelector('[data-vitrine-title]').textContent = card.querySelector('.archive-card__title').textContent;
+          if (!awake) document.getElementById('toggle').click();
+        } else {
+          card.classList.add('is-active');
+          if (awake) document.getElementById('toggle').click();
+        }
+      });
+
+      vitrine.classList.add('is-idle');
+      publish();
+    </script>
+  </body>
+</html>

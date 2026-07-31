@@ -1,484 +1,193 @@
 /* ==========================================================
-   ArchiveOS UI
-   Version: 3.1.0
-
-   Owns:
-   ✓ Preview buttons
-   ✓ Global player UI
-   ✓ Drawer state
-   ✓ Progress updates
-
-   Does NOT own:
-   ✗ Commerce
-   ✗ Audio engine
+   ArchiveOS UI v1.0
+   Global Archive Console
 ========================================================== */
 
-(function () {
+(() => {
 
-    if (!window.ArchiveOS) {
+    const ArchiveOS = window.ArchiveOS;
+
+    if (!ArchiveOS) {
         console.error("ArchiveOS Core missing.");
         return;
     }
 
-    ArchiveOS.ui = {
-        currentTime:
-    document.getElementById(
-        "ruud-current-time"
-    ),
+    const UI = {
 
-duration:
-    document.getElementById(
-        "ruud-duration"
-    ),
-        prevButton:
-    document.getElementById(
-        "ruud-global-prev"
-    ),
+        elements: {},
 
-nextButton:
-    document.getElementById(
-        "ruud-global-next"
-    ),
+        init() {
 
-        player:
-            document.getElementById(
-                "ruud-global-player"
-            ),
+            console.log("ArchiveOS UI Loaded");
 
-        title:
-            document.getElementById(
-                "ruud-global-title"
-            ),
+            this.cacheElements();
+            this.bindEvents();
 
-        artwork:
-            document.getElementById(
-                "ruud-global-image"
-            ),
+        },
 
-        progressTrack:
-    document.getElementById(
-        "ruud-progress-track"
-    ),
+        cacheElements() {
 
-progressFill:
-    document.getElementById(
-        "ruud-progress-fill"
-    ),
-
-progressThumb:
-    document.getElementById(
-        "ruud-progress-thumb"
-    ),
-
-        playButton:
-            document.getElementById(
-                "ruud-global-play"
-            ),
-
-        buyButton:
-            document.getElementById(
-                "ruud-buy-button"
-            ),
-
-        licenseDrawer:
-            document.getElementById(
-                "ruud-license-drawer"
-            ),
-
-        buildTrack(card) {
-
-            return {
-
-                id:
-                    card.dataset.productId,
-
-                title:
-                    card.dataset.title,
-
-                audio:
-                    card.dataset.audio,
-
-                image:
-                    card.dataset.image,
-
-                productUrl:
-                    card.dataset.productUrl,
-
-                bpm:
-                    card.dataset.bpm,
-
-                key:
-                    card.dataset.key,
-
-                mood:
-                    card.dataset.mood,
-
-                type:
-                    card.dataset.type,
-
-                variants:
-                    JSON.parse(
-                        card.dataset.variants ||
-                        "[]"
-                    )
-
+            this.elements = {
+                artwork: document.querySelector("[data-player-artwork]"),
+                title: document.querySelector("[data-player-title]"),
+                archive: document.querySelector("[data-player-archive]"),
+                bpm: document.querySelector("[data-player-bpm]"),
+                key: document.querySelector("[data-player-key]"),
+                mood: document.querySelector("[data-player-mood]"),
+                playButton: document.querySelector("[data-player-play]"),
+                progress: document.querySelector("[data-player-progress]"),
+                time: document.querySelector("[data-player-time]")
             };
 
         },
 
-        bindPreview() {
+        bindEvents() {
 
-            document.addEventListener(
-                "click",
-                (event) => {
+            /* ----------------------------------
+               Track Changed
+            ---------------------------------- */
 
-                    const button =
-                        event.target.closest(
-                            ".ruud-play-button"
-                        );
+            ArchiveOS.on("archive:trackchange", (event) => {
 
-                    if (!button) return;
+                const { track } = event.detail || {};
 
-                    event.preventDefault();
+                if (!track) return;
 
-                    const card =
-                        button.closest(
-                            ".ruud-player"
-                        );
+                this.updateTrack(track);
 
-                    if (!card) return;
+            });
 
-                    const cards =
-                        Array.from(
-                            document.querySelectorAll(
-                                ".ruud-player"
-                            )
-                        );
+            /* ----------------------------------
+               Playback State
+            ---------------------------------- */
 
-                    const index =
-                        cards.indexOf(card);
+            ArchiveOS.on("archive:play", () => {
 
-                    const track =
-                        this.buildTrack(card);
+                if (this.elements.playButton) {
+                    this.elements.playButton.textContent = "❚❚";
+                }
 
-                    ArchiveOS.set(
-                        "queue",
-                        cards.map(card =>
-                            this.buildTrack(card)
-                        )
-                    );
+            });
 
-                    ArchiveOS.set(
-                        "currentIndex",
-                        index
-                    );
+            ArchiveOS.on("archive:pause", () => {
 
-                    ArchiveOS.player.load(
-                        track
-                    );
+                if (this.elements.playButton) {
+                    this.elements.playButton.textContent = "▶";
+                }
 
-                    ArchiveOS.player.play();
+            });
+
+            /* ----------------------------------
+               Progress / Time
+            ---------------------------------- */
+
+            ArchiveOS.on("archive:timeupdate", (event) => {
+
+                const {
+                    currentTime = 0,
+                    duration = 0
+                } = event.detail || {};
+
+                if (this.elements.progress) {
+
+                    this.elements.progress.value =
+                        duration > 0
+                            ? (currentTime / duration) * 100
+                            : 0;
 
                 }
-            );
 
-        },
-                updateTrack(track) {
+                if (this.elements.time) {
 
-            if (this.player) {
+                    this.elements.time.textContent =
+                        `${this.formatTime(currentTime)} / ${this.formatTime(duration)}`;
 
-                this.player.classList.remove(
-                    "ruud-global-player--hidden"
+                }
+
+            });
+
+            /* ----------------------------------
+               Play Button
+            ---------------------------------- */
+
+            this.elements.playButton?.addEventListener("click", () => {
+
+                const player = ArchiveOS.getModule("player");
+
+                if (!player) return;
+
+                player.toggle();
+
+            });
+
+            /* ----------------------------------
+               Seek
+            ---------------------------------- */
+
+            this.elements.progress?.addEventListener("input", (event) => {
+
+                const player = ArchiveOS.getModule("player");
+
+                if (!player) return;
+
+                const duration = player.getDuration();
+
+                player.seek(
+                    (event.target.value / 100) * duration
                 );
 
-            }
-
-            if (this.title) {
-
-                this.title.textContent =
-                    track.title || "";
-
-            }
-
-            if (
-                this.artwork &&
-                track.image
-            ) {
-
-                this.artwork.src =
-                    track.image;
-
-                this.artwork.alt =
-                    track.title;
-
-            }
-
-            if (ArchiveOS.commerce) {
-
-                ArchiveOS.commerce.renderLicenses();
-
-            }
+            });
 
         },
 
-        updateProgress(current, duration) {
+        updateTrack(track) {
 
-    ArchiveOS.timeline.render(
-        current,
-        duration
-    );
+            if (this.elements.title)
+                this.elements.title.textContent =
+                    track.title || "Unknown";
 
-},
-formatTime(seconds) {
+            if (this.elements.artwork) {
 
-    const minutes =
-        Math.floor(seconds / 60);
+                this.elements.artwork.src =
+                    track.image || "";
 
-    const remaining =
-        Math.floor(seconds % 60)
-            .toString()
-            .padStart(2, "0");
+                this.elements.artwork.alt =
+                    track.title || "Artwork";
 
-    return `${minutes}:${remaining}`;
+            }
 
-},
+            if (this.elements.archive)
+                this.elements.archive.textContent =
+                    track.archive || "ARCH ----";
 
-updateTime(current, duration) {
+            if (this.elements.bpm)
+                this.elements.bpm.textContent =
+                    track.bpm || "--";
 
-    const currentTime =
-        document.getElementById(
-            "ruud-current-time"
-        );
+            if (this.elements.key)
+                this.elements.key.textContent =
+                    track.key || "--";
 
-    const totalTime =
-        document.getElementById(
-            "ruud-duration"
-        );
-
-    if (currentTime) {
-
-        currentTime.textContent =
-            this.formatTime(current);
-
-    }
-
-    if (totalTime) {
-
-        totalTime.textContent =
-            this.formatTime(duration);
-
-    }
-
-},
-
-        bindPlayerEvents() {
-
-            ArchiveOS.on(
-                "archive:trackchange",
-                (event) => {
-
-                    this.updateTrack(
-                        event.detail.track
-                    );
-
-                }
-            );
-
-            ArchiveOS.on(
-                "archive:timeupdate",
-                (event) => {
-
-                    this.updateProgress(
-                        event.detail.currentTime,
-                        event.detail.duration
-                    );
-
-                }
-            );
-
-            ArchiveOS.on(
-                "archive:play",
-                () => {
-
-                    if (
-                        this.playButton
-                    ) {
-
-                        this.playButton.textContent =
-                            "❚❚";
-
-                    }
-                    
-
-                }
-            );
-
-            ArchiveOS.on(
-                "archive:pause",
-                () => {
-
-                    if (
-                        this.playButton
-                    ) {
-
-                        this.playButton.textContent =
-                            "▶";
-
-                    }
-
-                }
-            );
-
+            if (this.elements.mood)
+                this.elements.mood.textContent =
+                    track.mood || "--";
 
         },
-        bindTransport() {
 
-    if (this.playButton) {
+        formatTime(seconds = 0) {
 
-        this.playButton.addEventListener(
-            "click",
-            () => {
+            if (!isFinite(seconds))
+                return "0:00";
 
-                if (
-                    ArchiveOS.get("playing")
-                ) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
 
-                    ArchiveOS.player.pause();
-
-                } else {
-
-                    ArchiveOS.player.play();
-
-                }
-
-            }
-        );
-
-    }
-
-    if (this.prevButton) {
-
-        this.prevButton.addEventListener(
-            "click",
-            () => {
-
-                ArchiveOS.player.previous();
-
-            }
-        );
-
-    }
-
-    if (this.nextButton) {
-
-        this.nextButton.addEventListener(
-            "click",
-            () => {
-
-                ArchiveOS.player.next();
-
-            }
-        );
-
-    }
-
-    if (this.progress) {
-
-    this.progress.addEventListener(
-    "input",
-    () => {
-
-        console.log("SCRUB!", this.progress.value);
-
-        const duration =
-            ArchiveOS.player.getDuration();
-
-        const seconds =
-            (this.progress.value / 100) * duration;
-
-        console.log("Seeking to", seconds);
-
-        ArchiveOS.player.seek(seconds);
-
-    }
-);
-
-}
-if (this.progressTrack) {
-
-    this.progressTrack.addEventListener(
-        "click",
-        (event) => {
-
-            const rect =
-                this.progressTrack.getBoundingClientRect();
-
-            const percent = Math.max(
-    0,
-    Math.min(
-        1,
-        (event.clientX - rect.left) / rect.width
-    )
-);
-
-            const duration =
-                ArchiveOS.player.getDuration();
-
-            ArchiveOS.player.seek(
-                percent * duration
-            );
+            return `${minutes}:${String(secs).padStart(2, "0")}`;
 
         }
-    );
-
-}
-
-},
-
-
-                bindDrawer() {
-
-            if (
-                !this.buyButton ||
-                !this.licenseDrawer
-            ) {
-                return;
-            }
-
-            this.buyButton.addEventListener(
-                "click",
-                (event) => {
-
-                    event.preventDefault();
-
-                    ArchiveOS.set(
-    "playerMode",
-    ArchiveOS.get("playerMode") === "purchase"
-        ? "listen"
-        : "purchase"
-);
-
-
-ArchiveOS.commerce.toggle();
-
-                }
-            );
-
-        },
-
-        init() {
-
-    this.bindPreview();
-
-    this.bindTransport();
-
-    this.bindDrawer();
-
-    this.bindPlayerEvents();
-
-}
 
     };
 
-    ArchiveOS.ui.init();
-    })();
+    ArchiveOS.register("ui", UI);
+
+})();

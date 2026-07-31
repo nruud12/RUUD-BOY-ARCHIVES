@@ -1,0 +1,532 @@
+/* =======================================================
+   ARCHIVE GALLERY
+   Gold Master
+======================================================= */
+
+.archive-gallery{
+
+    min-height:100vh;
+
+    background:#050505;
+
+    color:#fff;
+
+}
+
+.archive-gallery__hero{
+
+    width:min(1500px, calc(100% - 80px));
+
+    margin:0 auto;
+
+    min-height:85vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:120px 40px 160px;
+
+}
+.gallery-hero__title{
+
+    margin:0;
+
+    font-size:clamp(48px,6vw,96px);
+
+    font-weight:700;
+
+    letter-spacing:.18em;
+
+    text-transform:uppercase;
+
+    line-height:.95;
+
+}
+.gallery-hero__subtitle{
+
+    margin:28px 0 90px;
+
+    max-width:720px;
+
+    font-size:18px;
+
+    line-height:1.8;
+
+    color:rgba(255,255,255,.68);
+
+    text-align:center;
+
+}
+
+.gallery-hero__intro{
+
+    text-align:center;
+
+    margin-bottom:64px;
+
+}
+
+.gallery-display{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+}
+
+/* =======================================================
+   DISPLAY CASE
+======================================================= */
+
+.gallery-display{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:54px;
+
+    margin-top:10px;
+
+}
+
+.gallery-display__glass{
+
+    position:relative;
+
+    width:420px;
+
+    height:500px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:4px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(18,18,20,.92),
+    rgba(5,5,5,.98)
+        );
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.05),
+        0 35px 80px rgba(0,0,0,.65);
+
+    overflow:hidden;
+
+}
+.gallery-display__glass::before,
+.gallery-display__glass::after{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+
+    width:8px;
+
+    height:100%;
+
+    background:
+linear-gradient(
+    90deg,
+    #050505 0%,
+    #232323 18%,
+    #565656 48%,
+    #191919 72%,
+    #030303 100%
+);
+
+    box-shadow:
+        0 0 10px rgba(255,255,255,.05);
+
+}
+
+.gallery-display__glass::before{
+
+    left:0;
+
+}
+
+.gallery-display__glass::after{
+
+    right:0;
+
+}
+.gallery-display__glass{
+
+    outline:1px solid rgba(255,255,255,.04);
+
+}
+
+.gallery-display__glass::selection{
+
+    background:transparent;
+
+}
+.gallery-display__glass .gallery-top-rail{
+
+    position:absolute;
+
+    top:0;
+
+    left:0;
+
+    right:0;
+
+    height:8px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #4a4a4a,
+            #151515
+        );
+
+}
+.gallery-display__glass::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    pointer-events:none;
+
+    background:
+
+        linear-gradient(
+
+            180deg,
+
+            rgba(255,255,255,.10),
+
+            transparent 22%
+
+        );
+
+}
+/* =======================================================
+   ARTIFACT
+======================================================= */
+
+.gallery-display__artifact{
+
+    width:170px;
+
+    height:220px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:transparent;
+
+    border-radius:28px;
+
+    background:
+
+        radial-gradient(
+            circle at 35% 30%,
+            rgba(255,255,255,.10),
+            transparent 22%
+        ),
+
+        linear-gradient(
+            145deg,
+            #141414,
+            #060606 45%,
+            #0b0b0b 100%
+        );
+
+    box-shadow:
+
+        inset 0 1px rgba(255,255,255,.06),
+
+        inset 0 -20px 50px rgba(0,0,0,.55),
+
+        0 20px 60px rgba(0,0,0,.55),
+
+        0 0 40px rgba(255,0,255,.12);
+
+    transform:
+        rotate(-8deg)
+        rotateX(8deg);
+
+}
+.gallery-display__artifact::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:12px;
+
+    border-radius:20px;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            rgba(255,0,255,.14),
+            transparent 55%
+        );
+
+    filter:blur(18px);
+
+    opacity:.75;
+
+}
+/* =======================================================
+   OBSIDIAN FLOOR
+======================================================= */
+
+.gallery-floor{
+
+    position:relative;
+
+    width:min(1400px,100%);
+
+    height:260px;
+
+    margin:-30px auto 120px;
+
+    overflow:hidden;
+
+}
+
+.gallery-floor::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+
+linear-gradient(
+
+    180deg,
+
+    rgba(255,255,255,.04),
+
+    rgba(18,18,18,.65) 45%,
+
+    rgba(5,5,5,.95)
+
+);
+
+    border-top:
+
+        1px solid rgba(255,255,255,.08);
+
+}
+
+.gallery-floor__reflection{
+
+    position:absolute;
+
+    left:50%;
+
+    top:-20px;
+
+    width:700px;
+
+    height:180px;
+
+    transform:translateX(-50%);
+
+    background:
+
+        radial-gradient(
+
+            ellipse at center,
+
+            rgba(255,0,255,.18),
+
+            rgba(255,0,255,.05) 45%,
+
+            transparent 80%
+
+        );
+
+    filter:blur(55px);
+
+    opacity:.8;
+
+}
+/* =======================================================
+   MUSEUM PEDESTAL
+======================================================= */
+
+.gallery-display__pedestal{
+
+    width:340px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+    margin-top:-2px;
+    filter:
+drop-shadow(0 18px 35px rgba(0,0,0,.28))
+drop-shadow(0 42px 90px rgba(0,0,0,.42));
+
+}
+
+.gallery-display__pedestal-top{
+
+    width:100%;
+
+    height:5px;
+
+    border-radius:3px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.14),
+            rgba(80,80,80,.85)
+        );
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.45);
+
+}
+
+.gallery-display__pedestal-body{
+
+    width:100%;
+
+    padding:26px 28px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #171717,
+            #090909 45%,
+            #040404
+        );
+
+    border:
+        1px solid rgba(255,255,255,.05);
+
+    border-top:none;
+
+    border-radius:
+        0 0 10px 10px;
+
+    box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.03),
+
+        inset 0 1px rgba(255,255,255,.04),
+
+        0 18px 40px rgba(0,0,0,.45);
+
+}
+.gallery-display__archive{
+
+    font-size:12px;
+
+    letter-spacing:.35em;
+
+    text-transform:uppercase;
+
+    color:rgba(255,255,255,.52);
+
+    margin-bottom:10px;
+
+}
+.gallery-display__name{
+
+    font-size:22px;
+
+    letter-spacing:.08em;
+
+    font-weight:600;
+
+    text-transform:uppercase;
+    
+
+}
+
+/* =======================================================
+   GALLERY LIGHT
+======================================================= */
+
+.archive-gallery{
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+.archive-gallery::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:50%;
+
+    top:-320px;
+
+    width:1200px;
+
+    height:900px;
+
+    transform:translateX(-50%);
+
+    pointer-events:none;
+
+    background:
+
+        radial-gradient(
+
+            ellipse at center,
+
+            rgba(255,255,255,.08) 0%,
+
+            rgba(255,255,255,.025) 38%,
+
+            rgba(255,0,255,.035) 58%,
+
+            transparent 82%
+
+        );
+
+    filter:blur(90px);
+
+    z-index:0;
+
+}
+.archive-gallery__hero{
+
+    position:relative;
+
+    z-index:2;
+
+}

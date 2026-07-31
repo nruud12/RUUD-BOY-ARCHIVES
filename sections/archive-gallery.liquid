@@ -1,0 +1,83 @@
+{{ 'archive-gallery.css' | asset_url | stylesheet_tag }}
+
+<section class="archive-gallery">
+
+    <div class="archive-gallery__hero">
+
+        <header class="gallery-hero__intro">
+
+            <h1 class="gallery-hero__title">
+                RUUD BOY ARCHIVES
+            </h1>
+
+            <p class="gallery-hero__subtitle">
+                Original artifacts, carefully cataloged for modern artists.
+            </p>
+
+        </header>
+
+        <section class="gallery-display">
+
+            <div class="gallery-display__glass">
+
+                <div class="gallery-top-rail"></div>
+                <div class="gallery-display__artifact">
+
+                    ARTIFACT
+
+                </div>
+
+            </div>
+
+            <div class="gallery-display__pedestal">
+
+    <div class="gallery-display__pedestal-top"></div>
+
+    <div class="gallery-display__pedestal-body">
+
+        <div class="gallery-display__archive">
+
+            ARCHIVE 000
+
+        </div>
+
+        <div class="gallery-display__name">
+
+            ORIGINAL ARTIFACT
+
+        </div>
+
+    </div>
+
+</div>
+
+        </section>
+        <div class="gallery-floor">
+
+    <div class="gallery-floor__reflection"></div>
+
+</div>
+
+    </div>
+
+    <section class="gallery-catalog">
+
+        <h2>
+            Recently Cataloged
+        </h2>
+
+    </section>
+
+</section>
+
+{% schema %}
+{
+  "name": "Archive Gallery",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Archive Gallery"
+    }
+  ]
+}
+{% endschema %}

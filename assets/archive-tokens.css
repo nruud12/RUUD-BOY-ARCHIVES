@@ -1,0 +1,194 @@
+/* ==========================================================
+   ARCHIVEOS — DESIGN TOKENS
+   RUUD BOY ARCHIVES
+
+   The single source of truth for colour, type, space, motion
+   and elevation. Nothing in this file may contain a selector
+   other than :root — it declares values, never appearance.
+
+   Load order matters:
+     1. archive-tokens.css   ← you are here
+     2. archive-shell.css
+     3. archive-card.css
+     4. archive-vitrine.css
+     5. archive-player.css
+
+   NOTE ON LEGACY NAMES
+   Two conflicting token sets previously existed (one in
+   archive-design.css, one dumped as raw text after </html> in
+   layout/theme.liquid). They disagreed on what --archive-accent
+   meant: one said cyan, the other magenta. Both are aliased at the
+   bottom of this file so older stylesheets keep working, but new
+   work should use the canonical names only.
+========================================================== */
+
+:root {
+  /* ========================================================
+     1. COLOUR — THE ROOM
+
+     The archive is almost entirely dark. Accent is a light
+     source, not a paint. If more than ~5% of a viewport is
+     magenta, something has gone wrong.
+  ======================================================== */
+
+  --archive-void: #000000; /* true black — vitrine interior, page edges */
+  --archive-bg: #050505; /* base canvas */
+  --archive-surface: #0b0b0b; /* cards, panels */
+  --archive-surface-raised: #121212; /* hover / elevated panels */
+  --archive-surface-inset: #030303; /* wells, media backdrops */
+
+  /* Typography */
+  --archive-text: #ffffff;
+  --archive-text-muted: rgba(255, 255, 255, 0.58);
+  --archive-text-subtle: rgba(255, 255, 255, 0.34);
+  --archive-text-faint: rgba(255, 255, 255, 0.18);
+
+  /* Lines. Almost never visible on purpose. */
+  --archive-line: rgba(255, 255, 255, 0.07);
+  --archive-line-strong: rgba(255, 255, 255, 0.14);
+
+  /* Light sources */
+  --archive-magenta: #ff00ff;
+  --archive-magenta-soft: #ff2bd6;
+  --archive-magenta-deep: #8a3be2;
+  --archive-cyan: #00f0ff;
+
+  /* Pre-mixed translucencies, so components stop inventing their own */
+  --archive-magenta-04: rgba(255, 0, 255, 0.04);
+  --archive-magenta-08: rgba(255, 0, 255, 0.08);
+  --archive-magenta-16: rgba(255, 0, 255, 0.16);
+  --archive-magenta-32: rgba(255, 0, 255, 0.32);
+  --archive-magenta-64: rgba(255, 0, 255, 0.64);
+  --archive-cyan-08: rgba(0, 240, 255, 0.08);
+  --archive-cyan-24: rgba(0, 240, 255, 0.24);
+  --archive-cyan-48: rgba(0, 240, 255, 0.48);
+
+  /* ========================================================
+     2. TYPOGRAPHY
+
+     Two families only. Display is set uppercase with heavy
+     tracking — the tracking is what reads as "museum", not the
+     typeface. Body stays quiet and neutral.
+  ======================================================== */
+
+  --archive-font-display: 'Raleway', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --archive-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --archive-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  /* Fluid display scale. Desktop-first: the clamp max is the
+     intended desktop size, the min is the mobile fallback. */
+  --archive-type-monument: clamp(3rem, 9vw, 8.25rem); /* homepage wordmark */
+  --archive-type-display: clamp(2.5rem, 6vw, 5rem); /* page titles */
+  --archive-type-title: clamp(1.75rem, 3.2vw, 2.75rem); /* section titles */
+  --archive-type-heading: clamp(1.25rem, 1.8vw, 1.5rem); /* card / block titles */
+  --archive-type-body: 0.9375rem;
+  --archive-type-small: 0.8125rem;
+  --archive-type-micro: 0.6875rem; /* metadata, catalogue numbers */
+
+  /* Tracking. The single most important variable in the system. */
+  --archive-track-monument: 0.16em;
+  --archive-track-display: 0.1em;
+  --archive-track-label: 0.24em; /* eyebrows, catalogue numbers */
+  --archive-track-body: 0.005em;
+
+  --archive-weight-light: 300;
+  --archive-weight-regular: 400;
+  --archive-weight-medium: 500;
+  --archive-weight-bold: 700;
+
+  --archive-leading-tight: 1;
+  --archive-leading-snug: 1.2;
+  --archive-leading-body: 1.65;
+
+  /* ========================================================
+     3. SPACE
+
+     Hierarchy is built from this scale and nothing else — no
+     rules, no boxes, no dividers. If two things need separating,
+     they get --archive-space-* between them.
+  ======================================================== */
+
+  --archive-space-3xs: 0.25rem;
+  --archive-space-2xs: 0.5rem;
+  --archive-space-xs: 0.75rem;
+  --archive-space-sm: 1rem;
+  --archive-space-md: 1.5rem;
+  --archive-space-lg: 2.5rem;
+  --archive-space-xl: 4rem;
+  --archive-space-2xl: 6rem;
+  --archive-space-3xl: 9rem;
+  --archive-space-4xl: 13rem; /* between major "rooms" */
+
+  --archive-gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --archive-measure: 62ch; /* max reading width */
+  --archive-max-width: 1600px;
+
+  /* ========================================================
+     4. MOTION
+
+     Everything is 200–300ms, ease-out, no overshoot.
+     Ambient motion is measured in tens of seconds.
+  ======================================================== */
+
+  --archive-ease: cubic-bezier(0.22, 0.61, 0.36, 1); /* ease-out, no bounce */
+  --archive-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --archive-speed-fast: 160ms;
+  --archive-speed: 240ms;
+  --archive-speed-slow: 300ms;
+  --archive-speed-reveal: 480ms; /* entrances only */
+
+  --archive-ambient-drift: 96s; /* idle artifact rotation */
+  --archive-ambient-breath: 11s; /* idle glow */
+
+  /* ========================================================
+     5. FORM
+  ======================================================== */
+
+  --archive-radius-xs: 2px;
+  --archive-radius-sm: 4px;
+  --archive-radius-md: 8px;
+  --archive-radius-lg: 16px;
+  --archive-radius-pill: 999px;
+
+  --archive-blur-glass: 20px;
+
+  /* Elevation is achieved with shadow + a light source, never
+     with a border. */
+  --archive-shadow-rest: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --archive-shadow-raised: 0 28px 80px rgba(0, 0, 0, 0.66);
+  --archive-shadow-lift: 0 40px 120px rgba(0, 0, 0, 0.72);
+
+  --archive-glow-magenta: 0 0 60px var(--archive-magenta-32);
+  --archive-glow-cyan: 0 0 40px var(--archive-cyan-24);
+
+  --archive-z-player: 900;
+  --archive-z-header: 800;
+  --archive-z-overlay: 700;
+
+  /* ========================================================
+     6. LEGACY ALIASES — do not use in new code
+  ======================================================== */
+
+  --archive-black: var(--archive-bg);
+  --archive-white: var(--archive-text);
+  --archive-surface-2: var(--archive-surface-raised);
+  --archive-surface-3: var(--archive-surface-raised);
+  --archive-surface-elevated: var(--archive-surface-raised);
+  --archive-border: var(--archive-line);
+  --archive-border-hover: var(--archive-magenta-32);
+  --archive-accent: var(--archive-magenta);
+  --archive-accent-cyan: var(--archive-cyan);
+}
+
+/* Motion is a luxury, not a requirement. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --archive-speed-fast: 1ms;
+    --archive-speed: 1ms;
+    --archive-speed-slow: 1ms;
+    --archive-speed-reveal: 1ms;
+    --archive-ambient-drift: 0s;
+    --archive-ambient-breath: 0s;
+  }
+}

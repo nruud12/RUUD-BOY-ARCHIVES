@@ -283,34 +283,14 @@
   defer="defer"
 ></script>
 {% comment %}
-<script
-  src="{{ 'ruud-player.js' | asset_url }}"
-  type="module"
-></script>
+<script>
+  console.log("=== CUSTOM SCRIPTS.LIQUID LOADED ===");
+</script>
 {% endcomment %}
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'archive-audio-engine.js' | asset_url }}"
-  type="module"
-></script>
-<script
-  src="{{ 'archive-visual-engine.js' | asset_url }}"
-  defer
-></script>
-<script
-  src="{{ 'archive-core.js' | asset_url }}"
-  type="module"
-></script>
+{% comment %}
 <script
   src="{{ 'archive-context.js' | asset_url }}"
   type="module"
-></script>
-<script
-  src="{{ 'archive-player.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
 ></script>
 <script
   src="{{ 'archive-commerce.js' | asset_url }}"
@@ -321,7 +301,83 @@
   type="module"
 ></script>
 <script
+  src="{{ 'archive-player.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+<script
+  src="{{ 'archive-history.js' | asset_url }}"
+  type="module"
+></script>
+<script
+  src="{{ 'archive-audio-engine.js' | asset_url }}"
+  type="module"
+></script>
+<script
+  src="{{ 'ruud-player.js' | asset_url }}"
+  type="module"
+></script>
+{% endcomment %}
+<script
+  src="{{ 'archive-visual-engine.js' | asset_url }}"
+  defer
+></script>
+<script
+  src="{{ 'archive-core.js' | asset_url }}"
+  type="module"
+></script>
+
+<script
+  src="{{ 'archive-context.js' | asset_url }}"
+  type="module"
+></script>
+
+<script
+  src="{{ 'archive-commerce.js' | asset_url }}"
+  type="module"
+></script>
+
+<script
+  src="{{ 'archive-timeline.js' | asset_url }}"
+  type="module"
+></script>
+
+<script
+  src="{{ 'archive-player.js' | asset_url }}"
+  type="module"
+></script>
+
+<script
+  src="{{ 'archive-history.js' | asset_url }}"
+  type="module"
+></script>
+
+<script
+  src="{{ 'archive-audio-engine.js' | asset_url }}"
+  type="module"
+></script>
+<script
   src="{{ 'archive-ui.js' | asset_url }}"
+  type="module"
+></script>
+
+{%- comment -%}
+  Card interaction layer. Registers with ArchiveOS.core, which boots
+  every registered module on DOMContentLoaded — module scripts all
+  execute before that fires, so registration order here is safe.
+{%- endcomment -%}
+<script
+  src="{{ 'archive-card-ui.js' | asset_url }}"
+  type="module"
+></script>
+
+{%- comment -%}
+  The vitrine. Loaded on every page: the display case is a permanent
+  fixture, not a homepage widget, and it no-ops when no [data-vitrine]
+  element is present.
+{%- endcomment -%}
+<script
+  src="{{ 'archive-vitrine.js' | asset_url }}"
   type="module"
 ></script>
 {% comment %}
@@ -330,9 +386,6 @@
   type="module"
 ></script>
 {% endcomment %}
-  type="module"
-  fetchpriority="low"
-></script>
 <script>
   const Theme = {
     translations: {

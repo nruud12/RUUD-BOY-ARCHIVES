@@ -16,6 +16,10 @@
     }
 
     ArchiveOS.timeline = {
+         dragging: false,
+         boundMouseMove: null,
+
+boundMouseUp: null,
 
         progressTrack:
             document.getElementById(
@@ -105,6 +109,27 @@
             }
 
         },
+        seekFromPointer(clientX) {
+
+    if (!this.progressTrack) return;
+
+    const rect =
+        this.progressTrack.getBoundingClientRect();
+
+    const percent = Math.max(
+        0,
+        Math.min(
+            1,
+            (clientX - rect.left) / rect.width
+        )
+    );
+
+    ArchiveOS.player.seek(
+        percent *
+        ArchiveOS.player.getDuration()
+    );
+
+},
 
         bind() {
 
@@ -114,25 +139,65 @@
                 "click",
                 (event) => {
 
-                    const rect =
-                        this.progressTrack.getBoundingClientRect();
+                    this.seekFromPointer(
+    event.clientX
+);
+this.progressTrack.addEventListener(
+    "mousedown",
+    (event) => {
 
-                    const percent =
-                        Math.max(
-                            0,
-                            Math.min(
-                                1,
-                                (event.clientX - rect.left) /
-                                rect.width
-                            )
-                        );
+        this.dragging = true;
+        document.body.classList.add(
+    "archive-dragging"
+);
+        if (this.progressThumb) {
 
-                    ArchiveOS.player.seek(
+    this.progressThumb.classList.add(
+        "dragging"
+    );
 
-                        percent *
-                        ArchiveOS.player.getDuration()
+}
 
-                    );
+        this.seekFromPointer(
+            event.clientX
+        );
+
+    }
+);
+this.boundMouseMove = (event) => {
+
+    if (!this.dragging) return;
+
+    this.seekFromPointer(
+        event.clientX
+    );
+
+};
+
+document.addEventListener(
+    "mousemove",
+    this.boundMouseMove
+);
+this.boundMouseUp = () => {
+    if (this.progressThumb) {
+
+    this.progressThumb.classList.remove(
+        "dragging"
+    );
+
+}
+
+    this.dragging = false;
+    document.body.classList.remove(
+    "archive-dragging"
+);
+
+};
+
+document.addEventListener(
+    "mouseup",
+    this.boundMouseUp
+);
 
                 }
             );

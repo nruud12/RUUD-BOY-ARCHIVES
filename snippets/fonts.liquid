@@ -1,3 +1,23 @@
+{%- comment -%}
+  ArchiveOS typography.
+
+  Two families, both variable-weight, fetched as a single stylesheet request:
+  · Raleway — display. Geometric, wide-apertured; reads as "museum" once the
+    tracking in --archive-track-* is applied. Stands in for the reference's
+    Raleway Compressed, which is not publicly distributed.
+  · Inter    — body/UI. Neutral, high legibility at small sizes for metadata.
+
+  Loaded with display=swap so first paint is never blocked. Shopify's own
+  font_picker settings below are left intact so the theme editor keeps working
+  for any surface ArchiveOS has not claimed yet.
+{%- endcomment -%}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Raleway:wght@200;300;400;500;700&display=swap"
+>
+
 {%- unless settings.type_body_font.system? -%}
   {{ settings.type_body_font | font_url | preload_tag: as: 'font', type: 'font/woff2', fetchpriority: 'low' }}
 {%- endunless -%}

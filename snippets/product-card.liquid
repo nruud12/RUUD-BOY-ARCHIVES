@@ -61,9 +61,10 @@
 
 <product-card
   data-archive-card
-  class="product-card size-style"
+  class="product-card size-style archive-card"
   style="{% render 'size-style', settings: block_settings %}"
   data-product-id="{{ product.id }}"
+  data-track-id="{{ product.id }}"
   id="product-card-{{ block.id }}"
   {% if settings.transition_to_main_product %}
     data-product-transition="true"
@@ -114,9 +115,69 @@
       {% if block_settings.padding-block-end > 0 %}--zoom-out-padding-block-end: min(var(--padding-xs), {{ block_settings.padding-block-end | times: 0.7}}px);{% endif %}
     "
   >
-    {{ children }}
+    {%- comment -%}
+      ArchiveOS artifact media: theme gallery + the vitrine-style hover overlay.
+      The overlay MUST live inside <product-card> so :hover and the play affordance
+      resolve against the card. (It previously sat after </product-card>.)
+    {%- endcomment -%}
+    <div class="archive-card__media">
+      {{ children }}
 
-{% render 'ruud-audio-player', product: product %}
+      {%- if product.metafields.custom.audio_preview.value != blank -%}
+        <div class="archive-card__overlay" aria-hidden="true">
+          <button
+            class="archive-play-button"
+            type="button"
+            aria-label="{{ 'Preview ' | append: product.title | escape }}"
+            data-archive-play
+            data-track-id="{{ product.id }}"
+          >
+            <svg class="archive-play-button__icon archive-play-button__icon--play" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <svg class="archive-play-button__icon archive-play-button__icon--pause" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>
+            </svg>
+          </button>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%}
+      Artifact record. Metafields live in the `custom` namespace — see
+      metafield definitions: custom.archive / bpm / key / mood / type / duration.
+    {%- endcomment -%}
+    {% liquid
+      assign archive_number = product.metafields.custom.archive.value
+      assign bpm = product.metafields.custom.bpm.value
+      assign musical_key = product.metafields.custom.key.value
+      assign mood = product.metafields.custom.mood.value
+    %}
+
+    <div class="archive-card__record">
+      <div class="archive-card__status">
+        <span class="archive-card__status-dot"></span>
+        Now Playing
+      </div>
+
+      <div class="archive-card__catalog">
+        {%- if archive_number != blank -%}
+          Archive {{ archive_number }}
+        {%- else -%}
+          Archive —
+        {%- endif -%}
+      </div>
+
+      <h3 class="archive-card__title">{{ product.title }}</h3>
+
+      <div class="archive-card__details">
+        {%- if bpm != blank -%}<span>{{ bpm }} BPM</span>{%- endif -%}
+        {%- if musical_key != blank -%}<span>{{ musical_key }}</span>{%- endif -%}
+        {%- if mood != blank -%}<span>{{ mood }}</span>{%- endif -%}
+      </div>
+    </div>
+
+    {% render 'ruud-audio-player', product: product %}
   </div>
 </product-card>
 

@@ -1,39 +1,39 @@
-{% if product.metafields.custom.audio_preview.value != blank %}
+{%- doc -%}
+  ArchiveOS — artifact data carrier.
 
-<div
-  class="ruud-player"
-  data-rc1="YES"
-  data-product-id="{{ product.id }}"
-  data-title="{{ product.title | escape }}"
-  data-audio="{{ product.metafields.custom.audio_preview.value.url }}"
-  data-image="{% if product.featured_image %}{{ product.featured_image | image_url: width: 240 }}{% endif %}"
-  data-product-url="{{ product.url }}"
-  data-bpm="{{ product.metafields.custom.bpm }}"
-  data-key="{{ product.metafields.custom.key }}"
-  data-mood="{{ product.metafields.custom.mood }}"
-  data-type="{{ product.metafields.custom.type }}"
-  data-variants='{{ product.variants | json | escape }}'
->
+  Renders no visible UI. It exists purely to hand a product's playable metadata
+  to archive-card-ui.js, which builds the track object passed to the ArchiveOS
+  player and the vitrine. The play affordance itself now lives in the card
+  overlay (snippets/product-card.liquid), so the old .ruud-play-button markup
+  has been removed to avoid two competing play controls per card.
 
-    <button class="ruud-play-button" type="button">
+  @param {object} product - The product object
+{%- enddoc -%}
 
-    <span class="ruud-play-icon">
-        ▶
-    </span>
+{%- liquid
+  assign audio = product.metafields.custom.audio_preview.value
+  if audio == blank
+    assign audio = product.metafields.product.audio.value
+  endif
+-%}
 
-    <span class="ruud-play-label">
-        Preview
-    </span>
-
-</button>
-
-<div class="archive-card-footer">
-
-    4 LICENSE OPTIONS AVAILABLE
-
-</div>
-
-</div>
-
-{% endif %}
-
+{%- if audio != blank -%}
+  <script
+    type="application/json"
+    class="archive-track-data"
+    data-archive-track="{{ product.id }}"
+  >
+    {
+      "id": {{ product.id | json }},
+      "title": {{ product.title | json }},
+      "audio": {{ audio.url | json }},
+      "image": {% if product.featured_image %}{{ product.featured_image | image_url: width: 1400 | json }}{% else %}null{% endif %},
+      "url": {{ product.url | json }},
+      "archive": {{ product.metafields.custom.archive.value | default: '' | json }},
+      "bpm": {{ product.metafields.custom.bpm.value | default: '' | json }},
+      "key": {{ product.metafields.custom.key.value | default: '' | json }},
+      "mood": {{ product.metafields.custom.mood.value | default: '' | json }},
+      "type": {{ product.metafields.custom.type.value | default: '' | json }}
+    }
+  </script>
+{%- endif -%}

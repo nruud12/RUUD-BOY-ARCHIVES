@@ -1,0 +1,525 @@
+/* ==========================================
+   CARD
+========================================== */
+
+.archive-card {
+
+    background: var(--archive-surface);
+
+    border: 1px solid var(--archive-border);
+
+    border-radius: var(--radius-md);
+
+    overflow: hidden;
+
+    transition:
+        transform var(--speed-normal) var(--ease),
+        box-shadow var(--speed-normal) var(--ease),
+        border-color var(--speed-normal) var(--ease);
+
+    box-shadow: var(--shadow-rest);
+
+    display: block;
+
+    width: 100%;
+
+
+}
+.archive-card__content {
+
+    padding: var(--space-4);
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:var(--space-2);
+
+}
+.archive-card:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        rgba(255,255,255,.12);
+
+}
+.product-card{
+
+    transition:
+        transform .25s var(--ease),
+        box-shadow .25s var(--ease);
+
+}
+.product-card .quick-add {
+    display: none !important;
+}
+product-card.is-active {
+
+    transform: translateY(-2px);
+
+    transition: 0.2s ease;
+
+    box-shadow:
+        0 0 0 1px #ff00ff,
+        0 0 20px rgba(255,0,255,.35);
+
+}
+
+/* ==========================================
+   MEDIA
+========================================== */
+
+.archive-card .card-gallery {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: #050505;
+    isolation: isolate;
+}
+
+/* Dark glass overlay */
+.archive-card .card-gallery::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            to top,
+            rgba(5,5,5,.68) 0%,
+            rgba(5,5,5,.22) 45%,
+            transparent 82%
+        );
+
+    opacity: 0;
+
+    transition:
+        opacity var(--speed-normal) var(--ease);
+
+    pointer-events: none;
+
+    z-index: 2;
+}
+
+/* Subtle edge vignette */
+.archive-card .card-gallery::before {
+
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at center,
+            transparent 55%,
+            rgba(0,0,0,.28) 100%
+        );
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+.archive-card:hover .card-gallery::after {
+
+    opacity: 1;
+
+}
+
+.archive-card .product-media-container {
+
+    transition:
+        transform .6s var(--ease);
+
+}
+
+.archive-card:hover .product-media-container {
+
+    transform: scale(1.025);
+
+}
+.archive-card:hover img {
+
+    transform: scale(1.03);
+
+}
+
+.product-card .card-gallery{
+
+    overflow:hidden;
+
+    border-radius: var(--radius-lg);
+
+}
+
+.product-card img{
+
+    transition:transform .35s var(--ease);
+
+}
+
+.product-card:hover img{
+
+    filter: brightness(1.05);
+
+}
+.archive-card img {
+
+    display:block;
+
+    width:100%;
+
+    transition:
+        transform .45s var(--ease);
+
+}
+.archive-card {
+    transition:
+        transform .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        opacity .18s ease;
+}
+
+.archive-card.is-active {
+    transform: translateY(-2px);
+}
+/* ==========================================
+   TYPOGRAPHY
+========================================== */
+
+.archive-title {
+
+    font-size: 1rem;
+
+    font-weight: 600;
+
+    color: var(--archive-text);
+
+    margin-bottom: .35rem;
+
+}
+
+/* ==========================================
+   ARCHIVE METADATA
+========================================== */
+.archive-number {
+
+    font-size: .72rem;
+
+    letter-spacing: .18em;
+
+    text-transform: uppercase;
+
+    color: var(--archive-text-muted);
+
+    margin-bottom: .35rem;
+
+}
+.archive-meta-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: .25rem;
+
+    margin-top: .5rem;
+
+}
+
+.archive-type {
+
+    font-size: .82rem;
+
+    color: var(--archive-text);
+
+    margin-top: .45rem;
+
+}
+.archive-meta {
+
+    font-size: .78rem;
+
+    color: var(--archive-text-muted);
+
+}
+.archive-mood {
+
+    display:inline-flex;
+
+    width:max-content;
+
+    padding:.18rem .55rem;
+
+    border:1px solid var(--archive-border);
+
+    border-radius:999px;
+
+    font-size:.65rem;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+    color:var(--archive-text-muted);
+
+}
+/* ==========================================
+   PLAYER
+========================================== */
+
+.archive-card__overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    opacity: 0;
+
+    transition:
+        opacity var(--speed-normal) var(--ease);
+
+    z-index: 10;
+
+    pointer-events: none;
+
+}
+
+.archive-card:hover .archive-card__overlay {
+
+    opacity: 1;
+
+}
+.archive-play-button {
+
+    width: var(--play-button-size);
+height: var(--play-button-size);
+
+border-radius: var(--radius-round);
+
+backdrop-filter: blur(var(--blur-md));
+
+    border: 1px solid rgba(255,255,255,.12);
+
+    background: rgba(0,0,0,.45);
+
+    backdrop-filter: blur(12px);
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition:
+        transform var(--speed-fast) var(--ease),
+        background var(--speed-fast) var(--ease),
+        border-color var(--speed-fast) var(--ease);
+
+    pointer-events: auto;
+
+}
+.archive-play-button:hover {
+
+    transform: scale(1.08);
+
+    background: rgba(255,0,255,.22);
+
+    border-color: rgba(255,0,255,.45);
+
+}
+
+/* ======================================
+   STATES
+====================================== */
+
+[data-archive-card][data-state="playing"] {
+
+    transform: translateY(-6px);
+
+    box-shadow:
+    0 18px 42px rgba(0,0,0,.45),
+    0 0 18px rgba(255,0,255,.18);
+
+    transition:
+        transform .25s var(--ease),
+        box-shadow .25s var(--ease);
+
+}
+
+[data-archive-card][data-state="playing"] .card-gallery {
+
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: var(--radius-lg);
+
+    isolation: isolate;
+
+    transform: none;
+    box-shadow:
+        0 0
+        calc(20px + var(--archive-sub, 0) * 90px)
+        rgba(255,0,255,.45),
+
+        0 0
+        calc(50px + var(--archive-sub, 0) * 150px)
+        rgba(255,0,255,.20);
+
+    transition:
+        transform .05s linear,
+        box-shadow .05s linear;
+
+}
+[data-archive-card][data-state="playing"] .card-gallery::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            120deg,
+            transparent 30%,
+            rgba(255,255,255,.18) 50%,
+            transparent 70%
+        );
+
+    transform: translateX(-180%);
+
+    pointer-events: none;
+
+}
+
+[data-archive-card][data-state="playing"] .ruud-play-button {
+
+    background: #ff00ff;
+
+    color: #050505;
+
+    font-weight: 700;
+
+}
+[data-archive-card][data-state="playing"] .card-gallery::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -20px;
+
+    border-radius: inherit;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,0,255,.55),
+            transparent 70%
+        );
+
+    opacity:
+        calc(.08 + var(--archive-sub, 0) * .9);
+
+    filter: blur(30px);
+
+    pointer-events: none;
+
+    z-index: 0;
+
+    transition: opacity .08s linear;
+
+}
+[data-archive-card][data-state="playing"] .card-gallery img {
+
+    position: relative;
+
+    z-index: 1;
+
+    transform: scale(1.02);
+
+    transition: transform .05s linear;
+
+    will-change: transform;
+
+}
+[data-archive-card][data-state="playing"] .card-gallery img {
+
+    filter:
+        drop-shadow(
+            0 12px
+            calc(12px + var(--archive-kick,0) * 24px)
+            rgba(0,0,0,.55)
+        );
+
+}
+[data-state="playing"] .archive-play-button {
+
+    background: var(--archive-magenta);
+
+    color: #050505;
+
+}
+/* ==========================================
+   ANIMATIONS
+========================================== */
+
+@keyframes archivePulse {
+
+    0% {
+
+        box-shadow:
+            0 0 16px rgba(255,0,255,.18),
+            0 0 40px rgba(255,0,255,.08);
+
+    }
+
+    50% {
+
+        box-shadow:
+            0 0 30px rgba(255,0,255,.45),
+            0 0 75px rgba(255,0,255,.25);
+
+    }
+
+    100% {
+
+        box-shadow:
+            0 0 16px rgba(255,0,255,.18),
+            0 0 40px rgba(255,0,255,.08);
+
+    }
+
+}
+@keyframes archiveScan {
+
+    from {
+
+        transform: translateX(-180%);
+
+    }
+
+    to {
+
+        transform: translateX(180%);
+
+    }
+
+}

@@ -1,233 +1,256 @@
-/* ==========================================
-   ARCHIVE PRODUCT CARD
-========================================== */
+/* ==========================================================
+   ARCHIVEOS — ARTIFACT CARDS
+   RUUD BOY ARCHIVES
 
-.product-card{
+   A card is a catalogued object, not a product tile. Artwork
+   dominates; the record beneath it is set in the small, wide,
+   quiet catalogue voice.
 
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease;
+   Rewritten to remove three duplicated, mutually-overriding
+   .archive-card__meta declarations that existed in the previous
+   version of this file (the last one silently won). The old file
+   is kept as archive-card.css.superseded for reference.
 
+   Structure (see snippets/product-card.liquid):
+     .archive-card
+       .archive-card__media
+         [theme gallery]
+         .archive-card__overlay > .archive-play-button
+       .archive-card__record
+         .archive-card__status      ← only when playing
+         .archive-card__catalog
+         .archive-card__title
+         .archive-card__details
+========================================================== */
+
+.archive-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: transparent;
+  border: 0;
+  transition: transform var(--archive-speed-slow) var(--archive-ease);
 }
 
-.product-card:hover{
-
-    transform:translateY(-6px);
-
+/* Restraint: the card lifts by 4px. It does not scale, tilt or glow. */
+.archive-card:hover {
+  transform: translateY(-4px);
 }
 
-.product-card .card-gallery{
+/* ==========================================================
+   MEDIA
+========================================================== */
 
-    overflow:hidden;
-
-    border-radius:18px;
-
+.archive-card__media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--archive-radius-sm);
+  background: var(--archive-surface-inset);
 }
 
-.product-card img{
-
-    transition:transform .35s ease;
-
+.archive-card__media img,
+.archive-card .card-gallery img {
+  display: block;
+  width: 100%;
+  transition:
+    transform var(--archive-speed-reveal) var(--archive-ease),
+    filter var(--archive-speed-reveal) var(--archive-ease);
+  will-change: transform;
 }
 
-.product-card:hover img{
-
-    filter: brightness(1.05);
-
-}
-/* ==========================================
-   COLLECTION CARD CLEANUP
-========================================== */
-
-.product-card .quick-add {
-    display: none !important;
+.archive-card:hover .archive-card__media img,
+.archive-card:hover .card-gallery img {
+  transform: scale(1.03);
+  filter: brightness(0.55) saturate(0.9);
 }
 
-/* ==========================================
-   ARCHIVEOS NOW PLAYING
-========================================== */
+/* ==========================================================
+   OVERLAY — the glass play affordance
+========================================================== */
 
-[data-archive-card][data-state="playing"] {
-
-    transform: translateY(-6px);
-
-    box-shadow:
-    0 0 18px rgba(255,0,255,.30),
-    0 0 40px rgba(255,0,255,.18),
-    0 12px 30px rgba(0,0,0,.45);
-
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease;
-
+.archive-card__overlay {
+  position: absolute;
+  inset: 0;
+  /* Must sit above .product-card__link, which is absolutely
+     positioned across the whole card — otherwise the play button
+     is unreachable and every click navigates to the product page. */
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.05));
+  transition: opacity var(--archive-speed) var(--archive-ease);
 }
 
-[data-archive-card][data-state="playing"] .card-gallery {
-
-    position: relative;
-
-    overflow: hidden;
-
-    border-radius: 18px;
-
-    transform: none;
-    box-shadow:
-        0 0
-        calc(20px + var(--archive-sub, 0) * 90px)
-        rgba(255,0,255,.45),
-
-        0 0
-        calc(50px + var(--archive-sub, 0) * 150px)
-        rgba(255,0,255,.20);
-
-    transition:
-        transform .05s linear,
-        box-shadow .05s linear;
-
-}
-[data-archive-card][data-state="playing"] .card-gallery::after {
-
-    content: "";
-
-    position: absolute;
-
-    inset: 0;
-
-    background:
-        linear-gradient(
-            120deg,
-            transparent 30%,
-            rgba(255,255,255,.18) 50%,
-            transparent 70%
-        );
-
-    transform: translateX(-180%);
-
-    animation: archiveScan 4s linear infinite;
-
-    pointer-events: none;
-
+.archive-card:hover .archive-card__overlay,
+.archive-card:focus-within .archive-card__overlay,
+.archive-card.is-playing .archive-card__overlay {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-[data-archive-card][data-state="playing"] .ruud-play-button {
-
-    background: #ff00ff;
-
-    color: #050505;
-
-    font-weight: 700;
-
+.archive-play-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  padding: 0;
+  color: var(--archive-text);
+  background: rgba(12, 12, 12, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--archive-radius-pill);
+  backdrop-filter: blur(var(--archive-blur-glass));
+  -webkit-backdrop-filter: blur(var(--archive-blur-glass));
+  cursor: pointer;
+  pointer-events: auto;
+  /* Fades in slightly under size, then settles. No bounce. */
+  transform: scale(0.94);
+  transition:
+    transform var(--archive-speed) var(--archive-ease),
+    background-color var(--archive-speed) var(--archive-ease),
+    border-color var(--archive-speed) var(--archive-ease);
 }
-/* ==========================================
-   ARCHIVEOS ANIMATIONS
-========================================== */
 
-@keyframes archivePulse {
-
-    0% {
-
-        box-shadow:
-            0 0 16px rgba(255,0,255,.18),
-            0 0 40px rgba(255,0,255,.08);
-
-    }
-
-    50% {
-
-        box-shadow:
-            0 0 30px rgba(255,0,255,.45),
-            0 0 75px rgba(255,0,255,.25);
-
-    }
-
-    100% {
-
-        box-shadow:
-            0 0 16px rgba(255,0,255,.18),
-            0 0 40px rgba(255,0,255,.08);
-
-    }
-
+.archive-card:hover .archive-play-button,
+.archive-card.is-playing .archive-play-button {
+  transform: scale(1);
 }
-@keyframes archiveScan {
 
-    from {
-
-        transform: translateX(-180%);
-
-    }
-
-    to {
-
-        transform: translateX(180%);
-
-    }
-
+.archive-play-button:hover {
+  background: rgba(18, 18, 18, 0.78);
+  border-color: var(--archive-magenta-64);
 }
-/* ==========================================
-   ARCHIVEOS ARTWORK STAGE
-========================================== */
 
-[data-archive-card][data-state="playing"] .card-gallery {
-
-    position: relative;
-
-    overflow: hidden;
-
-    border-radius: 20px;
-
-    isolation: isolate;
-
+.archive-play-button__icon {
+  display: block;
 }
-[data-archive-card][data-state="playing"] .card-gallery::before {
 
-    content: "";
-
-    position: absolute;
-
-    inset: -20px;
-
-    border-radius: inherit;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(255,0,255,.55),
-            transparent 70%
-        );
-
-    opacity:
-        calc(.08 + var(--archive-sub, 0) * .9);
-
-    filter: blur(30px);
-
-    pointer-events: none;
-
-    z-index: 0;
-
-    transition: opacity .08s linear;
-
+/* Icon swaps to pause while this artifact is the one playing. */
+.archive-play-button__icon--pause,
+.archive-card.is-playing .archive-play-button__icon--play {
+  display: none;
 }
-[data-archive-card][data-state="playing"] .card-gallery img {
 
-    position: relative;
-
-    z-index: 1;
-
-    transform: scale(1.02);
-
-    transition: transform .05s linear;
-
-    will-change: transform;
-
+.archive-card.is-playing .archive-play-button__icon--pause {
+  display: block;
 }
-[data-archive-card][data-state="playing"] .card-gallery img {
 
-    filter:
-        drop-shadow(
-            0 12px
-            calc(12px + var(--archive-kick,0) * 24px)
-            rgba(0,0,0,.55)
-        );
+/* ==========================================================
+   RECORD
+========================================================== */
 
+.archive-card__record {
+  display: flex;
+  flex-direction: column;
+  gap: var(--archive-space-2xs);
+  padding-block-start: var(--archive-space-sm);
+  background: transparent;
+  border: 0;
+}
+
+.archive-card__catalog {
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+  transition: color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-card__title {
+  margin: 0;
+  font-family: var(--archive-font-display);
+  font-size: var(--archive-type-heading);
+  font-weight: var(--archive-weight-medium);
+  line-height: var(--archive-leading-snug);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--archive-text);
+}
+
+.archive-card__details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--archive-space-2xs);
+  font-size: var(--archive-type-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--archive-text-faint);
+}
+
+/* Interpuncts are drawn, not typed — so empty metafields never
+   leave orphaned bullets behind. */
+.archive-card__details > span + span::before {
+  content: '·';
+  margin-right: var(--archive-space-2xs);
+  color: var(--archive-text-faint);
+}
+
+/* ==========================================================
+   ACTIVE ARTIFACT
+
+   Cyan, hairline, and almost nothing else. The signal that this
+   is the piece currently sounding in the room.
+========================================================== */
+
+.archive-card__status {
+  display: none;
+  align-items: center;
+  gap: var(--archive-space-3xs);
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-cyan);
+}
+
+.archive-card.is-playing .archive-card__status {
+  display: flex;
+}
+
+.archive-card__status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--archive-cyan);
+  animation: archive-card-pulse 2.4s var(--archive-ease-soft) infinite;
+}
+
+.archive-card.is-playing .archive-card__media {
+  box-shadow: inset 0 0 0 1px var(--archive-cyan-48);
+}
+
+.archive-card.is-playing .archive-card__catalog {
+  color: var(--archive-cyan);
+}
+
+/* Selected but paused: the artifact is still the one in the case,
+   so it keeps a trace of the marker without claiming to be playing. */
+.archive-card.is-active:not(.is-playing) .archive-card__media {
+  box-shadow: inset 0 0 0 1px var(--archive-cyan-24);
+}
+
+.archive-card.is-active:not(.is-playing) .archive-card__catalog {
+  color: var(--archive-text-muted);
+}
+
+@keyframes archive-card-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-card__status-dot {
+    animation: none;
+  }
 }

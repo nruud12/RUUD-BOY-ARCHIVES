@@ -6,13 +6,92 @@
   {% render 'text', fallback_text: product_title, block: block %}
 {% else %}
   {% assign product_title = '<p role="heading" aria-level="3">' | append: closest.product.title | append: '</p>' %}
+  {% if closest.product.metafields.archive.number %}
+    <div class="archive-number">
+        ARCHIVE {{ closest.product.metafields.archive.number }}
+    </div>
+{% endif %}
   <a
   class="contents user-select-text"
   ref="productTitleLink"
   href="{{ closest.product.url }}"
 >
+{% if closest.product.metafields.archive.number %}
+  <div class="archive-number">
+    ARCHIVE {{ closest.product.metafields.archive.number }}
+  </div>
+{% endif %}
   {% render 'text', fallback_text: product_title, block: block %}
 </a>
+{% assign beat_bpm = closest.product.metafields.custom.bpm %}
+{% assign beat_key = closest.product.metafields.custom.key %}
+{% assign beat_type = closest.product.metafields.custom.type %}
+{% assign beat_mood = closest.product.metafields.custom.mood %}
+
+{% if beat_type or beat_bpm or beat_key or beat_mood %}
+  <div class="archive-meta-group">
+
+    {% if beat_type %}
+      <div class="archive-type">
+        {{ beat_type }}
+      </div>
+    {% endif %}
+
+    {% if beat_bpm or beat_key %}
+      <div class="archive-meta">
+        {% if beat_bpm %}
+          {{ beat_bpm }} BPM
+        {% endif %}
+        {% if beat_bpm and beat_key %}
+          •
+        {% endif %}
+        {% if beat_key %}
+          {{ beat_key }}
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if beat_mood %}
+      <div class="archive-mood">
+        {{ beat_mood }}
+      </div>
+    {% endif %}
+
+  </div>
+{% endif %}
+{% if closest.product != blank %}
+
+  <div class="archive-meta-group">
+
+    {% if closest.product.metafields.music.type %}
+      <div class="archive-type">
+        {{ closest.product.metafields.music.type }}
+      </div>
+    {% endif %}
+
+    {% if closest.product.metafields.music.bpm or closest.product.metafields.music.key %}
+      <div class="archive-meta">
+
+        {% if closest.product.metafields.music.bpm %}
+          {{ closest.product.metafields.music.bpm }} BPM
+        {% endif %}
+
+        {% if closest.product.metafields.music.key %}
+          • {{ closest.product.metafields.music.key }}
+        {% endif %}
+
+      </div>
+    {% endif %}
+
+    {% if closest.product.metafields.music.mood %}
+      <div class="archive-mood">
+        {{ closest.product.metafields.music.mood }}
+      </div>
+    {% endif %}
+
+  </div>
+
+{% endif %}
 
 
 {% endif %}

@@ -1,4 +1,47 @@
 {{ 'overflow-list.css' | asset_url | preload_tag: as: 'style' }}
 {{ 'base.css' | asset_url | stylesheet_tag: preload: true }}
+
+{%- comment -%}
+  ==========================================================
+  ARCHIVEOS STYLE CASCADE
+
+  Order is load-bearing. Each layer assumes the one above it:
+
+    1. archive-tokens   values only, no selectors
+    2. archive-shell    the room — canvas, type, nav, de-Shopify
+    3. archive-card     artifact cards
+    4. archive-vitrine  the display case
+    5. archive-player   the persistent transport deck
+
+  archive-design.css is no longer loaded. archive-tokens.css is the
+  single source of truth for design values.
+
+  Correction (Sprint 1A audit): archive-tokens.css does NOT absorb
+  all of archive-design.css. Only the 8 --archive-* colour tokens
+  overlap — see the LEGACY ALIASES block at the end of
+  archive-tokens.css. The 21 unprefixed tokens archive-design.css
+  also defined are NOT aliased and are undefined in the live cascade:
+
+    --space-1..7        --radius-sm/md/lg/round
+    --shadow-rest/hover --ease      --speed-fast/normal/slow
+    --font-display      --font-body --play-button-size --blur-md
+
+  This is safe today: their only consumer is assets/archive-card-old.css,
+  which is itself dead and unreferenced. Do NOT load archive-card-old.css
+  without first restoring those 21 values — it would render unstyled.
+
+  ruud-player.css is legacy (27KB) and styles the retired
+  #ruud-global-player markup. It stays loaded for now because a
+  handful of its rules still reach product/collection pages; it is
+  scheduled for removal in the catalogue + player pass.
+  See ARCHIVE-REDESIGN.md.
+  ==========================================================
+{%- endcomment -%}
+
 {{ 'ruud-player.css' | asset_url | stylesheet_tag }}
+
+{{ 'archive-tokens.css' | asset_url | stylesheet_tag }}
+{{ 'archive-shell.css' | asset_url | stylesheet_tag }}
 {{ 'archive-card.css' | asset_url | stylesheet_tag }}
+{{ 'archive-vitrine.css' | asset_url | stylesheet_tag }}
+{{ 'archive-player.css' | asset_url | stylesheet_tag }}

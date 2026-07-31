@@ -1,0 +1,494 @@
+/* ==========================================================
+   ARCHIVEOS — THE VITRINE
+   RUUD BOY ARCHIVES
+
+   The artifact display case. Permanently present, never a modal.
+   The whole design rests on one idea:
+
+       The music awakens the artifact.
+       Light responds. Geometry barely moves.
+
+   Every reactive property is a CSS custom property written by
+   archive-vitrine.js on each animation frame:
+
+       --v-energy   0→1   overall loudness
+       --v-bass     0→1   low-band energy, drives the fractures
+       --v-air      0→1   high-band energy, drives the rim light
+
+   The JS never touches a class per frame and never sets a style
+   other than these three numbers, so the compositor does all the
+   real work and the animation stays on the GPU.
+
+   States (class on .vitrine):
+       .is-idle    slow drift, near-dormant glow
+       .is-awake   playing — fractures lit, core breathing
+       .is-loaded  an artifact has been selected
+========================================================== */
+
+.vitrine {
+  --v-energy: 0;
+  --v-bass: 0;
+  --v-air: 0;
+
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: min(86vh, 900px);
+  padding-block: var(--archive-space-2xl);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ==========================================================
+   THE ROOM
+
+   Three stacked light sources: an overhead wash, a magenta
+   ground bounce that intensifies with bass, and a vignette that
+   closes the walls in. All pointer-events:none.
+========================================================== */
+
+.vitrine__room {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Overhead gallery light falling on the plinth. */
+.vitrine__room::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -18%;
+  width: min(150vw, 1500px);
+  aspect-ratio: 1 / 1;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 0, 255, calc(0.05 + var(--v-energy) * 0.09)) 28%,
+    transparent 62%
+  );
+  transition: background var(--archive-speed-slow) var(--archive-ease);
+}
+
+/* Vignette — the walls of the room. */
+.vitrine__room::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, transparent 40%, var(--archive-void) 100%);
+}
+
+/* Reflective floor. The artifact stands on something. */
+.vitrine__floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(255, 0, 255, calc(0.03 + var(--v-bass) * 0.07)) 60%, transparent);
+  transition: background var(--archive-speed) var(--archive-ease);
+}
+
+/* ==========================================================
+   THE CASE
+
+   A glass box in perspective. The perspective is deliberately
+   shallow — this is a museum vitrine, not a 3D showcase.
+========================================================== */
+
+.vitrine__stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: min(46vw, 520px);
+  aspect-ratio: 1 / 1;
+  perspective: 1600px;
+  perspective-origin: 50% 45%;
+}
+
+.vitrine__case {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* The glass itself: a faint edge-lit frame. Border only exists
+   because glass has edges — this is the one place a border earns
+   its keep. */
+.vitrine__glass {
+  position: absolute;
+  inset: 6%;
+  border-radius: var(--archive-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0%, transparent 42%, transparent 58%, rgba(255, 255, 255, 0.025) 100%);
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.6),
+    0 0 calc(40px + var(--v-energy) * 70px) rgba(255, 0, 255, calc(0.06 + var(--v-energy) * 0.24));
+  backdrop-filter: blur(0.5px);
+  transition: box-shadow var(--archive-speed-slow) var(--archive-ease);
+  pointer-events: none;
+}
+
+/* Rim light along the top edge of the glass — tracks the high band. */
+.vitrine__glass::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border-top: 1px solid rgba(255, 255, 255, calc(0.12 + var(--v-air) * 0.5));
+  transition: border-color var(--archive-speed-fast) var(--archive-ease);
+}
+
+/* ==========================================================
+   THE ARTIFACT
+
+   Idle: a ±7° drift over 96 seconds. Almost motionless — you
+   should have to look twice to be sure it moved at all.
+   It does NOT scale with the bass. Only light responds.
+========================================================== */
+
+.vitrine__artifact {
+  position: relative;
+  width: 74%;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+  animation: vitrine-drift var(--archive-ambient-drift) ease-in-out infinite;
+}
+
+@keyframes vitrine-drift {
+  0%,
+  100% {
+    transform: rotateY(-7deg) rotateX(1.5deg);
+  }
+  50% {
+    transform: rotateY(7deg) rotateX(-1.5deg);
+  }
+}
+
+.vitrine__art {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--archive-radius-xs);
+  /* Dormant artwork is desaturated and dim. Playback restores it. */
+  filter: brightness(calc(0.62 + var(--v-energy) * 0.42)) saturate(calc(0.75 + var(--v-energy) * 0.45))
+    contrast(1.04);
+  transition: filter var(--archive-speed-slow) var(--archive-ease);
+}
+
+/* Empty state: no artifact selected yet. */
+.vitrine:not(.is-loaded) .vitrine__art {
+  opacity: 0;
+}
+
+.vitrine__placeholder {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  gap: var(--archive-space-sm);
+  text-align: center;
+  color: var(--archive-text-faint);
+  transition: opacity var(--archive-speed-slow) var(--archive-ease);
+}
+
+.vitrine.is-loaded .vitrine__placeholder {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vitrine__placeholder-mark {
+  width: 96px;
+  height: 96px;
+  border: 1px solid var(--archive-line-strong);
+  transform: rotate(45deg);
+  animation: vitrine-breathe var(--archive-ambient-breath) ease-in-out infinite;
+}
+
+/* ==========================================================
+   FRACTURE LINES
+
+   The magenta seams running through the object. Dormant they are
+   nearly invisible; under playback the bass pushes energy along
+   them. Rendered as a conic sweep masked to thin radial lines, so
+   no images or SVG are required.
+========================================================== */
+
+.vitrine__fractures {
+  position: absolute;
+  inset: -8%;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: calc(0.05 + var(--v-bass) * 0.85);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 8deg,
+    var(--archive-magenta) 9deg 10deg,
+    transparent 11deg 52deg,
+    var(--archive-magenta-soft) 53deg 54deg,
+    transparent 55deg 120deg,
+    var(--archive-magenta) 121deg 122deg,
+    transparent 123deg 196deg,
+    var(--archive-magenta-deep) 197deg 198deg,
+    transparent 199deg 268deg,
+    var(--archive-magenta) 269deg 270deg,
+    transparent 271deg 324deg,
+    var(--archive-magenta-soft) 325deg 326deg,
+    transparent 327deg 360deg
+  );
+  /* Hollow out the centre so the seams read as edges, not a fan. */
+  -webkit-mask-image: radial-gradient(circle, transparent 26%, #000 42%, #000 60%, transparent 78%);
+  mask-image: radial-gradient(circle, transparent 26%, #000 42%, #000 60%, transparent 78%);
+  filter: blur(calc(1px + var(--v-bass) * 2px));
+  mix-blend-mode: screen;
+  transition:
+    opacity var(--archive-speed) var(--archive-ease),
+    filter var(--archive-speed) var(--archive-ease);
+}
+
+/* Energy travelling through the cracks: a slow rotation of the
+   seam pattern that only runs while the artifact is awake. */
+.vitrine.is-awake .vitrine__fractures {
+  animation: vitrine-travel 24s linear infinite;
+}
+
+@keyframes vitrine-travel {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================
+   INTERNAL CORE
+
+   The energy inside the object. Breathes on a slow loop when
+   idle; the loop deepens rather than speeds up under playback.
+========================================================== */
+
+.vitrine__core {
+  position: absolute;
+  z-index: 1;
+  width: 58%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 0, 255, calc(0.12 + var(--v-energy) * 0.5)) 0%,
+    rgba(138, 59, 226, calc(0.06 + var(--v-energy) * 0.22)) 38%,
+    transparent 70%
+  );
+  filter: blur(calc(18px + var(--v-bass) * 22px));
+  animation: vitrine-breathe var(--archive-ambient-breath) ease-in-out infinite;
+  transition:
+    background var(--archive-speed) var(--archive-ease),
+    filter var(--archive-speed) var(--archive-ease);
+}
+
+@keyframes vitrine-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================
+   PLINTH & REFLECTION
+========================================================== */
+
+.vitrine__plinth {
+  position: absolute;
+  bottom: -2%;
+  left: 50%;
+  width: 62%;
+  height: 10%;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 0, 255, calc(0.16 + var(--v-bass) * 0.42)) 0%,
+    transparent 70%
+  );
+  filter: blur(16px);
+  transition: background var(--archive-speed) var(--archive-ease);
+}
+
+/* ==========================================================
+   THE LABEL
+
+   Museum wall text. Sits beneath the case, centred, tiny.
+========================================================== */
+
+.vitrine__label {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: var(--archive-space-2xs);
+  margin-top: var(--archive-space-lg);
+  text-align: center;
+}
+
+.vitrine__catalog {
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-magenta-soft);
+}
+
+.vitrine__title {
+  font-family: var(--archive-font-display);
+  font-size: var(--archive-type-title);
+  font-weight: var(--archive-weight-light);
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+  color: var(--archive-text);
+  margin: 0;
+}
+
+.vitrine__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-2xs);
+  font-size: var(--archive-type-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+}
+
+.vitrine__meta > span:empty {
+  display: none;
+}
+
+/* General sibling (~), not adjacent (+): the separator must only
+   appear on a non-empty span that actually follows another
+   non-empty one. With `+` a hidden middle field still counted,
+   which produced a leading interpunct when BPM and key were both
+   absent but mood was present. */
+.vitrine__meta > span:not(:empty) ~ span:not(:empty)::before {
+  content: '·';
+  margin-right: var(--archive-space-2xs);
+  color: var(--archive-text-faint);
+}
+
+/* ==========================================================
+   THE MONUMENT — homepage wordmark above the case
+========================================================== */
+
+.vitrine__monument {
+  position: relative;
+  z-index: 2;
+  margin-bottom: var(--archive-space-xl);
+  text-align: center;
+}
+
+.vitrine__wordmark {
+  margin: 0;
+  font-family: var(--archive-font-display);
+  font-size: var(--archive-type-monument);
+  font-weight: var(--archive-weight-light);
+  line-height: var(--archive-leading-tight);
+  letter-spacing: var(--archive-track-monument);
+  text-transform: uppercase;
+  /* Indent by the tracking so the optical centre is true — with
+     0.16em tracking the trailing space throws the block right. */
+  text-indent: var(--archive-track-monument);
+  color: var(--archive-text);
+}
+
+.vitrine__standfirst {
+  margin: var(--archive-space-md) auto 0;
+  max-width: 46ch;
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+  line-height: 2;
+}
+
+/* ==========================================================
+   AWAKE / DORMANT TRANSITIONS
+========================================================== */
+
+.vitrine.is-awake .vitrine__glass {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* On pause the room goes quiet: JS eases --v-* back to 0 and
+   these longer transitions let the light fall away rather than
+   snap off. */
+.vitrine:not(.is-awake) .vitrine__glass,
+.vitrine:not(.is-awake) .vitrine__core,
+.vitrine:not(.is-awake) .vitrine__fractures,
+.vitrine:not(.is-awake) .vitrine__plinth {
+  transition-duration: 900ms;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 1024px) {
+  .vitrine__stage {
+    width: min(70vw, 440px);
+  }
+}
+
+@media (max-width: 768px) {
+  .vitrine {
+    min-height: auto;
+    padding-block: var(--archive-space-xl);
+  }
+
+  .vitrine__stage {
+    width: min(82vw, 380px);
+  }
+
+  .vitrine__monument {
+    margin-bottom: var(--archive-space-lg);
+  }
+
+  .vitrine__standfirst {
+    line-height: 1.9;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+
+   The case still lights up — light is information here — but
+   nothing drifts, travels or breathes.
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .vitrine__artifact,
+  .vitrine__core,
+  .vitrine__placeholder-mark,
+  .vitrine.is-awake .vitrine__fractures {
+    animation: none;
+  }
+
+  .vitrine__artifact {
+    transform: none;
+  }
+}

@@ -1,100 +1,122 @@
 /* ==========================================================
-   ArchiveOS Core
+   ArchiveOS Core v2.0
+   ----------------------------------------------------------
+   Responsibilities
+   • Global namespace
+   • State management
+   • Event bus
+   • Module registration
+   • Boot process
+
+   Never:
+   • Touch the DOM
+   • Play audio
+   • Render UI
 ========================================================== */
 
-(function () {
+(() => {
 
     if (window.ArchiveOS) return;
 
-    window.ArchiveOS = {
+    const modules = {};
 
-        version: "1.0.0",
+    const state = {
+        playing: false,
+        currentTrack: null,
+        currentTime: 0,
+        duration: 0,
+        queue: [],
+        currentIndex: -1,
+        volume: 1,
+        muted: false
+    };
+
+    const ArchiveOS = {
+
+        version: "2.0.0",
 
         debug: true,
 
-        audio: {},
+        state,
 
-        visual: {},
+        register(name, module) {
 
-        commerce: {},
+            modules[name] = module;
 
-        context: {},
+        },
 
-        player: {},
+        getModule(name) {
 
-        ui: {},
+            return modules[name];
 
-        effects: {},
+        },
 
-       state: {
+        set(key, value) {
 
-    playing: false,
-
-    mode: "listen",
-
-    activeProductId: null,
-
-    activeTrack: null,
-
-    currentTime: 0,
-
-    duration: 0,
-
-    volume: 1,
-
-    muted: false,
-
-    queue: [],
-
-    currentIndex: -1
-
-},
-
-        set: function (key, value) {
-
-            this.state[key] = value;
+            state[key] = value;
 
             document.dispatchEvent(
                 new CustomEvent("archive:state", {
                     detail: {
-                        key: key,
-                        value: value,
-                        state: this.state
+                        key,
+                        value,
+                        state
                     }
                 })
             );
 
         },
 
-        get: function (key) {
+        get(key) {
 
-            return this.state[key];
+            return state[key];
 
         },
-        emit: function (event, data = {}) {
 
-    document.dispatchEvent(
-        new CustomEvent(event, {
-            detail: data
-        })
-    );
+        emit(event, detail = {}) {
 
-},
+            document.dispatchEvent(
+                new CustomEvent(event, {
+                    detail
+                })
+            );
 
-on: function (event, callback) {
+        },
 
-    document.addEventListener(
-        event,
-        callback
-    );
+        on(event, callback) {
+
+            document.addEventListener(event, callback);
+
+        },
+
+        boot() {
+
+    console.group("ArchiveOS Boot");
+
+    Object.entries(modules).forEach(([name, module]) => {
+
+        console.log(`Initializing ${name}`);
+
+        if (typeof module.init === "function") {
+            module.init();
+        }
+
+    });
+
+    console.groupEnd();
 
 }
 
     };
 
-    console.log(
-        "ArchiveOS Core Loaded",
-        window.ArchiveOS
-    );
+    window.ArchiveOS = ArchiveOS;
 
+console.log(
+    "ArchiveOS Core Loaded",
+    ArchiveOS
+);
+
+window.addEventListener("DOMContentLoaded", () => {
+    ArchiveOS.boot();
+});
 })();

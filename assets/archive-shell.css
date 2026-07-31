@@ -1,0 +1,514 @@
+/* ==========================================================
+   ARCHIVEOS — GLOBAL SHELL
+   RUUD BOY ARCHIVES
+
+   The room the artifacts live in. This file is responsible for
+   making Horizon's storefront chrome recede until only the work
+   is left: black canvas, near-invisible navigation, hierarchy
+   built from whitespace rather than boxes.
+
+   Scoped under .archive-os (set on <body> in layout/theme.liquid)
+   so nothing here leaks into the Shopify theme editor's own UI.
+
+   Sections, in order:
+     1.  Canvas
+     2.  Typography
+     3.  De-Shopify — dissolving the storefront chrome
+     4.  Navigation
+     5.  Layout primitives
+     6.  Section furniture (eyebrow / title / rule)
+     7.  Product grid as artifact vitrine wall
+     8.  Buttons & links
+     9.  Footer
+     10. Accessibility
+========================================================== */
+
+/* ==========================================================
+   1. CANVAS
+========================================================== */
+
+.archive-os {
+  background-color: var(--archive-bg);
+  color: var(--archive-text);
+  font-family: var(--archive-font-body);
+  font-size: var(--archive-type-body);
+  line-height: var(--archive-leading-body);
+  letter-spacing: var(--archive-track-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.archive-os,
+.archive-os .page-wrapper,
+.archive-os .content-for-layout,
+.archive-os .shopify-section {
+  background-color: transparent;
+}
+
+/* The persistent transport deck is fixed to the bottom of every
+   page, so every page owes it clearance. */
+.archive-os {
+  --archive-player-clearance: 104px;
+}
+
+.archive-os .content-for-layout {
+  padding-bottom: var(--archive-player-clearance);
+}
+
+@media (max-width: 768px) {
+  .archive-os {
+    --archive-player-clearance: 148px;
+  }
+}
+
+/* A single, very faint field of light sitting behind the whole
+   document. Stops pure #050505 from reading as "unstyled black". */
+.archive-os .page-wrapper::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 0, 255, 0.05), transparent 60%),
+    radial-gradient(80% 60% at 90% 110%, rgba(0, 240, 255, 0.03), transparent 65%);
+}
+
+.archive-os .page-wrapper > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================
+   2. TYPOGRAPHY
+========================================================== */
+
+.archive-os h1,
+.archive-os h2,
+.archive-os h3,
+.archive-os h4,
+.archive-os .h1,
+.archive-os .h2,
+.archive-os .h3 {
+  font-family: var(--archive-font-display);
+  font-weight: var(--archive-weight-medium);
+  line-height: var(--archive-leading-snug);
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+  color: var(--archive-text);
+  margin: 0;
+}
+
+.archive-os p {
+  color: var(--archive-text-muted);
+  max-width: var(--archive-measure);
+}
+
+/* The catalogue-number voice: tiny, wide, quiet. Used anywhere a
+   piece of metadata needs to look archival rather than commercial. */
+.archive-label,
+.archive-os .archive-label {
+  font-family: var(--archive-font-body);
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+  line-height: 1.4;
+}
+
+.archive-os ::selection {
+  background: var(--archive-magenta-32);
+  color: var(--archive-text);
+}
+
+/* ==========================================================
+   3. DE-SHOPIFY
+
+   Horizon leans on borders, cards, chips and filled buttons.
+   None of that belongs in a museum. Rather than deleting the
+   markup (which would break the theme editor), the decoration
+   is simply dissolved.
+========================================================== */
+
+.archive-os .border-style,
+.archive-os .product-card,
+.archive-os .card,
+.archive-os .card-gallery,
+.archive-os .product-grid__card {
+  border: 0 !important;
+  border-radius: 0;
+  background-color: transparent !important;
+  box-shadow: none;
+}
+
+/* Horizon paints per-block background colours from the theme
+   editor. Those were set to demo values (lime green, #111) that
+   fight the canvas. Neutralise them inside artifact contexts. */
+.archive-os .product-grid,
+.archive-os .product-grid__card .layout-panel-flex {
+  background-color: transparent !important;
+}
+
+/* Badges, ratings and sale flags are storefront noise. */
+.archive-os .product-badges,
+.archive-os .badge,
+.archive-os .product-card__badges,
+.archive-os .rating,
+.archive-os .card__badges {
+  display: none !important;
+}
+
+.archive-os hr,
+.archive-os .divider {
+  border: 0;
+  height: 1px;
+  background: var(--archive-line);
+  margin-block: var(--archive-space-2xl);
+}
+
+/* ==========================================================
+   4. NAVIGATION
+
+   Thin, wide-tracked, low-contrast. It should be findable but
+   never compete with the artifact. No pills, no boxes, no
+   oversized calls to action.
+========================================================== */
+
+.archive-os #header-group,
+.archive-os .header-section,
+.archive-os header-component {
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.archive-os header-component {
+  position: sticky;
+  top: 0;
+  z-index: var(--archive-z-header);
+  backdrop-filter: blur(var(--archive-blur-glass));
+  -webkit-backdrop-filter: blur(var(--archive-blur-glass));
+  background: linear-gradient(to bottom, rgba(5, 5, 5, 0.82), rgba(5, 5, 5, 0)) !important;
+  transition: background var(--archive-speed) var(--archive-ease);
+}
+
+.archive-os .header__row {
+  padding-block: var(--archive-space-md);
+  padding-inline: var(--archive-gutter);
+  gap: var(--archive-space-lg);
+}
+
+/* Wordmark */
+.archive-os .header__column--left .logo,
+.archive-os .header__heading-logo,
+.archive-os .header__logo-text {
+  font-family: var(--archive-font-display);
+  font-weight: var(--archive-weight-medium);
+  font-size: 0.95rem;
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text);
+}
+
+/* Menu items */
+.archive-os .menu__item,
+.archive-os .menu__heading,
+.archive-os .mega-menu__link,
+.archive-os .header-actions__action {
+  font-family: var(--archive-font-body);
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+  background: none;
+  border: 0;
+  padding-inline: var(--archive-space-xs);
+  transition: color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-os .menu__item:hover,
+.archive-os .menu__heading:hover,
+.archive-os .mega-menu__link:hover,
+.archive-os .header-actions__action:hover {
+  color: var(--archive-text);
+}
+
+/* The only accent in the navigation: the current room. */
+.archive-os .menu__item[aria-current='page'],
+.archive-os .menu__heading[aria-current='page'] {
+  color: var(--archive-text);
+}
+
+.archive-os .menu__item[aria-current='page']::after {
+  content: '';
+  display: block;
+  height: 1px;
+  margin-top: 4px;
+  background: var(--archive-magenta);
+  opacity: 0.7;
+}
+
+/* Icon actions (search, account, cart) — hairline weight only. */
+.archive-os .header-actions__action .svg-wrapper svg,
+.archive-os .header-actions__action svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.1;
+}
+
+.archive-os .header__underlay {
+  background: rgba(5, 5, 5, 0.9) !important;
+}
+
+/* ==========================================================
+   5. LAYOUT PRIMITIVES
+========================================================== */
+
+.archive-shell {
+  width: 100%;
+  max-width: var(--archive-max-width);
+  margin-inline: auto;
+  padding-inline: var(--archive-gutter);
+}
+
+/* Rooms, not sections. Generous by default; the gap between two
+   ideas is the primary hierarchy tool in this design. */
+.archive-room {
+  padding-block: var(--archive-space-3xl);
+}
+
+.archive-room--tight {
+  padding-block: var(--archive-space-2xl);
+}
+
+.archive-room--flush {
+  padding-block: 0;
+}
+
+.archive-os .shopify-section + .shopify-section {
+  margin-top: 0;
+}
+
+/* ==========================================================
+   6. SECTION FURNITURE
+========================================================== */
+
+.archive-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--archive-space-lg);
+  flex-wrap: wrap;
+  margin-bottom: var(--archive-space-xl);
+}
+
+.archive-section-head__title {
+  font-family: var(--archive-font-display);
+  font-size: var(--archive-type-title);
+  font-weight: var(--archive-weight-light);
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+}
+
+.archive-section-head__aside {
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+}
+
+/* Small caps eyebrow that sits above a title. */
+.archive-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-xs);
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+  margin-bottom: var(--archive-space-sm);
+}
+
+.archive-eyebrow::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--archive-magenta);
+  opacity: 0.6;
+}
+
+/* ==========================================================
+   7. PRODUCT GRID — THE VITRINE WALL
+
+   Horizon's grid is retained; only its rhythm and skin change.
+   Cards get air rather than borders.
+========================================================== */
+
+.archive-os .product-grid {
+  gap: clamp(1.5rem, 3vw, 3rem) !important;
+}
+
+.archive-os .product-list__content,
+.archive-os .product-grid__card {
+  padding: 0 !important;
+}
+
+/* Horizon renders the gallery inside the card; give it a dark
+   inset well so artwork edges dissolve instead of stopping. */
+.archive-os .archive-card .card-gallery,
+.archive-os .archive-card__media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--archive-radius-sm);
+  background: var(--archive-surface-inset);
+}
+
+/* ==========================================================
+   8. BUTTONS & LINKS
+
+   One button style: a hairline outline that fills with light on
+   hover. Nothing is ever a solid magenta slab.
+========================================================== */
+
+.archive-os .button,
+.archive-os button.button,
+.archive-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--archive-space-2xs);
+  padding: 0.85rem 1.75rem;
+  font-family: var(--archive-font-body);
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text);
+  background: transparent;
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius-xs);
+  cursor: pointer;
+  transition:
+    border-color var(--archive-speed) var(--archive-ease),
+    background-color var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-os .button:hover,
+.archive-button:hover {
+  border-color: var(--archive-magenta-64);
+  background-color: var(--archive-magenta-08);
+  color: var(--archive-text);
+}
+
+.archive-button--primary {
+  border-color: var(--archive-magenta-64);
+  color: var(--archive-magenta-soft);
+}
+
+.archive-button--primary:hover {
+  background-color: var(--archive-magenta-16);
+  border-color: var(--archive-magenta);
+}
+
+/* Quiet text link with a rule that draws itself on hover. */
+.archive-link {
+  position: relative;
+  display: inline-block;
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+  text-decoration: none;
+  padding-bottom: 3px;
+  transition: color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--archive-speed) var(--archive-ease);
+}
+
+.archive-link:hover {
+  color: var(--archive-text);
+}
+
+.archive-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* ==========================================================
+   9. FOOTER
+========================================================== */
+
+.archive-os footer,
+.archive-os .footer {
+  background: transparent !important;
+  border-top: 1px solid var(--archive-line);
+  padding-block: var(--archive-space-2xl) var(--archive-space-lg);
+  color: var(--archive-text-subtle);
+}
+
+.archive-os footer a {
+  color: var(--archive-text-subtle);
+  text-decoration: none;
+  transition: color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-os footer a:hover {
+  color: var(--archive-text);
+}
+
+/* ==========================================================
+   10. ACCESSIBILITY
+
+   The interface disappears visually, never functionally.
+   Focus is the one place where the accent is allowed to shout.
+========================================================== */
+
+.archive-os :focus-visible {
+  outline: 2px solid var(--archive-magenta);
+  outline-offset: 3px;
+  border-radius: var(--archive-radius-xs);
+}
+
+.archive-os :focus:not(:focus-visible) {
+  outline: none;
+}
+
+.archive-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-os *,
+  .archive-os *::before,
+  .archive-os *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

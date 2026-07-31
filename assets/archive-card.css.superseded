@@ -1,0 +1,371 @@
+/* ==========================================================
+   ArchiveOS Artifact Cards v1.0
+========================================================== */
+
+.archive-card{
+
+    position:relative;
+
+    overflow:hidden;
+
+    display:flex;
+    flex-direction:column;
+
+    height:100%;
+
+    background:#070707;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    border-radius:14px;
+
+    transition:
+        transform .28s ease,
+        border-color .28s ease,
+        box-shadow .28s ease;
+
+}
+
+.archive-card:hover{
+
+    transform:translateY(-6px);
+
+    border-color:rgba(0,255,255,.25);
+
+    box-shadow:
+        0 18px 50px rgba(0,0,0,.45);
+
+}
+
+/* --------------------------
+   Artwork
+--------------------------- */
+
+.archive-card img{
+
+    transition:
+        transform .45s ease,
+        filter .45s ease;
+
+}
+
+.archive-card:hover img{
+
+    transform:scale(1.04);
+
+    filter:
+        brightness(.72)
+        contrast(1.05);
+
+}
+
+/* --------------------------
+   Overlay
+--------------------------- */
+
+.archive-card__overlay{
+
+    position:absolute;
+
+    inset:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:linear-gradient(
+        rgba(0,0,0,0),
+        rgba(0,0,0,.45)
+    );
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:
+        opacity .28s ease,
+        backdrop-filter .28s ease;
+
+}
+
+.archive-card:hover .archive-card__overlay{
+
+    opacity:1;
+
+    backdrop-filter:blur(2px);
+
+}
+
+.archive-play-button{
+
+    width:64px;
+
+    height:64px;
+
+    border:none;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:rgba(12,12,12,.88);
+
+    color:#fff;
+
+    border:1px solid rgba(255,255,255,.10);
+
+    backdrop-filter:blur(16px);
+
+    cursor:pointer;
+
+    pointer-events:auto;
+
+    transform:scale(.9);
+
+    transition:
+        transform .25s ease,
+        background .25s ease,
+        color .25s ease;
+
+}
+
+.archive-card:hover .archive-play-button{
+
+    transform:scale(1);
+
+}
+
+.archive-play-button:hover{
+
+    background:#111;
+
+    color:#00ffff;
+
+}
+
+/* --------------------------
+   Archive Metadata
+--------------------------- */
+
+.archive-card__meta{
+
+    padding:18px 20px 20px;
+
+}
+
+.archive-card__catalog{
+
+    margin-bottom:10px;
+
+    font-size:11px;
+
+    letter-spacing:.22em;
+
+    text-transform:uppercase;
+
+    color:rgba(255,255,255,.48);
+
+    transition:color .25s ease;
+
+}
+
+.archive-card:hover .archive-card__catalog{
+
+    color:#00ffff;
+
+}
+
+.archive-card__title{
+
+    margin-bottom:12px;
+
+    font-size:18px;
+
+    font-weight:600;
+
+    line-height:1.2;
+
+    color:white;
+
+}
+
+.archive-card__details{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:8px;
+
+    font-size:12px;
+
+    color:rgba(255,255,255,.62);
+
+}
+
+/* --------------------------
+   Buttons
+--------------------------- */
+
+.archive-card .button{
+
+    margin-top:18px;
+
+    border-radius:8px;
+
+    transition:
+        background .25s ease,
+        border-color .25s ease;
+
+}
+
+/* --------------------------
+   Now Playing
+--------------------------- */
+
+.archive-card.is-playing{
+
+    border-color:#00ffff;
+
+}
+
+.archive-card.is-playing .archive-card__catalog{
+
+    color:#00ffff;
+
+}
+/* ==========================================
+   Archive Metadata
+========================================== */
+
+.archive-card__meta{
+
+    display:flex;
+    flex-direction:column;
+
+    gap:8px;
+
+    padding:20px;
+
+    background:#0b0b0b;
+
+    border-top:1px solid rgba(255,255,255,.05);
+
+}
+
+.archive-card__catalog{
+
+    font-size:11px;
+
+    font-weight:600;
+
+    letter-spacing:.24em;
+
+    text-transform:uppercase;
+
+    color:rgba(255,255,255,.45);
+
+    transition:color .25s ease;
+
+}
+
+.archive-card:hover .archive-card__catalog{
+
+    color:#00ffff;
+
+}
+
+.archive-card__title{
+
+    margin:0;
+
+    font-size:22px;
+
+    font-weight:700;
+
+    line-height:1.1;
+
+    color:#ffffff;
+
+}
+
+.archive-card__details{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:8px;
+
+    font-size:12px;
+
+    color:rgba(255,255,255,.65);
+
+}
+/* ==========================================
+   Active Artifact
+========================================== */
+
+.archive-card.is-playing {
+
+    border-color: rgba(0,255,255,.35);
+
+    box-shadow:
+        0 0 0 1px rgba(0,255,255,.12),
+        0 18px 48px rgba(0,0,0,.45);
+
+}
+
+.archive-card.is-playing .archive-card__catalog {
+
+    color:#00ffff;
+
+}
+
+.archive-card__status {
+
+    display:none;
+
+    align-items:center;
+
+    gap:6px;
+
+    margin-bottom:10px;
+
+    font-size:10px;
+
+    font-weight:700;
+
+    letter-spacing:.18em;
+
+    text-transform:uppercase;
+
+    color:#00ffff;
+
+}
+
+.archive-card.is-playing .archive-card__status {
+
+    display:flex;
+
+}
+
+.archive-card__status::before {
+
+    content:"";
+
+    width:6px;
+
+    height:6px;
+
+    border-radius:50%;
+
+    background:#00ffff;
+
+}

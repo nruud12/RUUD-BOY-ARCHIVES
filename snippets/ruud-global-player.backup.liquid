@@ -1,29 +1,3 @@
-{% comment %}
-=========================================================
-ARCHIVE DECK
-Gold Master
-ArchiveOS 4.0 Foundation
-
-Purpose:
-Global playback interface for RUUD BOY ARCHIVES.
-
-Owns:
-✓ Artwork
-✓ Artifact Identity
-✓ Timeline
-✓ Transport
-✓ Commerce
-
-Does NOT own:
-✗ Playback logic
-✗ Queue logic
-✗ Timeline calculations
-✗ Memory
-
-Last Refactor:
-ArchiveOS 4.0 Foundation
-=========================================================
-{% endcomment %}
 <div id="ruud-global-player" class="ruud-global-player--hidden">
 
     <audio id="ruud-global-audio" preload="none"></audio>
@@ -60,13 +34,7 @@ ArchiveOS 4.0 Foundation
 
             </div>
 
-            
-            <div class="archive-player__artifact">
-            <!-- =========================================
-     Artifact Identity
-========================================= -->
-            <div class="archive-player__artifact-identity">
-            </div>
+            <div class="archive-player__identity">
 
     <div id="ruud-archive-number">
 
@@ -79,9 +47,7 @@ ArchiveOS 4.0 Foundation
         Select an Artifact
 
     </div>
-<!-- =========================================
-     Artifact Metadata
-========================================= -->
+
     <div
         id="ruud-artifact-meta"
         class="archive-player__meta">
@@ -105,9 +71,7 @@ ArchiveOS 4.0 Foundation
         </span>
 
     </div>
-<!-- =========================================
-     Artifact Tags
-========================================= -->
+
     <div
         id="ruud-artifact-tags"
         class="archive-player__tags">
@@ -158,9 +122,6 @@ ArchiveOS 4.0 Foundation
 
         </header>
 
-        <!-- =====================================================
-     TIMELINE
-===================================================== -->
         <!-- =========================
              TRANSPORT
         ========================== -->
@@ -188,34 +149,6 @@ ArchiveOS 4.0 Foundation
         </span>
 
     </div>
-    <button
-                    id="ruud-global-prev"
-                    type="button"
-                    aria-label="Previous">
-
-                    ⏮
-
-                </button>
-
-                <button
-                    id="ruud-global-play"
-                    type="button"
-                    aria-label="Play">
-
-                    ▶
-
-                </button>
-
-                <button
-                    id="ruud-global-next"
-                    type="button"
-                    aria-label="Next">
-
-                    ⏭
-
-                </button>
-
-            </div>
 
 </section>
 
@@ -257,7 +190,34 @@ ArchiveOS 4.0 Foundation
 
                 </div>
 
-                
+                <button
+                    id="ruud-global-prev"
+                    type="button"
+                    aria-label="Previous">
+
+                    ⏮
+
+                </button>
+
+                <button
+                    id="ruud-global-play"
+                    type="button"
+                    aria-label="Play">
+
+                    ▶
+
+                </button>
+
+                <button
+                    id="ruud-global-next"
+                    type="button"
+                    aria-label="Next">
+
+                    ⏭
+
+                </button>
+
+            </div>
 
         </section>
 

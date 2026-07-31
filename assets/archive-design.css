@@ -1,51 +1,81 @@
-/* ==========================================================
-   ARCHIVEOS DESIGN SYSTEM
+/* ==========================================
+   ARCHIVE DESIGN SYSTEM
    RUUD BOY ARCHIVES
-========================================================== */
+========================================== */
 
-:root{
+:root {
 
-    /* COLORS */
+  /* ---------------------------------------
+     COLORS
+  --------------------------------------- */
 
-    --archive-bg:#050505;
-    --archive-glass:rgba(12,12,12,.82);
-    --archive-panel:rgba(18,18,18,.92);
+  --archive-bg: #050505;
+  --archive-surface: #0d0d0d;
+  --archive-surface-elevated: #161616;
 
-    --archive-magenta:#ff00ff;
-    --archive-cyan:#00eaff;
+  --archive-border: rgba(255,255,255,.08);
 
-    --archive-white:#ffffff;
-    --archive-text:#f5f5f5;
-    --archive-text-muted:#8f8f8f;
+  --archive-text: #ffffff;
+  --archive-text-muted: rgba(255,255,255,.62);
 
-    --archive-border:rgba(255,255,255,.10);
+  --archive-accent: #00f7ff;
+  --archive-magenta: #ff00ff;
 
-    /* GLASS */
+  /* ---------------------------------------
+     SPACING
+  --------------------------------------- */
 
-    --archive-blur:18px;
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
 
-    --archive-radius:26px;
+  /* ---------------------------------------
+     RADIUS
+  --------------------------------------- */
 
-    /* SHADOW */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-round: 999px;
+  --play-button-size: 72px;
+--blur-md: 12px;
 
-    --archive-shadow:
-        0 18px 55px rgba(0,0,0,.55);
+  /* ---------------------------------------
+     SHADOWS
+  --------------------------------------- */
 
-    --archive-glow:
-        0 0 24px rgba(255,0,255,.08);
+  --shadow-rest:
+        0 8px 24px rgba(0,0,0,.28);
 
-    /* SPACING */
+    --shadow-hover:
+        0 18px 42px rgba(0,0,0,.42);
 
-    --archive-space-xs:8px;
-    --archive-space-sm:12px;
-    --archive-space-md:20px;
-    --archive-space-lg:28px;
-    --archive-space-xl:36px;
+  /* ---------------------------------------
+     MOTION
+  --------------------------------------- */
 
-    /* MOTION */
+  --ease:
+      cubic-bezier(.2,.8,.2,1);
 
-    --archive-fast:180ms;
-    --archive-normal:280ms;
-    --archive-slow:450ms;
+  --speed-fast: .18s;
+  --speed-normal: .28s;
+  --speed-slow: .45s;
+
+  /* ---------------------------------------
+     TYPOGRAPHY
+  --------------------------------------- */
+
+  --font-display:
+      "Inter",
+      sans-serif;
+
+  --font-body:
+      "Inter",
+      sans-serif;
 
 }
+

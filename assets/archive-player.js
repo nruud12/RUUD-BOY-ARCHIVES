@@ -1,195 +1,189 @@
 /* ==========================================================
-   ArchiveOS Player v2.0
-   Sole responsibility:
-   - Audio playback
-   - Queue navigation
-   - Playback events
+   ArchiveOS Player v2.1
+   ----------------------------------------------------------
+   Responsibilities
+   • Load audio
+   • Control playback
+   • Emit playback events
+   • Maintain player state
+
+   Never:
+   • Touch the DOM
+   • Render UI
 ========================================================== */
 
-(function () {
+(() => {
 
-    if (!window.ArchiveOS) {
+    const ArchiveOS = window.ArchiveOS;
+
+    if (!ArchiveOS) {
         console.error("ArchiveOS Core missing.");
         return;
     }
 
-    const audio =
-        document.getElementById("ruud-global-audio");
+    const audio = new Audio();
 
-    if (!audio) {
-        console.error(
-            "#ruud-global-audio not found."
-        );
-        return;
-    }
+    const Player = {
 
-    ArchiveOS.audio.element = audio;
+        init() {
 
-    ArchiveOS.player = {
-
-        load(track) {
-
-            if (!track) return;
-
-            audio.src = track.audio || "";
-
-            ArchiveOS.set(
-                "activeTrack",
-                track
-            );
-
-            ArchiveOS.emit(
-                "archive:trackchange",
-                { track }
-            );
+            console.log("ArchiveOS Player Loaded");
 
         },
 
-        play() {
+        load(track) {
 
-            audio.play();
+            if (!track?.audio) return;
 
-            ArchiveOS.set(
-                "playing",
-                true
-            );
+            const current = ArchiveOS.get("currentTrack");
 
-            ArchiveOS.emit(
-                "archive:play",
-                {
-                    track:
-                        ArchiveOS.get(
-                            "activeTrack"
-                        )
-                }
-            );
+            if (current && current.id === track.id) {
+                return;
+            }
+
+            audio.src = track.audio;
+            audio.load();
+
+            ArchiveOS.set("currentTrack", track);
+            ArchiveOS.set("currentTime", 0);
+            ArchiveOS.set("duration", 0);
+            ArchiveOS.set("playing", false);
+
+            ArchiveOS.emit("archive:trackchange", {
+                track
+            });
+
+            ArchiveOS.emit("archive:timeupdate", {
+                currentTime: 0,
+                duration: 0
+            });
+
+            ArchiveOS.emit("archive:pause");
+
+        },
+
+        async play() {
+
+            if (!audio.paused) return;
+
+            try {
+
+                await audio.play();
+
+                ArchiveOS.set("playing", true);
+
+                ArchiveOS.emit("archive:play");
+
+            } catch (error) {
+
+                console.error("Playback failed:", error);
+
+            }
 
         },
 
         pause() {
 
+            if (audio.paused) return;
+
             audio.pause();
 
-            ArchiveOS.set(
-                "playing",
-                false
-            );
+            ArchiveOS.set("playing", false);
 
-            ArchiveOS.emit(
-                "archive:pause"
-            );
+            ArchiveOS.emit("archive:pause");
 
         },
+
+        toggle() {
+
+            if (audio.paused) {
+                this.play();
+            } else {
+                this.pause();
+            }
+
+        },
+
         seek(seconds) {
 
-    if (!Number.isFinite(seconds)) return;
-
-    audio.currentTime = Math.max(
-        0,
-        Math.min(seconds, audio.duration || 0)
-    );
-
-},
-
-
-        next() {
-
-            const queue =
-                ArchiveOS.get("queue");
-
-            if (!queue.length) return;
-
-            let index =
-                ArchiveOS.get("currentIndex");
-
-            index++;
-
-            if (index >= queue.length)
-                index = 0;
-
-            ArchiveOS.set(
-                "currentIndex",
-                index
-            );
-
-            this.load(
-                queue[index]
-            );
-
-            this.play();
+            audio.currentTime = seconds;
 
         },
 
-        previous() {
+        getDuration() {
 
-            const queue =
-                ArchiveOS.get("queue");
-
-            if (!queue.length) return;
-
-            let index =
-                ArchiveOS.get("currentIndex");
-
-            index--;
-
-            if (index < 0)
-                index =
-                    queue.length - 1;
-
-            ArchiveOS.set(
-                "currentIndex",
-                index
-            );
-
-            this.load(
-                queue[index]
-            );
-
-            this.play();
+            return audio.duration || 0;
 
         },
-        
 
-getDuration() {
+        getCurrentTime() {
 
-    return audio.duration || 0;
+            return audio.currentTime || 0;
 
-},
+        },
+
+        /**
+         * Exposes the underlying <audio> element.
+         *
+         * The vitrine needs a handle on it to attach a Web Audio
+         * analyser. This is the one sanctioned escape hatch from the
+         * module's encapsulation — callers may read from it and attach
+         * analysis nodes, but must not call play/pause/load directly,
+         * or player state will desynchronise from the UI.
+         *
+         * @returns {HTMLAudioElement}
+         */
+        getAudioElement() {
+
+            return audio;
+
+        }
 
     };
 
-    audio.addEventListener(
-        "timeupdate",
-        () => {
+    /* -------------------------------------------------------
+       Audio Events
+    ------------------------------------------------------- */
 
-            ArchiveOS.emit(
-                "archive:timeupdate",
-                {
-                    currentTime:
-                        audio.currentTime,
-                    duration:
-                        audio.duration
-                }
-            );
+    audio.addEventListener("loadedmetadata", () => {
 
-        }
-    );
+        ArchiveOS.set("duration", audio.duration);
 
-    audio.addEventListener(
-        "ended",
-        () => {
+        ArchiveOS.emit("archive:timeupdate", {
+            currentTime: audio.currentTime,
+            duration: audio.duration
+        });
 
-            ArchiveOS.emit(
-                "archive:ended"
-            );
+    });
 
-            ArchiveOS.player.next();
+    audio.addEventListener("timeupdate", () => {
 
-        }
-    );
+        ArchiveOS.set("currentTime", audio.currentTime);
+        ArchiveOS.set("duration", audio.duration);
 
-    console.log(
-        "Archive Player v2.0 Loaded"
-    );
+        ArchiveOS.emit("archive:timeupdate", {
+            currentTime: audio.currentTime,
+            duration: audio.duration
+        });
+
+    });
+
+    audio.addEventListener("ended", () => {
+
+        ArchiveOS.set("playing", false);
+        ArchiveOS.set("currentTime", 0);
+
+        ArchiveOS.emit("archive:pause");
+
+        ArchiveOS.emit("archive:timeupdate", {
+            currentTime: 0,
+            duration: audio.duration
+        });
+
+        ArchiveOS.emit("archive:ended");
+
+    });
+
+    ArchiveOS.register("player", Player);
 
 })();
