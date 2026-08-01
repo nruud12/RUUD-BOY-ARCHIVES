@@ -119,11 +119,14 @@
   height: 62px;
   padding: 0;
   color: var(--archive-text);
-  background: rgba(12, 12, 12, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  /* Glass you look AT — the material at full thickness.
+     See "THE GLASS MATERIAL" in archive-shell.css. */
+  background: var(--archive-glass-tint);
+  border: 1px solid var(--archive-glass-edge);
   border-radius: var(--archive-radius-pill);
-  backdrop-filter: blur(var(--archive-blur-glass));
-  -webkit-backdrop-filter: blur(var(--archive-blur-glass));
+  backdrop-filter: blur(var(--archive-glass-blur));
+  -webkit-backdrop-filter: blur(var(--archive-glass-blur));
   cursor: pointer;
   pointer-events: auto;
   /* Fades in slightly under size, then settles. No bounce. */

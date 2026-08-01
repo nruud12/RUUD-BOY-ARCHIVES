@@ -83,8 +83,41 @@ html:has(.archive-os) {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(120% 80% at 50% -10%, rgba(255, 0, 255, 0.05), transparent 60%),
-    radial-gradient(80% 60% at 90% 110%, rgba(0, 240, 255, 0.03), transparent 65%);
+    radial-gradient(120% 80% at 50% -10%, var(--archive-light-artifact), transparent 60%),
+    radial-gradient(80% 60% at 90% 110%, var(--archive-light-sounding), transparent 65%);
+}
+
+/* ==========================================================
+   THE GLASS MATERIAL
+
+   One material, composed by every pane in the archive: the
+   vitrine's case, the audition affordance on a card, and any
+   overlay or dialog that needs to sit in front of the room.
+
+   Compose it with `.archive-glass`, or consume the tokens
+   directly where a component needs to vary one property. Do not
+   write a fourth glass implementation — that is what this
+   replaces.
+
+   Blur is a parameter, not a constant. Glass you look THROUGH
+   (the case) takes --archive-glass-blur-thin; glass you look AT
+   (a control) takes the full value.
+========================================================== */
+
+.archive-glass {
+  background-image: var(--archive-reflect-sheen);
+  background-color: var(--archive-glass-tint);
+  border: 1px solid var(--archive-glass-edge);
+  backdrop-filter: blur(var(--archive-glass-blur));
+  -webkit-backdrop-filter: blur(var(--archive-glass-blur));
+}
+
+/* A pane with an interior — a case rather than a control. */
+.archive-glass--case {
+  border-color: var(--archive-glass-edge-soft);
+  box-shadow: var(--archive-glass-interior);
+  backdrop-filter: blur(var(--archive-glass-blur-thin));
+  -webkit-backdrop-filter: blur(var(--archive-glass-blur-thin));
 }
 
 .archive-os .page-wrapper > * {

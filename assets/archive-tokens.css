@@ -167,7 +167,100 @@
   --archive-z-overlay: 700;
 
   /* ========================================================
-     6. LEGACY ALIASES — do not use in new code
+     6. ENVIRONMENT — the rendering engine
+
+     Every room inherits the same architectural space. This is the
+     only place light, glass and reflection values are written.
+     Components compose these; they never redefine them.
+
+     Before this section existed the theme carried three separate
+     glass implementations with three different blur values, two
+     independent environmental gradient systems, and sixteen
+     hand-rolled box-shadows — while the five elevation tokens
+     defined above went unused. That is what this consolidates.
+  ======================================================== */
+
+  /* --- Light sources ------------------------------------------
+     Each is physically motivated. If a light cannot be explained
+     as something in the room, it does not belong here. */
+
+  /* Channels, not colours.
+
+     Reactive lights need their alpha computed per frame from
+     --v-energy / --v-bass / --v-air. A finished rgba() token cannot
+     have its alpha rewritten, so the environment publishes channel
+     triples and each surface composes its own alpha with
+     rgb(var(--…-rgb) / <alpha>). Static lights below use the
+     ready-made rgba forms. */
+  --archive-light-key-rgb: 255 255 255;
+  --archive-light-artifact-rgb: 255 0 255;
+  --archive-light-sounding-rgb: 0 240 255;
+
+  /* Overhead gallery light. White, as a real one is — tinting it
+     turns the whole room into a colour wash. */
+  --archive-light-key: rgb(var(--archive-light-key-rgb) / 0.05);
+  --archive-light-key-soft: rgb(var(--archive-light-key-rgb) / 0.02);
+
+  /* Bounce returning off the floor. Weaker than the key by an
+     order of magnitude, as bounce always is. */
+  --archive-light-bounce: rgb(var(--archive-light-key-rgb) / 0.012);
+
+  /* Energy inside the artifact, and the ambient trace it leaves in
+     the room. Magenta is the object's own light — never paint. */
+  --archive-light-artifact: rgba(255, 0, 255, 0.05);
+  --archive-light-artifact-cast: rgba(255, 0, 255, 0.1);
+
+  /* Equipment light. Cyan means "this artifact is sounding" and is
+     reserved for that meaning alone. */
+  --archive-light-sounding: rgba(0, 240, 255, 0.03);
+
+  /* The walls closing in. Not a shadow — the absence of light. */
+  --archive-light-vignette: var(--archive-void);
+
+  /* --- Glass ---------------------------------------------------
+     One material. Surfaces that are panes of glass compose all of
+     it; surfaces that are only a scrim take the tint and blur.
+
+     --archive-glass-blur is deliberately a parameter. The vitrine's
+     case is glass you look THROUGH and blurs by a fraction of a
+     pixel; the audition affordance is glass you look AT and blurs
+     fully. Same material, different thickness. */
+  --archive-glass-tint: rgba(12, 12, 12, 0.55);
+  --archive-glass-edge: rgba(255, 255, 255, 0.14);
+  --archive-glass-edge-soft: rgba(255, 255, 255, 0.08);
+  --archive-glass-blur: 20px;
+  --archive-glass-blur-thin: 0.5px;
+
+  /* The interior of a case is darker than the room outside it. */
+  --archive-glass-interior: inset 0 0 60px rgba(0, 0, 0, 0.34);
+
+  /* --- Reflection ----------------------------------------------
+     Restrained by rule. A reflection describes the shape of a
+     surface; it is never used to draw attention. */
+
+  /* Specular sweep across a pane — where the room falls on it. */
+  --archive-reflect-sheen: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.045) 0%,
+    transparent 42%,
+    transparent 58%,
+    rgba(255, 255, 255, 0.025) 100%
+  );
+
+  /* Rim along a leading edge. Catches the high band on the case. */
+  --archive-reflect-rim: rgba(255, 255, 255, 0.12);
+
+  /* --- Motion ---------------------------------------------------
+     Named states, mapped onto the speed scale above rather than
+     replacing it. Using a name records INTENT; the scale still
+     owns the values, and still collapses under reduced motion. */
+  --archive-motion-reveal: var(--archive-speed-reveal); /* entrances */
+  --archive-motion-illuminate: var(--archive-speed); /* light coming up */
+  --archive-motion-settle: var(--archive-speed-slow); /* light falling away */
+  --archive-motion-withdraw: var(--archive-speed-slow); /* receding to rest */
+
+  /* ========================================================
+     7. LEGACY ALIASES — do not use in new code
   ======================================================== */
 
   --archive-black: var(--archive-bg);
