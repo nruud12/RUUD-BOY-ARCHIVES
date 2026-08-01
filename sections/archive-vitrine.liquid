@@ -86,9 +86,9 @@
   <div class="vitrine__label" aria-live="polite" aria-atomic="true">
     <div class="vitrine__catalog" data-vitrine-catalog>
       {%- if default_product.metafields.custom.archive.value != blank -%}
-        Archive {{ default_product.metafields.custom.archive.value }}
+        Accession {{ default_product.metafields.custom.archive.value }}
       {%- else -%}
-        Archive —
+        Accession pending
       {%- endif -%}
     </div>
 
@@ -135,7 +135,7 @@
       "type": "text",
       "id": "standfirst",
       "label": "Supporting line",
-      "default": "Original artifacts, carefully catalogued for modern artists"
+      "default": "Original artifacts, catalogued and held for modern artists"
     },
     {
       "type": "header",
@@ -145,13 +145,13 @@
       "type": "product",
       "id": "default_artifact",
       "label": "Artifact on display",
-      "info": "Shown before a visitor plays anything. The case updates itself as beats are previewed."
+      "info": "Shown before a visitor auditions anything. The case updates itself as artifacts are auditioned."
     },
     {
       "type": "text",
       "id": "empty_title",
       "label": "Empty state title",
-      "default": "Select an artifact"
+      "default": "Awaiting selection"
     }
   ],
   "presets": [

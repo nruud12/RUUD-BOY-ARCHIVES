@@ -1,257 +1,678 @@
-.archive-player{
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:0;
+/* ==========================================================
+   ARCHIVEOS — PERSISTENT TRANSPORT DECK
 
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+   The deck is furniture, not a widget. It is always present, and
+   at rest it should read as a closed display case: dimmed, quiet,
+   obviously inert — never as a broken player full of "---".
 
-    min-height:96px;
+   Every value here comes from archive-tokens.css. The only literal
+   numbers are geometry (heights, gaps, bar widths), which are not
+   design tokens and would be noise in the token file.
 
-    padding:14px 24px;
+   Motion follows the house rule: 160–300ms, ease-out, no overshoot.
+   The one exception is the artwork cross-fade, which runs at
+   --archive-speed-reveal because a swap that fast reads as a glitch
+   rather than a transition.
+========================================================== */
 
-    background:rgba(5,5,5,.96);
-    backdrop-filter:blur(16px);
+.archive-player {
+  --deck-height: 88px;
+  --deck-artwork: 56px;
+  --icon-stroke-width: 1.5px;
 
-    border-top:1px solid rgba(255,255,255,.08);
+  /* Written by archive-ui.js, 0–1. Drives the played waveform. */
+  --progress: 0;
 
-    z-index:9999;
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 9999;
 
-    color:#f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--archive-space-md);
 
-    font-family:inherit;
+  min-height: var(--deck-height);
+  padding: var(--archive-space-2xs) var(--archive-space-md);
 
-    box-sizing:border-box;
+  box-sizing: border-box;
+
+  color: var(--archive-text);
+  background: color-mix(in srgb, var(--archive-bg) 92%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  border-top: 1px solid var(--archive-line);
+
+  transition:
+    opacity var(--archive-speed) var(--archive-ease),
+    border-color var(--archive-speed) var(--archive-ease);
 }
 
-.archive-player__left{
-
-    display:flex;
-    align-items:center;
-    gap:18px;
-
-    min-width:300px;
-
+/* Rest state. Present, but clearly not in use. */
+.archive-player.is-empty {
+  opacity: 0.72;
 }
 
-.archive-player__artwork{
-
-    width:56px;
-    height:56px;
-
-    object-fit:cover;
-
-    border-radius:8px;
-
-    background:#111;
-
-    border:1px solid rgba(255,255,255,.08);
-
-    flex-shrink:0;
-
-    transition:
-        opacity .25s ease,
-        transform .25s ease;
-
+.archive-player.is-playing {
+  border-top-color: var(--archive-cyan-24);
 }
 
-.archive-player__artwork[src=""]{
+/* ----------------------------------------------------------
+   IDENTITY
+---------------------------------------------------------- */
 
-    opacity:.35;
+.archive-player__left {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-xs);
 
+  flex: 0 1 320px;
+  min-width: 0;
 }
 
-.archive-player__artwork:not([src=""]){
+/* --- Artwork: two stacked layers so a change can cross-fade --- */
 
-    opacity:1;
+.archive-player__artwork-stack {
+  position: relative;
+  flex-shrink: 0;
 
+  width: var(--deck-artwork);
+  height: var(--deck-artwork);
+
+  border-radius: var(--archive-radius-md);
+  overflow: hidden;
+
+  background: var(--archive-surface-inset);
+  box-shadow: inset 0 0 0 1px var(--archive-line);
 }
 
-.archive-player__meta{
+.archive-player__artwork {
+  position: absolute;
+  inset: 0;
 
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 
-    gap:6px;
+  opacity: 0;
+  transform: scale(1.06);
+  filter: blur(6px);
 
-    min-width:0;
-
+  transition:
+    opacity var(--archive-speed-reveal) var(--archive-ease),
+    transform var(--archive-speed-reveal) var(--archive-ease),
+    filter var(--archive-speed-reveal) var(--archive-ease);
 }
 
-.archive-player__title{
-
-    margin:0;
-
-    font-size:16px;
-    font-weight:600;
-    line-height:1.15;
-
-    letter-spacing:.02em;
-
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-
+.archive-player__artwork.is-showing {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
 }
 
-.archive-player__catalog{
-
-    font-size:11px;
-
-    text-transform:uppercase;
-
-    letter-spacing:.18em;
-
-    color:rgba(255,255,255,.55);
-
+/* The outgoing layer settles *outward*, so the two never look
+   like the same image sliding — they read as a dissolve. */
+.archive-player__artwork.is-leaving {
+  opacity: 0;
+  transform: scale(0.94);
+  filter: blur(8px);
 }
 
-.archive-player__details{
+.archive-player__artwork-empty {
+  position: absolute;
+  inset: 0;
 
-    display:flex;
-    align-items:center;
-    flex-wrap:wrap;
+  opacity: 0;
+  transition: opacity var(--archive-speed) var(--archive-ease);
 
-    gap:8px;
-
-    font-size:12px;
-
-    color:rgba(255,255,255,.65);
-
-    line-height:1.2;
-
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      var(--archive-line) 0 1px,
+      transparent 1px 7px
+    );
 }
 
-.separator{
-
-    opacity:.35;
-
+.archive-player.is-empty .archive-player__artwork-empty {
+  opacity: 1;
 }
 
-.archive-player__center{
+/* --- Text --- */
 
-    display:flex;
-    align-items:center;
-
-    gap:18px;
-
-    flex:1;
-
-    max-width:560px;
-
-    margin:0 48px;
-
+.archive-player__meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
 }
 
-.archive-player__play{
+.archive-player__title {
+  margin: 0;
 
-    width:40px;
-    height:40px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: var(--archive-track-body);
 
-    border:none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
-    border-radius:50%;
-
-    background:#111;
-
-    color:#fff;
-
-    font-size:15px;
-
-    cursor:pointer;
-
-    flex-shrink:0;
-
-    transition:
-        background .2s ease,
-        transform .2s ease,
-        color .2s ease;
-
+  transition:
+    opacity var(--archive-speed) var(--archive-ease),
+    transform var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease);
 }
 
-.archive-player__play:hover{
-
-    background:#1d1d1d;
-
-    color:#00ffff;
-
-    transform:scale(1.05);
-
+.archive-player.is-empty .archive-player__title {
+  color: var(--archive-text-subtle);
+  font-weight: 500;
 }
 
-.archive-player__progress{
-
-    flex:1;
-
-    cursor:pointer;
-
-    accent-color:#00ffff;
-
+/* Title morph. archive-ui.js adds .is-morphing, swaps the text at
+   the midpoint, then removes it — so the old and new titles never
+   appear at once and the label never visibly "pops". */
+.archive-player__title.is-morphing {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
-.archive-player__right{
+.archive-player__hint {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-faint);
 
-    min-width:90px;
-
-    text-align:right;
-
+  display: none;
 }
 
-.archive-player__time{
-
-    font-size:12px;
-
-    color:rgba(255,255,255,.65);
-
-    font-variant-numeric:tabular-nums;
-
-    white-space:nowrap;
-
+.archive-player.is-empty .archive-player__hint {
+  display: block;
 }
 
-/* --------------------------
-   Mobile
---------------------------- */
+.archive-player__catalog {
+  font-size: 10px;
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-cyan);
+  opacity: 0.75;
+}
 
-@media (max-width:768px){
+.archive-player__details {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 
-    .archive-player{
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--archive-text-muted);
+}
 
-        min-height:auto;
+.archive-player__unit {
+  color: var(--archive-text-faint);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
 
-        padding:14px 16px;
+.archive-player__sep {
+  color: var(--archive-text-faint);
+}
 
-        flex-wrap:wrap;
+/* In rest state the metadata rows are removed entirely rather than
+   left showing placeholder dashes. */
+.archive-player.is-empty .archive-player__catalog,
+.archive-player.is-empty .archive-player__details {
+  display: none;
+}
 
-        gap:16px;
+/* ----------------------------------------------------------
+   TRANSPORT
+---------------------------------------------------------- */
 
-    }
+.archive-player__center {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-sm);
 
-    .archive-player__left{
+  flex: 1 1 auto;
+  max-width: 620px;
+  min-width: 0;
+}
 
-        min-width:0;
+.archive-player__transport {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
 
-        flex:1;
+.archive-player__skip,
+.archive-player__mute {
+  display: grid;
+  place-items: center;
 
-    }
+  width: 32px;
+  height: 32px;
+  padding: 0;
 
-    .archive-player__center{
+  border: none;
+  border-radius: var(--archive-radius-pill);
+  background: transparent;
+  color: var(--archive-text-muted);
 
-        width:100%;
+  cursor: pointer;
 
-        margin:0;
+  transition:
+    color var(--archive-speed-fast) var(--archive-ease),
+    background var(--archive-speed-fast) var(--archive-ease);
+}
 
-        order:3;
+.archive-player__skip:hover,
+.archive-player__mute:hover {
+  color: var(--archive-text);
+  background: var(--archive-surface-raised);
+}
 
-    }
+.archive-player__skip--next svg {
+  transform: scaleX(-1);
+}
 
-    .archive-player__right{
+.archive-player__play {
+  display: grid;
+  place-items: center;
 
-        margin-left:auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
 
-    }
+  border: none;
+  border-radius: var(--archive-radius-pill);
 
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
+
+  cursor: pointer;
+  flex-shrink: 0;
+
+  transition:
+    background var(--archive-speed-fast) var(--archive-ease),
+    color var(--archive-speed-fast) var(--archive-ease),
+    box-shadow var(--archive-speed) var(--archive-ease);
+}
+
+.archive-player__play:hover {
+  color: var(--archive-cyan);
+  background: var(--archive-surface-raised);
+  box-shadow: 0 0 0 1px var(--archive-cyan-24);
+}
+
+/* Light, not paint — the button glows only while sounding. */
+.archive-player.is-playing .archive-player__play {
+  color: var(--archive-cyan);
+  box-shadow: 0 0 18px -4px var(--archive-cyan-48);
+}
+
+/* Icon swap. Both live in the DOM; only one occupies the grid cell
+   at a time, so the button never reflows mid-toggle. */
+.archive-player__icon {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__icon--pause,
+.archive-player.is-playing .archive-player__icon--play {
+  opacity: 0;
+}
+
+.archive-player.is-playing .archive-player__icon--pause {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------
+   SCRUBBER + WAVEFORM
+
+   The waveform is decorative. The range input on top of it is the
+   real control — it keeps keyboard seeking, focus and the
+   accessible name that a div would throw away.
+---------------------------------------------------------- */
+
+.archive-player__scrubber {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 34px;
+}
+
+.archive-player__waveform {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.archive-player__wf-layer {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* The played layer is an identical copy of the bars, clipped to the
+   current position. Clipping a duplicate is what lets a single
+   custom property repaint the whole waveform without touching the
+   DOM on every timeupdate.
+
+   clip-path, not width. Narrowing the layer would re-run its flex
+   layout and the played bars would drift out of alignment with the
+   base bars underneath. clip-path leaves layout untouched and is
+   composited, so this stays off the main thread. */
+.archive-player__wf-layer--played {
+  clip-path: inset(0 calc((1 - var(--progress)) * 100%) 0 0);
+}
+
+.archive-player__wf-layer--played .archive-player__wf-bar {
+  background: var(--archive-cyan);
+  opacity: 0.9;
+}
+
+.archive-player__wf-bar {
+  flex: 0 0 3px;
+  height: calc(6% + var(--h, 0.5) * 78%);
+
+  border-radius: 1px;
+  background: var(--archive-text);
+  opacity: 0.16;
+
+  transform-origin: center;
+
+  transition:
+    height var(--archive-speed-reveal) var(--archive-ease),
+    opacity var(--archive-speed) var(--archive-ease);
+}
+
+/* The played layer must not re-clip its own bars as the container
+   narrows — fixing the layer to the scrubber width keeps bars
+   aligned between the two layers. */
+.archive-player__wf-layer--played .archive-player__wf-bar {
+  flex-shrink: 0;
+}
+
+/* Ambient life while sounding. Deliberately slow and shallow: this
+   is a room breathing, not a level meter. */
+.archive-player.is-playing .archive-player__wf-layer--played .archive-player__wf-bar {
+  animation: archive-wf-breathe 2.4s var(--archive-ease-soft) infinite;
+  animation-delay: calc(var(--i, 0) * -37ms);
+}
+
+@keyframes archive-wf-breathe {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.14);
+  }
+}
+
+/* Rest state: the waveform collapses to a quiet baseline. */
+.archive-player.is-empty .archive-player__wf-bar {
+  height: 10%;
+  opacity: 0.1;
+}
+
+.archive-player__progress {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  margin: 0;
+
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+
+  cursor: pointer;
+}
+
+.archive-player__progress::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+
+.archive-player__progress::-moz-range-track {
+  height: 100%;
+  background: transparent;
+}
+
+/* A thin playhead rather than a knob — closer to an editor than a
+   web form control. */
+.archive-player__progress::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 2px;
+  height: 34px;
+
+  border: none;
+  border-radius: 1px;
+  background: var(--archive-text);
+
+  opacity: 0;
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__progress::-moz-range-thumb {
+  width: 2px;
+  height: 34px;
+
+  border: none;
+  border-radius: 1px;
+  background: var(--archive-text);
+
+  opacity: 0;
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__scrubber:hover .archive-player__progress::-webkit-slider-thumb,
+.archive-player__progress:focus-visible::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.archive-player__scrubber:hover .archive-player__progress::-moz-range-thumb,
+.archive-player__progress:focus-visible::-moz-range-thumb {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------
+   TIME + VOLUME
+---------------------------------------------------------- */
+
+.archive-player__right {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-xs);
+
+  flex: 0 0 auto;
+}
+
+.archive-player__time {
+  font-size: 11px;
+  color: var(--archive-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.archive-player.is-empty .archive-player__time {
+  color: var(--archive-text-faint);
+}
+
+.archive-player__volume {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.archive-player__mute-slash {
+  opacity: 0;
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player.is-muted .archive-player__mute-slash {
+  opacity: 1;
+}
+
+.archive-player.is-muted .archive-player__wave-arcs {
+  opacity: 0;
+}
+
+.archive-player__wave-arcs {
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__volume-slider {
+  width: 72px;
+  height: 3px;
+  margin: 0;
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  border-radius: var(--archive-radius-pill);
+  background: var(--archive-line-strong);
+  cursor: pointer;
+
+  transition: background var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 10px;
+  height: 10px;
+
+  border: none;
+  border-radius: 50%;
+  background: var(--archive-text);
+
+  transition: background var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__volume-slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+
+  border: none;
+  border-radius: 50%;
+  background: var(--archive-text);
+}
+
+.archive-player__volume-slider:hover::-webkit-slider-thumb,
+.archive-player__volume-slider:focus-visible::-webkit-slider-thumb {
+  background: var(--archive-cyan);
+}
+
+.archive-player__volume-slider:hover::-moz-range-thumb,
+.archive-player__volume-slider:focus-visible::-moz-range-thumb {
+  background: var(--archive-cyan);
+}
+
+/* ----------------------------------------------------------
+   FOCUS
+
+   Per the design rules, focus is the one place the accent is
+   allowed to shout.
+---------------------------------------------------------- */
+
+.archive-player :focus-visible {
+  outline: 2px solid var(--archive-cyan);
+  outline-offset: 2px;
+  border-radius: var(--archive-radius-sm);
+}
+
+/* ----------------------------------------------------------
+   MOBILE
+
+   The deck keeps identity + transport and drops the volume
+   control — on touch there are hardware volume keys, and the
+   slider is the least useful 72px on a small screen.
+---------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .archive-player {
+    --deck-height: auto;
+    --deck-artwork: 44px;
+
+    flex-wrap: wrap;
+    gap: var(--archive-space-2xs);
+    padding: var(--archive-space-2xs) var(--archive-space-sm);
+  }
+
+  .archive-player__left {
+    flex: 1 1 auto;
+    order: 1;
+  }
+
+  .archive-player__right {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .archive-player__center {
+    order: 3;
+    width: 100%;
+    max-width: none;
+  }
+
+  .archive-player__volume {
+    display: none;
+  }
+
+  .archive-player__scrubber {
+    height: 26px;
+  }
+
+  .archive-player__progress::-webkit-slider-thumb,
+  .archive-player__progress::-moz-range-thumb {
+    height: 26px;
+    opacity: 1;
+  }
+}
+
+/* ----------------------------------------------------------
+   REDUCED MOTION
+
+   The deck still changes state — state is information. It simply
+   stops travelling, dissolving and breathing.
+
+   archive-tokens.css already collapses --archive-speed-* to 1ms
+   under this query, so transitions are handled centrally. What
+   remains here is the ambient animation and the transform-based
+   artwork dissolve, neither of which is speed-token driven.
+---------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-player.is-playing .archive-player__wf-layer--played .archive-player__wf-bar {
+    animation: none;
+  }
+
+  .archive-player__artwork,
+  .archive-player__artwork.is-showing,
+  .archive-player__artwork.is-leaving {
+    transform: none;
+    filter: none;
+  }
+
+  .archive-player__title.is-morphing {
+    transform: none;
+  }
 }

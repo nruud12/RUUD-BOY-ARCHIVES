@@ -1,0 +1,1263 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>ArchiveOS — Transport Deck preview</title>
+<style>
+/* ==========================================================
+   ARCHIVEOS — DESIGN TOKENS
+   RUUD BOY ARCHIVES
+
+   The single source of truth for colour, type, space, motion
+   and elevation. Nothing in this file may contain a selector
+   other than :root — it declares values, never appearance.
+
+   Load order matters:
+     1. archive-tokens.css   ← you are here
+     2. archive-shell.css
+     3. archive-card.css
+     4. archive-vitrine.css
+     5. archive-player.css
+
+   NOTE ON LEGACY NAMES
+   Two conflicting token sets previously existed (one in
+   archive-design.css, one dumped as raw text after </html> in
+   layout/theme.liquid). They disagreed on what --archive-accent
+   meant: one said cyan, the other magenta. Both are aliased at the
+   bottom of this file so older stylesheets keep working, but new
+   work should use the canonical names only.
+========================================================== */
+
+:root {
+  /* ========================================================
+     1. COLOUR — THE ROOM
+
+     The archive is almost entirely dark. Accent is a light
+     source, not a paint. If more than ~5% of a viewport is
+     magenta, something has gone wrong.
+  ======================================================== */
+
+  --archive-void: #000000; /* true black — vitrine interior, page edges */
+  --archive-bg: #050505; /* base canvas */
+  --archive-surface: #0b0b0b; /* cards, panels */
+  --archive-surface-raised: #121212; /* hover / elevated panels */
+  --archive-surface-inset: #030303; /* wells, media backdrops */
+
+  /* Typography */
+  --archive-text: #ffffff;
+  --archive-text-muted: rgba(255, 255, 255, 0.58);
+  --archive-text-subtle: rgba(255, 255, 255, 0.34);
+  --archive-text-faint: rgba(255, 255, 255, 0.18);
+
+  /* Lines. Almost never visible on purpose. */
+  --archive-line: rgba(255, 255, 255, 0.07);
+  --archive-line-strong: rgba(255, 255, 255, 0.14);
+
+  /* Light sources */
+  --archive-magenta: #ff00ff;
+  --archive-magenta-soft: #ff2bd6;
+  --archive-magenta-deep: #8a3be2;
+  --archive-cyan: #00f0ff;
+
+  /* Pre-mixed translucencies, so components stop inventing their own */
+  --archive-magenta-04: rgba(255, 0, 255, 0.04);
+  --archive-magenta-08: rgba(255, 0, 255, 0.08);
+  --archive-magenta-16: rgba(255, 0, 255, 0.16);
+  --archive-magenta-32: rgba(255, 0, 255, 0.32);
+  --archive-magenta-64: rgba(255, 0, 255, 0.64);
+  --archive-cyan-08: rgba(0, 240, 255, 0.08);
+  --archive-cyan-24: rgba(0, 240, 255, 0.24);
+  --archive-cyan-48: rgba(0, 240, 255, 0.48);
+
+  /* ========================================================
+     2. TYPOGRAPHY
+
+     Two families only. Display is set uppercase with heavy
+     tracking — the tracking is what reads as "museum", not the
+     typeface. Body stays quiet and neutral.
+  ======================================================== */
+
+  --archive-font-display: 'Raleway', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --archive-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --archive-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  /* Fluid display scale. Desktop-first: the clamp max is the
+     intended desktop size, the min is the mobile fallback. */
+  --archive-type-monument: clamp(3rem, 9vw, 8.25rem); /* homepage wordmark */
+  --archive-type-display: clamp(2.5rem, 6vw, 5rem); /* page titles */
+  --archive-type-title: clamp(1.75rem, 3.2vw, 2.75rem); /* section titles */
+  --archive-type-heading: clamp(1.25rem, 1.8vw, 1.5rem); /* card / block titles */
+  --archive-type-body: 0.9375rem;
+  --archive-type-small: 0.8125rem;
+  --archive-type-micro: 0.6875rem; /* metadata, catalogue numbers */
+
+  /* Tracking. The single most important variable in the system. */
+  --archive-track-monument: 0.16em;
+  --archive-track-display: 0.1em;
+  --archive-track-label: 0.24em; /* eyebrows, catalogue numbers */
+  --archive-track-body: 0.005em;
+
+  --archive-weight-light: 300;
+  --archive-weight-regular: 400;
+  --archive-weight-medium: 500;
+  --archive-weight-bold: 700;
+
+  --archive-leading-tight: 1;
+  --archive-leading-snug: 1.2;
+  --archive-leading-body: 1.65;
+
+  /* ========================================================
+     3. SPACE
+
+     Hierarchy is built from this scale and nothing else — no
+     rules, no boxes, no dividers. If two things need separating,
+     they get --archive-space-* between them.
+  ======================================================== */
+
+  --archive-space-3xs: 0.25rem;
+  --archive-space-2xs: 0.5rem;
+  --archive-space-xs: 0.75rem;
+  --archive-space-sm: 1rem;
+  --archive-space-md: 1.5rem;
+  --archive-space-lg: 2.5rem;
+  --archive-space-xl: 4rem;
+  --archive-space-2xl: 6rem;
+  --archive-space-3xl: 9rem;
+  --archive-space-4xl: 13rem; /* between major "rooms" */
+
+  --archive-gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --archive-measure: 62ch; /* max reading width */
+  --archive-max-width: 1600px;
+
+  /* ========================================================
+     4. MOTION
+
+     Everything is 200–300ms, ease-out, no overshoot.
+     Ambient motion is measured in tens of seconds.
+  ======================================================== */
+
+  --archive-ease: cubic-bezier(0.22, 0.61, 0.36, 1); /* ease-out, no bounce */
+  --archive-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --archive-speed-fast: 160ms;
+  --archive-speed: 240ms;
+  --archive-speed-slow: 300ms;
+  --archive-speed-reveal: 480ms; /* entrances only */
+
+  --archive-ambient-drift: 96s; /* idle artifact rotation */
+  --archive-ambient-breath: 11s; /* idle glow */
+
+  /* ========================================================
+     5. FORM
+  ======================================================== */
+
+  --archive-radius-xs: 2px;
+  --archive-radius-sm: 4px;
+  --archive-radius-md: 8px;
+  --archive-radius-lg: 16px;
+  --archive-radius-pill: 999px;
+
+  --archive-blur-glass: 20px;
+
+  /* Elevation is achieved with shadow + a light source, never
+     with a border. */
+  --archive-shadow-rest: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --archive-shadow-raised: 0 28px 80px rgba(0, 0, 0, 0.66);
+  --archive-shadow-lift: 0 40px 120px rgba(0, 0, 0, 0.72);
+
+  --archive-glow-magenta: 0 0 60px var(--archive-magenta-32);
+  --archive-glow-cyan: 0 0 40px var(--archive-cyan-24);
+
+  --archive-z-player: 900;
+  --archive-z-header: 800;
+  --archive-z-overlay: 700;
+
+  /* ========================================================
+     6. LEGACY ALIASES — do not use in new code
+  ======================================================== */
+
+  --archive-black: var(--archive-bg);
+  --archive-white: var(--archive-text);
+  --archive-surface-2: var(--archive-surface-raised);
+  --archive-surface-3: var(--archive-surface-raised);
+  --archive-surface-elevated: var(--archive-surface-raised);
+  --archive-border: var(--archive-line);
+  --archive-border-hover: var(--archive-magenta-32);
+  --archive-accent: var(--archive-magenta);
+  --archive-accent-cyan: var(--archive-cyan);
+}
+
+/* Motion is a luxury, not a requirement. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --archive-speed-fast: 1ms;
+    --archive-speed: 1ms;
+    --archive-speed-slow: 1ms;
+    --archive-speed-reveal: 1ms;
+    --archive-ambient-drift: 0s;
+    --archive-ambient-breath: 0s;
+  }
+}
+
+/* ==========================================================
+   ARCHIVEOS — PERSISTENT TRANSPORT DECK
+
+   The deck is furniture, not a widget. It is always present, and
+   at rest it should read as a closed display case: dimmed, quiet,
+   obviously inert — never as a broken player full of "---".
+
+   Every value here comes from archive-tokens.css. The only literal
+   numbers are geometry (heights, gaps, bar widths), which are not
+   design tokens and would be noise in the token file.
+
+   Motion follows the house rule: 160–300ms, ease-out, no overshoot.
+   The one exception is the artwork cross-fade, which runs at
+   --archive-speed-reveal because a swap that fast reads as a glitch
+   rather than a transition.
+========================================================== */
+
+.archive-player {
+  --deck-height: 88px;
+  --deck-artwork: 56px;
+  --icon-stroke-width: 1.5px;
+
+  /* Written by archive-ui.js, 0–1. Drives the played waveform. */
+  --progress: 0;
+
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--archive-space-md);
+
+  min-height: var(--deck-height);
+  padding: var(--archive-space-2xs) var(--archive-space-md);
+
+  box-sizing: border-box;
+
+  color: var(--archive-text);
+  background: color-mix(in srgb, var(--archive-bg) 92%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  border-top: 1px solid var(--archive-line);
+
+  transition:
+    opacity var(--archive-speed) var(--archive-ease),
+    border-color var(--archive-speed) var(--archive-ease);
+}
+
+/* Rest state. Present, but clearly not in use. */
+.archive-player.is-empty {
+  opacity: 0.72;
+}
+
+.archive-player.is-playing {
+  border-top-color: var(--archive-cyan-24);
+}
+
+/* ----------------------------------------------------------
+   IDENTITY
+---------------------------------------------------------- */
+
+.archive-player__left {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-xs);
+
+  flex: 0 1 320px;
+  min-width: 0;
+}
+
+/* --- Artwork: two stacked layers so a change can cross-fade --- */
+
+.archive-player__artwork-stack {
+  position: relative;
+  flex-shrink: 0;
+
+  width: var(--deck-artwork);
+  height: var(--deck-artwork);
+
+  border-radius: var(--archive-radius-md);
+  overflow: hidden;
+
+  background: var(--archive-surface-inset);
+  box-shadow: inset 0 0 0 1px var(--archive-line);
+}
+
+.archive-player__artwork {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  opacity: 0;
+  transform: scale(1.06);
+  filter: blur(6px);
+
+  transition:
+    opacity var(--archive-speed-reveal) var(--archive-ease),
+    transform var(--archive-speed-reveal) var(--archive-ease),
+    filter var(--archive-speed-reveal) var(--archive-ease);
+}
+
+.archive-player__artwork.is-showing {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+/* The outgoing layer settles *outward*, so the two never look
+   like the same image sliding — they read as a dissolve. */
+.archive-player__artwork.is-leaving {
+  opacity: 0;
+  transform: scale(0.94);
+  filter: blur(8px);
+}
+
+.archive-player__artwork-empty {
+  position: absolute;
+  inset: 0;
+
+  opacity: 0;
+  transition: opacity var(--archive-speed) var(--archive-ease);
+
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      var(--archive-line) 0 1px,
+      transparent 1px 7px
+    );
+}
+
+.archive-player.is-empty .archive-player__artwork-empty {
+  opacity: 1;
+}
+
+/* --- Text --- */
+
+.archive-player__meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.archive-player__title {
+  margin: 0;
+
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: var(--archive-track-body);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  transition:
+    opacity var(--archive-speed) var(--archive-ease),
+    transform var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-player.is-empty .archive-player__title {
+  color: var(--archive-text-subtle);
+  font-weight: 500;
+}
+
+/* Title morph. archive-ui.js adds .is-morphing, swaps the text at
+   the midpoint, then removes it — so the old and new titles never
+   appear at once and the label never visibly "pops". */
+.archive-player__title.is-morphing {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.archive-player__hint {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-faint);
+
+  display: none;
+}
+
+.archive-player.is-empty .archive-player__hint {
+  display: block;
+}
+
+.archive-player__catalog {
+  font-size: 10px;
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-cyan);
+  opacity: 0.75;
+}
+
+.archive-player__details {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--archive-text-muted);
+}
+
+.archive-player__unit {
+  color: var(--archive-text-faint);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.archive-player__sep {
+  color: var(--archive-text-faint);
+}
+
+/* In rest state the metadata rows are removed entirely rather than
+   left showing placeholder dashes. */
+.archive-player.is-empty .archive-player__catalog,
+.archive-player.is-empty .archive-player__details {
+  display: none;
+}
+
+/* ----------------------------------------------------------
+   TRANSPORT
+---------------------------------------------------------- */
+
+.archive-player__center {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-sm);
+
+  flex: 1 1 auto;
+  max-width: 620px;
+  min-width: 0;
+}
+
+.archive-player__transport {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.archive-player__skip,
+.archive-player__mute {
+  display: grid;
+  place-items: center;
+
+  width: 32px;
+  height: 32px;
+  padding: 0;
+
+  border: none;
+  border-radius: var(--archive-radius-pill);
+  background: transparent;
+  color: var(--archive-text-muted);
+
+  cursor: pointer;
+
+  transition:
+    color var(--archive-speed-fast) var(--archive-ease),
+    background var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__skip:hover,
+.archive-player__mute:hover {
+  color: var(--archive-text);
+  background: var(--archive-surface-raised);
+}
+
+.archive-player__skip--next svg {
+  transform: scaleX(-1);
+}
+
+.archive-player__play {
+  display: grid;
+  place-items: center;
+
+  width: 40px;
+  height: 40px;
+  padding: 0;
+
+  border: none;
+  border-radius: var(--archive-radius-pill);
+
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
+
+  cursor: pointer;
+  flex-shrink: 0;
+
+  transition:
+    background var(--archive-speed-fast) var(--archive-ease),
+    color var(--archive-speed-fast) var(--archive-ease),
+    box-shadow var(--archive-speed) var(--archive-ease);
+}
+
+.archive-player__play:hover {
+  color: var(--archive-cyan);
+  background: var(--archive-surface-raised);
+  box-shadow: 0 0 0 1px var(--archive-cyan-24);
+}
+
+/* Light, not paint — the button glows only while sounding. */
+.archive-player.is-playing .archive-player__play {
+  color: var(--archive-cyan);
+  box-shadow: 0 0 18px -4px var(--archive-cyan-48);
+}
+
+/* Icon swap. Both live in the DOM; only one occupies the grid cell
+   at a time, so the button never reflows mid-toggle. */
+.archive-player__icon {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__icon--pause,
+.archive-player.is-playing .archive-player__icon--play {
+  opacity: 0;
+}
+
+.archive-player.is-playing .archive-player__icon--pause {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------
+   SCRUBBER + WAVEFORM
+
+   The waveform is decorative. The range input on top of it is the
+   real control — it keeps keyboard seeking, focus and the
+   accessible name that a div would throw away.
+---------------------------------------------------------- */
+
+.archive-player__scrubber {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 34px;
+}
+
+.archive-player__waveform {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.archive-player__wf-layer {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* The played layer is an identical copy of the bars, clipped to the
+   current position. Clipping a duplicate is what lets a single
+   custom property repaint the whole waveform without touching the
+   DOM on every timeupdate.
+
+   clip-path, not width. Narrowing the layer would re-run its flex
+   layout and the played bars would drift out of alignment with the
+   base bars underneath. clip-path leaves layout untouched and is
+   composited, so this stays off the main thread. */
+.archive-player__wf-layer--played {
+  clip-path: inset(0 calc((1 - var(--progress)) * 100%) 0 0);
+}
+
+.archive-player__wf-layer--played .archive-player__wf-bar {
+  background: var(--archive-cyan);
+  opacity: 0.9;
+}
+
+.archive-player__wf-bar {
+  flex: 0 0 3px;
+  height: calc(6% + var(--h, 0.5) * 78%);
+
+  border-radius: 1px;
+  background: var(--archive-text);
+  opacity: 0.16;
+
+  transform-origin: center;
+
+  transition:
+    height var(--archive-speed-reveal) var(--archive-ease),
+    opacity var(--archive-speed) var(--archive-ease);
+}
+
+/* The played layer must not re-clip its own bars as the container
+   narrows — fixing the layer to the scrubber width keeps bars
+   aligned between the two layers. */
+.archive-player__wf-layer--played .archive-player__wf-bar {
+  flex-shrink: 0;
+}
+
+/* Ambient life while sounding. Deliberately slow and shallow: this
+   is a room breathing, not a level meter. */
+.archive-player.is-playing .archive-player__wf-layer--played .archive-player__wf-bar {
+  animation: archive-wf-breathe 2.4s var(--archive-ease-soft) infinite;
+  animation-delay: calc(var(--i, 0) * -37ms);
+}
+
+@keyframes archive-wf-breathe {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.14);
+  }
+}
+
+/* Rest state: the waveform collapses to a quiet baseline. */
+.archive-player.is-empty .archive-player__wf-bar {
+  height: 10%;
+  opacity: 0.1;
+}
+
+.archive-player__progress {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  margin: 0;
+
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+
+  cursor: pointer;
+}
+
+.archive-player__progress::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+
+.archive-player__progress::-moz-range-track {
+  height: 100%;
+  background: transparent;
+}
+
+/* A thin playhead rather than a knob — closer to an editor than a
+   web form control. */
+.archive-player__progress::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 2px;
+  height: 34px;
+
+  border: none;
+  border-radius: 1px;
+  background: var(--archive-text);
+
+  opacity: 0;
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__progress::-moz-range-thumb {
+  width: 2px;
+  height: 34px;
+
+  border: none;
+  border-radius: 1px;
+  background: var(--archive-text);
+
+  opacity: 0;
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__scrubber:hover .archive-player__progress::-webkit-slider-thumb,
+.archive-player__progress:focus-visible::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.archive-player__scrubber:hover .archive-player__progress::-moz-range-thumb,
+.archive-player__progress:focus-visible::-moz-range-thumb {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------
+   TIME + VOLUME
+---------------------------------------------------------- */
+
+.archive-player__right {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-xs);
+
+  flex: 0 0 auto;
+}
+
+.archive-player__time {
+  font-size: 11px;
+  color: var(--archive-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.archive-player.is-empty .archive-player__time {
+  color: var(--archive-text-faint);
+}
+
+.archive-player__volume {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.archive-player__mute-slash {
+  opacity: 0;
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player.is-muted .archive-player__mute-slash {
+  opacity: 1;
+}
+
+.archive-player.is-muted .archive-player__wave-arcs {
+  opacity: 0;
+}
+
+.archive-player__wave-arcs {
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__volume-slider {
+  width: 72px;
+  height: 3px;
+  margin: 0;
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  border-radius: var(--archive-radius-pill);
+  background: var(--archive-line-strong);
+  cursor: pointer;
+
+  transition: background var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 10px;
+  height: 10px;
+
+  border: none;
+  border-radius: 50%;
+  background: var(--archive-text);
+
+  transition: background var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-player__volume-slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+
+  border: none;
+  border-radius: 50%;
+  background: var(--archive-text);
+}
+
+.archive-player__volume-slider:hover::-webkit-slider-thumb,
+.archive-player__volume-slider:focus-visible::-webkit-slider-thumb {
+  background: var(--archive-cyan);
+}
+
+.archive-player__volume-slider:hover::-moz-range-thumb,
+.archive-player__volume-slider:focus-visible::-moz-range-thumb {
+  background: var(--archive-cyan);
+}
+
+/* ----------------------------------------------------------
+   FOCUS
+
+   Per the design rules, focus is the one place the accent is
+   allowed to shout.
+---------------------------------------------------------- */
+
+.archive-player :focus-visible {
+  outline: 2px solid var(--archive-cyan);
+  outline-offset: 2px;
+  border-radius: var(--archive-radius-sm);
+}
+
+/* ----------------------------------------------------------
+   MOBILE
+
+   The deck keeps identity + transport and drops the volume
+   control — on touch there are hardware volume keys, and the
+   slider is the least useful 72px on a small screen.
+---------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .archive-player {
+    --deck-height: auto;
+    --deck-artwork: 44px;
+
+    flex-wrap: wrap;
+    gap: var(--archive-space-2xs);
+    padding: var(--archive-space-2xs) var(--archive-space-sm);
+  }
+
+  .archive-player__left {
+    flex: 1 1 auto;
+    order: 1;
+  }
+
+  .archive-player__right {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .archive-player__center {
+    order: 3;
+    width: 100%;
+    max-width: none;
+  }
+
+  .archive-player__volume {
+    display: none;
+  }
+
+  .archive-player__scrubber {
+    height: 26px;
+  }
+
+  .archive-player__progress::-webkit-slider-thumb,
+  .archive-player__progress::-moz-range-thumb {
+    height: 26px;
+    opacity: 1;
+  }
+}
+
+/* ----------------------------------------------------------
+   REDUCED MOTION
+
+   The deck still changes state — state is information. It simply
+   stops travelling, dissolving and breathing.
+
+   archive-tokens.css already collapses --archive-speed-* to 1ms
+   under this query, so transitions are handled centrally. What
+   remains here is the ambient animation and the transform-based
+   artwork dissolve, neither of which is speed-token driven.
+---------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-player.is-playing .archive-player__wf-layer--played .archive-player__wf-bar {
+    animation: none;
+  }
+
+  .archive-player__artwork,
+  .archive-player__artwork.is-showing,
+  .archive-player__artwork.is-leaving {
+    transform: none;
+    filter: none;
+  }
+
+  .archive-player__title.is-morphing {
+    transform: none;
+  }
+}
+
+/* preview shell only — not part of the theme */
+body{margin:0;background:var(--archive-bg);color:var(--archive-text);
+  font-family:Inter,system-ui,sans-serif;padding:48px 32px 80px}
+h1{font-size:12px;letter-spacing:var(--archive-track-label);text-transform:uppercase;
+  color:var(--archive-text-subtle);font-weight:500;margin:0 0 8px}
+h2.lbl{font-size:11px;letter-spacing:var(--archive-track-label);text-transform:uppercase;
+  color:var(--archive-text-faint);font-weight:500;margin:40px 0 10px}
+.stage{position:relative;border:1px solid var(--archive-line);border-radius:8px;overflow:hidden}
+.stage .archive-player{position:relative}
+p.note{font-size:12px;color:var(--archive-text-muted);max-width:70ch;line-height:1.6;margin:8px 0 0}
+</style></head><body>
+<h1>ArchiveOS · Persistent Transport Deck</h1>
+<p class="note">Rendered from the real <code>archive-tokens.css</code>, <code>archive-player.css</code>
+and <code>snippets/archive-player.liquid</code>. Static preview — no audio, no event bus.</p>
+
+<h2 class="lbl">Rest state — nothing selected</h2>
+<div class="stage"><div
+  id="archive-player"
+  class="archive-player is-empty"
+  data-archive-player
+  role="region"
+  aria-label="Archive transport deck"
+>
+  
+
+  <div class="archive-player__left">
+    <div class="archive-player__artwork-stack">
+      <span class="archive-player__artwork-empty" aria-hidden="true"></span>
+
+      <img
+        class="archive-player__artwork is-showing"
+        data-player-artwork-a
+        src=""
+        alt=""
+        aria-hidden="true"
+      >
+
+      <img
+        class="archive-player__artwork"
+        data-player-artwork-b
+        src=""
+        alt=""
+        aria-hidden="true"
+      >
+    </div>
+
+    <div class="archive-player__meta">
+      <h2 class="archive-player__title" data-player-title>Nothing playing</h2>
+
+      <p class="archive-player__hint">Select an artifact to begin</p>
+
+      <div class="archive-player__catalog">
+        <span data-player-archive></span>
+      </div>
+
+      <div class="archive-player__details">
+        <span class="archive-player__detail">
+          <span data-player-bpm></span>
+          <span class="archive-player__unit">BPM</span>
+        </span>
+
+        <span class="archive-player__sep" aria-hidden="true">·</span>
+
+        <span class="archive-player__detail" data-player-key></span>
+
+        <span class="archive-player__sep" aria-hidden="true">·</span>
+
+        <span class="archive-player__detail" data-player-mood></span>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <div class="archive-player__center">
+    <div class="archive-player__transport">
+      <button
+        type="button"
+        class="archive-player__skip"
+        data-player-prev
+        aria-label="Previous artifact"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M6 5.5v9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path
+            d="M14.6 6.1v7.8c0 .8-.9 1.28-1.56.83l-5.8-3.9a1 1 0 0 1 0-1.66l5.8-3.9c.66-.45 1.56.03 1.56.83Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="archive-player__play"
+        data-player-play
+        aria-label="Play"
+      >
+        <span class="archive-player__icon archive-player__icon--play" aria-hidden="true">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M15.375 8.48516C16.5417 9.15874 16.5417 10.8427 15.375 11.5163L7.875 15.8464C6.70833 16.52 5.25 15.678 5.25 14.3308L5.25 5.67058C5.25 4.32343 6.70833 3.48146 7.875 4.15504L15.375 8.48516Z" fill="currentColor"/>
+</svg>
+
+        </span>
+        <span class="archive-player__icon archive-player__icon--pause" aria-hidden="true">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12.5 5v10" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>
+    <path d="M7.5 5v10" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>
+</svg>
+
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="archive-player__skip archive-player__skip--next"
+        data-player-next
+        aria-label="Next artifact"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M6 5.5v9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path
+            d="M14.6 6.1v7.8c0 .8-.9 1.28-1.56.83l-5.8-3.9a1 1 0 0 1 0-1.66l5.8-3.9c.66-.45 1.56.03 1.56.83Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <div class="archive-player__scrubber">
+      <div class="archive-player__waveform" data-player-waveform aria-hidden="true"></div>
+
+      <input
+        type="range"
+        class="archive-player__progress"
+        data-player-progress
+        min="0"
+        max="1000"
+        value="0"
+        step="1"
+        aria-label="Seek through artifact"
+      >
+    </div>
+  </div>
+
+  
+
+  <div class="archive-player__right">
+    <span class="archive-player__time" data-player-time>0:00 / 0:00</span>
+
+    <div class="archive-player__volume">
+      <button
+        type="button"
+        class="archive-player__mute"
+        data-player-mute
+        aria-label="Mute"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+          <path
+            d="M4 7.6h2.4L9.9 4.8c.5-.4 1.2 0 1.2.6v9.2c0 .6-.7 1-1.2.6L6.4 12.4H4a.9.9 0 0 1-.9-.9V8.5c0-.5.4-.9.9-.9Z"
+            fill="currentColor"
+          />
+          <g class="archive-player__wave-arcs">
+            <path d="M13.4 7.6a3.4 3.4 0 0 1 0 4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M15.6 5.6a6.3 6.3 0 0 1 0 8.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+          <path
+            class="archive-player__mute-slash"
+            d="M13.9 8.1l4 4M17.9 8.1l-4 4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+
+      <input
+        type="range"
+        class="archive-player__volume-slider"
+        data-player-volume
+        min="0"
+        max="100"
+        value="100"
+        step="1"
+        aria-label="Volume"
+      >
+    </div>
+  </div>
+</div></div>
+<p class="note">Dimmed to 72%. Metadata rows are removed rather than filled with dashes;
+the hint replaces them. Artwork shows a hatched empty plate. Waveform sits at a flat baseline.</p>
+
+<h2 class="lbl">Playing</h2>
+<div class="stage" id="live"><div
+  id="archive-player"
+  class="archive-player is-playing"
+  data-archive-player
+  role="region"
+  aria-label="Archive transport deck"
+>
+  
+
+  <div class="archive-player__left">
+    <div class="archive-player__artwork-stack">
+      <span class="archive-player__artwork-empty" aria-hidden="true"></span>
+
+      <img
+        class="archive-player__artwork is-showing"
+        data-player-artwork-a
+        src=""
+        alt=""
+        aria-hidden="true"
+      >
+
+      <img
+        class="archive-player__artwork"
+        data-player-artwork-b
+        src=""
+        alt=""
+        aria-hidden="true"
+      >
+    </div>
+
+    <div class="archive-player__meta">
+      <h2 class="archive-player__title" data-player-title>Vantablack Cathedral</h2>
+
+      <p class="archive-player__hint">Select an artifact to begin</p>
+
+      <div class="archive-player__catalog">
+        <span data-player-archive>ARCH 0417</span>
+      </div>
+
+      <div class="archive-player__details">
+        <span class="archive-player__detail">
+          <span data-player-bpm>142</span>
+          <span class="archive-player__unit">BPM</span>
+        </span>
+
+        <span class="archive-player__sep" aria-hidden="true">·</span>
+
+        <span class="archive-player__detail" data-player-key>F# min</span>
+
+        <span class="archive-player__sep" aria-hidden="true">·</span>
+
+        <span class="archive-player__detail" data-player-mood>Cavernous</span>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <div class="archive-player__center">
+    <div class="archive-player__transport">
+      <button
+        type="button"
+        class="archive-player__skip"
+        data-player-prev
+        aria-label="Previous artifact"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M6 5.5v9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path
+            d="M14.6 6.1v7.8c0 .8-.9 1.28-1.56.83l-5.8-3.9a1 1 0 0 1 0-1.66l5.8-3.9c.66-.45 1.56.03 1.56.83Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="archive-player__play"
+        data-player-play
+        aria-label="Play"
+      >
+        <span class="archive-player__icon archive-player__icon--play" aria-hidden="true">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M15.375 8.48516C16.5417 9.15874 16.5417 10.8427 15.375 11.5163L7.875 15.8464C6.70833 16.52 5.25 15.678 5.25 14.3308L5.25 5.67058C5.25 4.32343 6.70833 3.48146 7.875 4.15504L15.375 8.48516Z" fill="currentColor"/>
+</svg>
+
+        </span>
+        <span class="archive-player__icon archive-player__icon--pause" aria-hidden="true">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12.5 5v10" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>
+    <path d="M7.5 5v10" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>
+</svg>
+
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="archive-player__skip archive-player__skip--next"
+        data-player-next
+        aria-label="Next artifact"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M6 5.5v9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path
+            d="M14.6 6.1v7.8c0 .8-.9 1.28-1.56.83l-5.8-3.9a1 1 0 0 1 0-1.66l5.8-3.9c.66-.45 1.56.03 1.56.83Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <div class="archive-player__scrubber">
+      <div class="archive-player__waveform" data-player-waveform aria-hidden="true"></div>
+
+      <input
+        type="range"
+        class="archive-player__progress"
+        data-player-progress
+        min="0"
+        max="1000"
+        value="0"
+        step="1"
+        aria-label="Seek through artifact"
+      >
+    </div>
+  </div>
+
+  
+
+  <div class="archive-player__right">
+    <span class="archive-player__time" data-player-time>1:12 / 3:04</span>
+
+    <div class="archive-player__volume">
+      <button
+        type="button"
+        class="archive-player__mute"
+        data-player-mute
+        aria-label="Mute"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+          <path
+            d="M4 7.6h2.4L9.9 4.8c.5-.4 1.2 0 1.2.6v9.2c0 .6-.7 1-1.2.6L6.4 12.4H4a.9.9 0 0 1-.9-.9V8.5c0-.5.4-.9.9-.9Z"
+            fill="currentColor"
+          />
+          <g class="archive-player__wave-arcs">
+            <path d="M13.4 7.6a3.4 3.4 0 0 1 0 4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M15.6 5.6a6.3 6.3 0 0 1 0 8.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+          <path
+            class="archive-player__mute-slash"
+            d="M13.9 8.1l4 4M17.9 8.1l-4 4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+
+      <input
+        type="range"
+        class="archive-player__volume-slider"
+        data-player-volume
+        min="0"
+        max="100"
+        value="100"
+        step="1"
+        aria-label="Volume"
+      >
+    </div>
+  </div>
+</div></div>
+<p class="note">Cyan top border, glowing play button, pause icon swapped in, waveform played
+portion clipped at the current position.</p>
+
+<script>
+// mirrors buildWaveform()/drawWaveform() in archive-ui.js
+function hash(s){s=String(s);let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6d2b79f5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+document.querySelectorAll('[data-player-waveform]').forEach((wf,idx)=>{
+  const n=Math.max(24,Math.min(160,Math.floor((wf.clientWidth||600)/5)));
+  const r=rng(hash(idx?'ARCH 0417':'rest'));const hs=[];
+  for(let i=0;i<n;i++){const arch=Math.sin(i/n*Math.PI);
+    hs.push(Math.max(.04,Math.min(1,.18+arch*.34+r()*.34+r()*.14)));}
+  ['base','played'].forEach(v=>{const L=document.createElement('div');
+    L.className='archive-player__wf-layer archive-player__wf-layer--'+v;
+    for(let i=0;i<n;i++){const b=document.createElement('span');
+      b.className='archive-player__wf-bar';b.style.setProperty('--i',i);
+      b.style.setProperty('--h',hs[i].toFixed(3));L.appendChild(b);}
+    wf.appendChild(L);});
+});
+document.getElementById('live').querySelector('.archive-player').style.setProperty('--progress','.39');
+document.getElementById('live').querySelector('[data-player-progress]').value=390;
+</script></body></html>

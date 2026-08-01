@@ -1,0 +1,382 @@
+/* ==========================================================
+   ARCHIVEOS — THE EXPANDED DECK
+
+   The product page as an album release.
+
+   Two responsibilities:
+
+     1. Lay out the display case against the identity panel
+     2. Restyle Horizon's commerce blocks into archival licence
+        rows, WITHOUT changing their markup or behaviour
+
+   Everything under .archive-deck__licence is an override of
+   Horizon's own classes. Those overrides are deliberately scoped
+   to this container — the same blocks appear in the cart, quick-add
+   and featured-product surfaces, and must keep Horizon's styling
+   there. Never lift these rules to a bare selector.
+
+   Values come from archive-tokens.css. The display case itself is
+   styled entirely by archive-vitrine.css; nothing here touches it
+   beyond sizing the frame it sits in.
+========================================================== */
+
+.archive-deck {
+  --deck-gap: var(--archive-space-2xl);
+  --deck-case: minmax(0, 1fr);
+  --deck-panel: minmax(0, 1fr);
+
+  display: grid;
+  grid-template-columns: var(--deck-case) var(--deck-panel);
+  gap: var(--deck-gap);
+  align-items: center;
+
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-block: var(--deck-pad-start, 64px) var(--deck-pad-end, 96px);
+  padding-inline: var(--archive-space-lg);
+
+  box-sizing: border-box;
+}
+
+/* Case on the right, identity first in the reading order. */
+.archive-deck[data-case-position='right'] .archive-deck__stage {
+  order: 2;
+}
+
+/* ----------------------------------------------------------
+   THE CASE
+---------------------------------------------------------- */
+
+.archive-deck__stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--archive-space-md);
+  min-width: 0;
+}
+
+/* The vitrine sizes itself to its container on the homepage, where
+   that container is a full viewport. Here it is a column, so the
+   frame is constrained rather than the case being restyled. */
+.archive-deck__stage .vitrine__stage {
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1;
+}
+
+/* --- Audition control --- */
+
+.archive-deck__audition {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--archive-space-2xs);
+
+  padding: var(--archive-space-2xs) var(--archive-space-md)
+    var(--archive-space-2xs) var(--archive-space-2xs);
+
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-pill);
+
+  background: var(--archive-surface);
+  color: var(--archive-text);
+
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--archive-speed) var(--archive-ease),
+    background var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-deck__audition:hover {
+  border-color: var(--archive-cyan-24);
+  color: var(--archive-cyan);
+}
+
+.archive-deck.is-playing .archive-deck__audition {
+  border-color: var(--archive-cyan-24);
+  color: var(--archive-cyan);
+}
+
+.archive-deck__audition-icon {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: var(--archive-radius-pill);
+  background: var(--archive-surface-raised);
+
+  transition: box-shadow var(--archive-speed) var(--archive-ease);
+}
+
+.archive-deck.is-playing .archive-deck__audition-icon {
+  box-shadow: 0 0 18px -4px var(--archive-cyan-48);
+}
+
+/* Same icon-swap technique as the transport deck: both icons share
+   one grid cell so the control never reflows mid-toggle. */
+.archive-deck__icon {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-deck__icon--pause,
+.archive-deck.is-playing .archive-deck__icon--play {
+  opacity: 0;
+}
+
+.archive-deck.is-playing .archive-deck__icon--pause {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------
+   IDENTITY
+---------------------------------------------------------- */
+
+.archive-deck__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--archive-space-lg);
+  min-width: 0;
+}
+
+.archive-deck__catalog {
+  margin: 0 0 var(--archive-space-2xs);
+
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-cyan);
+}
+
+.archive-deck__title {
+  margin: 0;
+
+  font-size: var(--archive-type-display);
+  font-weight: var(--archive-weight-light);
+  line-height: var(--archive-leading-tight);
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+
+  color: var(--archive-text);
+}
+
+/* --- Specification table --- */
+
+.archive-deck__spec {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, auto));
+  gap: var(--archive-space-sm) var(--archive-space-lg);
+
+  margin: var(--archive-space-md) 0 0;
+}
+
+.archive-deck__spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.archive-deck__spec dt {
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-faint);
+}
+
+.archive-deck__spec dd {
+  margin: 0;
+  font-size: 15px;
+  color: var(--archive-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----------------------------------------------------------
+   LICENCE — overrides of Horizon's blocks
+
+   Scoped to .archive-deck__licence on purpose. These same blocks
+   render in cart, quick-add and featured-product; they must look
+   like Horizon everywhere except here.
+---------------------------------------------------------- */
+
+.archive-deck__licence {
+  display: flex;
+  flex-direction: column;
+  gap: var(--archive-space-md);
+
+  padding-top: var(--archive-space-md);
+  border-top: 1px solid var(--archive-line);
+}
+
+/* The one restricted-register moment on the page. Sized as a wall
+   label, not a section heading — it announces a condition of access,
+   it does not shout. */
+.archive-deck__licence-heading {
+  margin: 0;
+
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+}
+
+/* Option group heading — reads as a wall label. */
+.archive-deck__licence .variant-option legend,
+.archive-deck__licence .variant-option__swatch-value {
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-faint);
+}
+
+.archive-deck__licence .variant-option--buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--archive-space-3xs);
+
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* Each variant becomes a licence row rather than a pill. Tiers are
+   a list of things you can buy, not a set of size chips. */
+.archive-deck__licence .variant-option__button-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--archive-space-sm);
+
+  width: 100%;
+  min-height: 52px;
+  padding: var(--archive-space-2xs) var(--archive-space-sm);
+  margin: 0;
+
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-md);
+
+  background: var(--archive-surface);
+  color: var(--archive-text-muted);
+
+  font-size: 14px;
+  letter-spacing: var(--archive-track-body);
+  text-transform: none;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--archive-speed) var(--archive-ease),
+    background var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-deck__licence .variant-option__button-label:hover {
+  border-color: var(--archive-line-strong);
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
+}
+
+/* Selected tier. Light, not paint. */
+.archive-deck__licence input:checked + .variant-option__button-label,
+.archive-deck__licence .variant-option__button-label[aria-checked='true'] {
+  border-color: var(--archive-cyan-24);
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
+}
+
+.archive-deck__licence input:focus-visible + .variant-option__button-label {
+  outline: 2px solid var(--archive-cyan);
+  outline-offset: 2px;
+}
+
+/* Unavailable tiers stay legible — an archive shows what it has
+   catalogued, including what it cannot sell. */
+.archive-deck__licence .variant-option__button-label--unavailable {
+  opacity: 0.4;
+}
+
+/* --- Price --- */
+
+.archive-deck__licence .price,
+.archive-deck__licence .price-block {
+  font-size: var(--archive-type-title, 28px);
+  font-weight: var(--archive-weight-light);
+  letter-spacing: var(--archive-track-body);
+  color: var(--archive-text);
+}
+
+/* --- Buy buttons --- */
+
+.archive-deck__licence .buy-buttons-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--archive-space-2xs);
+}
+
+.archive-deck__licence .button {
+  border-radius: var(--archive-radius-md);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  font-size: var(--archive-type-micro);
+  min-height: 52px;
+}
+
+/* --- Description --- */
+
+.archive-deck__licence .product-description,
+.archive-deck__licence .rte {
+  color: var(--archive-text-muted);
+  font-size: 14px;
+  line-height: var(--archive-leading-body);
+}
+
+/* ----------------------------------------------------------
+   RESPONSIVE
+---------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .archive-deck {
+    --deck-gap: var(--archive-space-xl);
+  }
+}
+
+@media (max-width: 860px) {
+  .archive-deck {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: var(--archive-space-sm);
+    padding-block: var(--archive-space-lg) var(--archive-space-2xl);
+  }
+
+  /* Case first on mobile regardless of the desktop setting — the
+     artwork is the reason the visitor opened the page. */
+  .archive-deck[data-case-position='right'] .archive-deck__stage {
+    order: 0;
+  }
+
+  .archive-deck__stage .vitrine__stage {
+    max-width: 420px;
+  }
+}
+
+/* The transport deck is fixed to the bottom of every page. Without
+   this the last licence row sits underneath it. */
+.archive-deck {
+  scroll-margin-bottom: 120px;
+}
+
+@media (max-width: 768px) {
+  .archive-deck {
+    padding-bottom: 180px;
+  }
+}

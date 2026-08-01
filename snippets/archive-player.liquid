@@ -1,83 +1,194 @@
-<div id="archive-player" class="archive-player">
+{%- comment -%}
+  ==========================================================
+  ARCHIVEOS — PERSISTENT TRANSPORT DECK
+
+  One deck, rendered once in layout/theme.liquid, present on
+  every page. It is a permanent fixture like the vitrine, not a
+  homepage widget — so it renders in a deliberate dimmed rest
+  state before anything has been selected, rather than showing
+  literal "---" filler.
+
+  Everything here is a hook, not content. All values are written
+  by assets/archive-ui.js in response to the ArchiveOS event bus;
+  nothing in this file is populated by Liquid. That is what lets
+  a single deck follow the visitor across navigations without the
+  server needing to know what is playing.
+
+  Artwork is two stacked layers, not one <img>. Swapping a single
+  src cannot cross-fade — the old pixels are gone the instant the
+  new ones decode. archive-ui.js alternates between the two layers
+  so the outgoing artwork can fade, scale and blur out underneath
+  the incoming one.
+
+  The scrubber is a real <input type="range"> sitting transparently
+  on top of the waveform. The waveform is decoration and is
+  aria-hidden; the range input carries the accessible name, keyboard
+  seeking and focus. Do not swap it for a div.
+  ==========================================================
+{%- endcomment -%}
+
+<div
+  id="archive-player"
+  class="archive-player is-empty"
+  data-archive-player
+  role="region"
+  aria-label="Audition console"
+>
+  {%- comment -%} ---------- Artifact identity ---------- {%- endcomment -%}
 
   <div class="archive-player__left">
+    <div class="archive-player__artwork-stack">
+      <span class="archive-player__artwork-empty" aria-hidden="true"></span>
 
-    <img
-      class="archive-player__artwork"
-      data-player-artwork
-      src=""
-      alt="Album artwork"
-    >
+      <img
+        class="archive-player__artwork is-showing"
+        data-player-artwork-a
+        src=""
+        alt=""
+        aria-hidden="true"
+      >
+
+      <img
+        class="archive-player__artwork"
+        data-player-artwork-b
+        src=""
+        alt=""
+        aria-hidden="true"
+      >
+    </div>
 
     <div class="archive-player__meta">
+      <h2 class="archive-player__title" data-player-title>No artifact in the case</h2>
 
-      <h2
-        class="archive-player__title"
-        data-player-title>
-        Nothing Playing
-      </h2>
+      <p class="archive-player__hint">Select an artifact from the holdings</p>
 
       <div class="archive-player__catalog">
-
-        <span
-          class="archive-player__archive"
-          data-player-archive>
-          ARCH ----
-        </span>
-
+        <span data-player-archive></span>
       </div>
 
       <div class="archive-player__details">
+        <span class="archive-player__detail">
+          <span data-player-bpm></span>
+          <span class="archive-player__unit">BPM</span>
+        </span>
 
-        <span data-player-bpm>---</span>
-        <span>BPM</span>
+        <span class="archive-player__sep" aria-hidden="true">·</span>
 
-        <span class="separator">•</span>
+        <span class="archive-player__detail" data-player-key></span>
 
-        <span data-player-key>--</span>
+        <span class="archive-player__sep" aria-hidden="true">·</span>
 
-        <span class="separator">•</span>
-
-        <span data-player-mood>---</span>
-
+        <span class="archive-player__detail" data-player-mood></span>
       </div>
-
     </div>
-
   </div>
+
+  {%- comment -%} ---------- Transport ---------- {%- endcomment -%}
 
   <div class="archive-player__center">
+    <div class="archive-player__transport">
+      <button
+        type="button"
+        class="archive-player__skip"
+        data-player-prev
+        aria-label="Previous artifact"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M6 5.5v9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path
+            d="M14.6 6.1v7.8c0 .8-.9 1.28-1.56.83l-5.8-3.9a1 1 0 0 1 0-1.66l5.8-3.9c.66-.45 1.56.03 1.56.83Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
 
-    <button
-      class="archive-player__play"
-      data-player-play
-      aria-label="Play Preview">
+      <button
+        type="button"
+        class="archive-player__play"
+        data-player-play
+        aria-label="Play"
+      >
+        <span class="archive-player__icon archive-player__icon--play" aria-hidden="true">
+          {{- 'icon-play.svg' | inline_asset_content -}}
+        </span>
+        <span class="archive-player__icon archive-player__icon--pause" aria-hidden="true">
+          {{- 'icon-pause.svg' | inline_asset_content -}}
+        </span>
+      </button>
 
-      ▶
+      <button
+        type="button"
+        class="archive-player__skip archive-player__skip--next"
+        data-player-next
+        aria-label="Next artifact"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M6 5.5v9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path
+            d="M14.6 6.1v7.8c0 .8-.9 1.28-1.56.83l-5.8-3.9a1 1 0 0 1 0-1.66l5.8-3.9c.66-.45 1.56.03 1.56.83Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+    </div>
 
-    </button>
+    <div class="archive-player__scrubber">
+      <div class="archive-player__waveform" data-player-waveform aria-hidden="true"></div>
 
-    <input
-      type="range"
-      min="0"
-      max="100"
-      value="0"
-      class="archive-player__progress"
-      data-player-progress
-    >
-
+      <input
+        type="range"
+        class="archive-player__progress"
+        data-player-progress
+        min="0"
+        max="1000"
+        value="0"
+        step="1"
+        aria-label="Scrub the audition"
+      >
+    </div>
   </div>
+
+  {%- comment -%} ---------- Time + volume ---------- {%- endcomment -%}
 
   <div class="archive-player__right">
+    <span class="archive-player__time" data-player-time>0:00 / 0:00</span>
 
-    <span
-      class="archive-player__time"
-      data-player-time>
+    <div class="archive-player__volume">
+      <button
+        type="button"
+        class="archive-player__mute"
+        data-player-mute
+        aria-label="Mute"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+          <path
+            d="M4 7.6h2.4L9.9 4.8c.5-.4 1.2 0 1.2.6v9.2c0 .6-.7 1-1.2.6L6.4 12.4H4a.9.9 0 0 1-.9-.9V8.5c0-.5.4-.9.9-.9Z"
+            fill="currentColor"
+          />
+          <g class="archive-player__wave-arcs">
+            <path d="M13.4 7.6a3.4 3.4 0 0 1 0 4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M15.6 5.6a6.3 6.3 0 0 1 0 8.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+          <path
+            class="archive-player__mute-slash"
+            d="M13.9 8.1l4 4M17.9 8.1l-4 4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
 
-      0:00 / 0:00
-
-    </span>
-
+      <input
+        type="range"
+        class="archive-player__volume-slider"
+        data-player-volume
+        min="0"
+        max="100"
+        value="100"
+        step="1"
+        aria-label="Volume"
+      >
+    </div>
   </div>
-
 </div>

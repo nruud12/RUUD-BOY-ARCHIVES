@@ -31,9 +31,24 @@
 (() => {
   'use strict';
 
+  /**
+   * Anything that can carry an artifact record and be auditioned.
+   *
+   * Deliberately wider than the queue source below. The product page's
+   * Expanded Deck is an artifact host — it can be played and it shows
+   * active state — but it is NOT a card, because a page holding one
+   * card would collapse the queue to a single entry and lose the
+   * catalogue fallback. Hosts are for interaction; cards are for the
+   * queue. Keep the two separate.
+   */
+  const ARTIFACT_HOSTS = '.archive-card, [data-archive-artifact]';
+
   const CardUI = {
     /** @type {string|null} id of the artifact currently in the case */
     activeId: null,
+
+    /** @type {Array|null} parsed catalogue feed, lazily populated */
+    feedCache: null,
 
     init() {
       this.bindClicks();
@@ -56,10 +71,10 @@
           event.preventDefault();
           event.stopPropagation();
 
-          const card = button.closest('.archive-card');
-          if (!card) return;
+          const host = button.closest(ARTIFACT_HOSTS);
+          if (!host) return;
 
-          this.select(card);
+          this.select(host);
         },
         // Capture phase, so we run before the card link's own handlers.
         true
@@ -99,8 +114,7 @@
         return;
       }
 
-      player.load(track);
-      player.play();
+      this.play(card);
     },
 
     /* ------------------------------------------------------
@@ -121,27 +135,214 @@
       // means "this is the artifact in the case", and survives a pause.
       document.addEventListener('archive:play', () => this.setPlaying(true));
       document.addEventListener('archive:pause', () => this.setPlaying(false));
-      document.addEventListener('archive:ended', () => this.setPlaying(false));
+
+      /*
+        Auto-advance. Previously `archive:ended` only cleared the
+        playing state, so playback stopped dead after every artifact
+        and the visitor had to click again to continue — the single
+        biggest gap in a "persistent" player.
+
+        No wrap: reaching the end of the archive comes to rest.
+        Looping the visitor silently back to the first artifact would
+        be a surprise, and there is no visible queue to explain it.
+      */
+      document.addEventListener('archive:ended', () => {
+        this.setPlaying(false);
+
+        const advanced = this.next(false);
+
+        if (!advanced) {
+          window.ArchiveOS && window.ArchiveOS.emit('archive:queueend');
+        }
+      });
     },
+
+    /* ------------------------------------------------------
+       QUEUE
+
+       The queue lives here, not in the player, because the queue
+       IS the DOM order of the cards on the current page — and the
+       player module is contractually forbidden from touching the
+       DOM. archive-ui.js asks this module to advance; it never
+       walks the card list itself.
+
+       Cards are re-read on every call rather than cached, so
+       Horizon's paginated-list and section-rendering can inject
+       cards at any time without invalidating the queue.
+    ------------------------------------------------------ */
 
     cards() {
       return document.querySelectorAll('.archive-card');
     },
 
+    /**
+     * Is this card genuinely on the page, or hidden?
+     *
+     * Horizon's facets re-render the grid server-side, so a filtered
+     * artifact leaves the DOM entirely and never reaches this check.
+     * But nothing guarantees every future surface behaves that way —
+     * a collapsed section or a CSS-hidden grid would otherwise let
+     * the deck auto-play an artifact the visitor cannot see.
+     */
+    isVisible(card) {
+      if (!card) return false;
+
+      if (typeof card.checkVisibility === 'function') {
+        return card.checkVisibility({
+          contentVisibilityAuto: true,
+          visibilityProperty: true,
+        });
+      }
+
+      // offsetParent is null for display:none and for any hidden
+      // ancestor. Cards are never position:fixed, so the usual
+      // false positive for that case does not apply here.
+      return Boolean(card.offsetParent);
+    },
+
+    /**
+     * Queue entries from visible cards on this page.
+     * @returns {Array<{track: object, card: Element|null}>}
+     */
+    cardEntries() {
+      return Array.from(this.cards())
+        .filter((card) => this.isVisible(card))
+        .map((card) => ({ track: this.readTrack(card), card }))
+        .filter((entry) => Boolean(entry.track && entry.track.audio));
+    },
+
+    /**
+     * Queue entries from the catalogue feed — the fallback for
+     * templates that render no cards at all (the product page).
+     *
+     * Cached: the feed is a static blob emitted once per page load,
+     * so re-parsing it on every queue step would be waste.
+     */
+    feedEntries() {
+      if (this.feedCache) return this.feedCache;
+
+      const node = document.querySelector('[data-archive-feed]');
+      if (!node) {
+        this.feedCache = [];
+        return this.feedCache;
+      }
+
+      try {
+        const parsed = JSON.parse(node.textContent);
+        this.feedCache = (Array.isArray(parsed) ? parsed : [])
+          .filter((track) => Boolean(track && track.audio))
+          .map((track) => ({ track, card: null }));
+      } catch (err) {
+        console.warn('[ArchiveOS] Unreadable catalogue feed', err);
+        this.feedCache = [];
+      }
+
+      return this.feedCache;
+    },
+
+    /**
+     * The queue.
+     *
+     * Visible cards win: they are what the visitor is actually
+     * looking at, and they already reflect any active filtering.
+     * The catalogue is consulted only when this page shows none.
+     */
+    queue() {
+      const cards = this.cardEntries();
+      return cards.length > 0 ? cards : this.feedEntries();
+    },
+
+    /** Index of the active artifact within the queue, or -1. */
+    currentIndex() {
+      if (!this.activeId) return -1;
+      return this.queue().findIndex(
+        (entry) => String(entry.track.id) === String(this.activeId)
+      );
+    },
+
+    /**
+     * Moves through the queue.
+     *
+     * `wrap` is false for auto-advance — reaching the end of the
+     * archive should come to rest, not loop the visitor back to the
+     * top unannounced. It is true for the explicit next/prev
+     * buttons, where a deliberate press implies wanting to keep going.
+     *
+     * @param {number} step  +1 forward, -1 back
+     * @param {boolean} wrap
+     * @returns {boolean} whether a track was loaded
+     */
+    step(step, wrap) {
+      const player = window.ArchiveOS && window.ArchiveOS.getModule('player');
+      if (!player) return false;
+
+      const list = this.queue();
+      if (list.length === 0) return false;
+
+      // Nothing selected yet: a next/prev press starts at the top.
+      const index = this.currentIndex();
+      if (index === -1) {
+        return this.playEntry(list[0]);
+      }
+
+      // A single artifact has nowhere to go.
+      if (list.length === 1) return false;
+
+      let target = index + step;
+
+      if (target >= list.length) {
+        if (!wrap) return false;
+        target = 0;
+      } else if (target < 0) {
+        if (!wrap) return false;
+        target = list.length - 1;
+      }
+
+      return this.playEntry(list[target]);
+    },
+
+    /** Loads and starts a queue entry. */
+    playEntry(entry) {
+      const player = window.ArchiveOS && window.ArchiveOS.getModule('player');
+      if (!player || !entry || !entry.track || !entry.track.audio) return false;
+
+      player.load(entry.track);
+      player.play();
+      return true;
+    },
+
+    /** Loads and starts a card. Used by select(). */
+    play(card) {
+      return this.playEntry({ track: this.readTrack(card), card });
+    },
+
+    next(wrap = true) {
+      return this.step(1, wrap);
+    },
+
+    previous(wrap = true) {
+      return this.step(-1, wrap);
+    },
+
+    /** Every surface that reflects active state — cards and hosts alike. */
+    hosts() {
+      return document.querySelectorAll(ARTIFACT_HOSTS);
+    },
+
     markActive(id) {
-      this.cards().forEach((card) => {
-        const match = card.dataset.trackId === id;
-        card.classList.toggle('is-active', match);
-        if (!match) card.classList.remove('is-playing');
+      this.hosts().forEach((host) => {
+        const match = host.dataset.trackId === id;
+        host.classList.toggle('is-active', match);
+        if (!match) host.classList.remove('is-playing');
       });
     },
 
     setPlaying(playing) {
       if (!this.activeId) return;
 
-      this.cards().forEach((card) => {
-        const match = card.dataset.trackId === this.activeId;
-        card.classList.toggle('is-playing', match && playing);
+      this.hosts().forEach((host) => {
+        const match = host.dataset.trackId === this.activeId;
+        host.classList.toggle('is-playing', match && playing);
       });
     },
   };

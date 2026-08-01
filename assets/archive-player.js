@@ -110,6 +110,62 @@
 
         },
 
+        /* -------------------------------------------------------
+           Volume
+
+           Core already carried `volume` and `muted` in state but
+           nothing ever wrote to them. These are the writers.
+
+           Volume is stored unmuted, so unmuting restores the level
+           the visitor chose rather than jumping to 1.
+        ------------------------------------------------------- */
+
+        setVolume(value) {
+
+            const clamped = Math.min(1, Math.max(0, Number(value) || 0));
+
+            audio.volume = clamped;
+
+            ArchiveOS.set("volume", clamped);
+
+            // Moving the slider off zero is an implicit unmute.
+            if (clamped > 0 && audio.muted) {
+                audio.muted = false;
+                ArchiveOS.set("muted", false);
+            }
+
+            ArchiveOS.emit("archive:volumechange", {
+                volume: clamped,
+                muted: audio.muted
+            });
+
+        },
+
+        getVolume() {
+
+            return audio.volume;
+
+        },
+
+        toggleMute() {
+
+            audio.muted = !audio.muted;
+
+            ArchiveOS.set("muted", audio.muted);
+
+            ArchiveOS.emit("archive:volumechange", {
+                volume: audio.volume,
+                muted: audio.muted
+            });
+
+        },
+
+        isMuted() {
+
+            return audio.muted;
+
+        },
+
         getDuration() {
 
             return audio.duration || 0;

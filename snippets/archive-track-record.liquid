@@ -1,0 +1,46 @@
+{%- doc -%}
+  ArchiveOS — artifact record.
+
+  The single definition of what a playable artifact looks like to
+  JavaScript. Emits a bare JSON object, no wrapper element.
+
+  Two callers render this:
+
+    snippets/ruud-audio-player.liquid  one <script> per card
+    snippets/archive-feed.liquid       one array for the whole catalogue
+
+  They previously would have carried separate copies of this shape.
+  A queue that falls back from cards to the catalogue compares and
+  plays records from both paths, so any drift between them — a
+  renamed key, a metafield added in one place only — would surface
+  as artifacts that play from the grid but not from the deck. Keep
+  this the only place the shape is written.
+
+  Emits nothing when the product has no playable audio. Callers must
+  test for that themselves before writing surrounding syntax such as
+  array commas.
+
+  @param {object} product - The product object
+{%- enddoc -%}
+
+{%- liquid
+  assign audio = product.metafields.custom.audio_preview.value
+  if audio == blank
+    assign audio = product.metafields.product.audio.value
+  endif
+-%}
+
+{%- if audio != blank -%}
+  {
+    "id": {{ product.id | json }},
+    "title": {{ product.title | json }},
+    "audio": {{ audio.url | json }},
+    "image": {% if product.featured_image %}{{ product.featured_image | image_url: width: 1400 | json }}{% else %}null{% endif %},
+    "url": {{ product.url | json }},
+    "archive": {{ product.metafields.custom.archive.value | default: '' | json }},
+    "bpm": {{ product.metafields.custom.bpm.value | default: '' | json }},
+    "key": {{ product.metafields.custom.key.value | default: '' | json }},
+    "mood": {{ product.metafields.custom.mood.value | default: '' | json }},
+    "type": {{ product.metafields.custom.type.value | default: '' | json }}
+  }
+{%- endif -%}

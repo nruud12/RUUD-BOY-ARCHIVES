@@ -114,7 +114,10 @@
         next.src = track.image;
       }
 
-      this.setText(this.fields.catalog, track.archive ? `Archive ${track.archive}` : 'Archive —');
+      this.setText(
+        this.fields.catalog,
+        track.archive ? `Accession ${track.archive}` : 'Accession pending'
+      );
       this.setText(this.fields.title, track.title || '');
       this.setText(this.fields.bpm, track.bpm ? `${track.bpm} BPM` : '');
       this.setText(this.fields.key, track.key || '');

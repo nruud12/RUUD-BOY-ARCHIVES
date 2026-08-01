@@ -1,0 +1,63 @@
+{%- doc -%}
+  ArchiveOS — catalogue feed.
+
+  A JSON array of every playable artifact, rendered once per page
+  alongside the transport deck.
+
+  WHY THIS EXISTS
+
+  The deck's queue is normally the cards on the current page, in DOM
+  order. That is the right default — it matches what the visitor can
+  see, and it respects facet filtering for free, because Horizon's
+  facets re-render the grid server-side rather than hiding cards.
+
+  But some templates render no cards at all. The product page is the
+  clearest case: it has product-recommendations, which renders
+  through the resource-card chain and emits no .archive-card. On
+  those pages the queue was empty, so pressing next — or reaching the
+  end of a track — did nothing at all.
+
+  This feed is the fallback. archive-card-ui.js prefers visible
+  cards and drops to this only when there are none.
+
+  WHY NOT A FETCH
+
+  Metafields are not exposed by /products.json, and the audio URL
+  lives in custom.audio_preview (a file_reference). Only Liquid can
+  resolve it. A fetch would need a dedicated section endpoint and a
+  round trip; embedding costs roughly 3 KB gzipped and cannot fail
+  at runtime.
+
+  COST
+
+  Rendered on every page, including pages that will never use it.
+  Capped at 50 artifacts — Liquid's default for an unpaginated
+  collection loop. If the catalogue outgrows that, this should
+  become a paginated section endpoint rather than a larger blob.
+
+  The record shape is defined once in archive-track-record.liquid.
+{%- enddoc -%}
+
+{%- capture archive_feed_records -%}
+  {%- for product in collections.all.products limit: 50 -%}
+    {%- capture record -%}
+      {%- render 'archive-track-record', product: product -%}
+    {%- endcapture -%}
+
+    {%- assign record = record | strip -%}
+
+    {%- if record != blank -%}
+      {%- if archive_feed_emitted == 'yes' -%},{%- endif -%}
+      {{- record -}}
+      {%- assign archive_feed_emitted = 'yes' -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- assign archive_feed_records = archive_feed_records | strip -%}
+
+{%- if archive_feed_records != blank -%}
+  <script type="application/json" data-archive-feed>
+    [{{ archive_feed_records }}]
+  </script>
+{%- endif -%}

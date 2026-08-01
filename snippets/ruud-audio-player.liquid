@@ -7,6 +7,9 @@
   overlay (snippets/product-card.liquid), so the old .ruud-play-button markup
   has been removed to avoid two competing play controls per card.
 
+  The record shape itself now lives in snippets/archive-track-record.liquid,
+  shared with the catalogue feed so the two queue sources cannot drift.
+
   @param {object} product - The product object
 {%- enddoc -%}
 
@@ -23,17 +26,6 @@
     class="archive-track-data"
     data-archive-track="{{ product.id }}"
   >
-    {
-      "id": {{ product.id | json }},
-      "title": {{ product.title | json }},
-      "audio": {{ audio.url | json }},
-      "image": {% if product.featured_image %}{{ product.featured_image | image_url: width: 1400 | json }}{% else %}null{% endif %},
-      "url": {{ product.url | json }},
-      "archive": {{ product.metafields.custom.archive.value | default: '' | json }},
-      "bpm": {{ product.metafields.custom.bpm.value | default: '' | json }},
-      "key": {{ product.metafields.custom.key.value | default: '' | json }},
-      "mood": {{ product.metafields.custom.mood.value | default: '' | json }},
-      "type": {{ product.metafields.custom.type.value | default: '' | json }}
-    }
+    {%- render 'archive-track-record', product: product -%}
   </script>
 {%- endif -%}

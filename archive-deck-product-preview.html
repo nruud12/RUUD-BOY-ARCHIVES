@@ -1,0 +1,1156 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>ArchiveOS — Expanded Deck preview</title><style>
+/* ==========================================================
+   ARCHIVEOS — DESIGN TOKENS
+   RUUD BOY ARCHIVES
+
+   The single source of truth for colour, type, space, motion
+   and elevation. Nothing in this file may contain a selector
+   other than :root — it declares values, never appearance.
+
+   Load order matters:
+     1. archive-tokens.css   ← you are here
+     2. archive-shell.css
+     3. archive-card.css
+     4. archive-vitrine.css
+     5. archive-player.css
+
+   NOTE ON LEGACY NAMES
+   Two conflicting token sets previously existed (one in
+   archive-design.css, one dumped as raw text after </html> in
+   layout/theme.liquid). They disagreed on what --archive-accent
+   meant: one said cyan, the other magenta. Both are aliased at the
+   bottom of this file so older stylesheets keep working, but new
+   work should use the canonical names only.
+========================================================== */
+
+:root {
+  /* ========================================================
+     1. COLOUR — THE ROOM
+
+     The archive is almost entirely dark. Accent is a light
+     source, not a paint. If more than ~5% of a viewport is
+     magenta, something has gone wrong.
+  ======================================================== */
+
+  --archive-void: #000000; /* true black — vitrine interior, page edges */
+  --archive-bg: #050505; /* base canvas */
+  --archive-surface: #0b0b0b; /* cards, panels */
+  --archive-surface-raised: #121212; /* hover / elevated panels */
+  --archive-surface-inset: #030303; /* wells, media backdrops */
+
+  /* Typography */
+  --archive-text: #ffffff;
+  --archive-text-muted: rgba(255, 255, 255, 0.58);
+  --archive-text-subtle: rgba(255, 255, 255, 0.34);
+  --archive-text-faint: rgba(255, 255, 255, 0.18);
+
+  /* Lines. Almost never visible on purpose. */
+  --archive-line: rgba(255, 255, 255, 0.07);
+  --archive-line-strong: rgba(255, 255, 255, 0.14);
+
+  /* Light sources */
+  --archive-magenta: #ff00ff;
+  --archive-magenta-soft: #ff2bd6;
+  --archive-magenta-deep: #8a3be2;
+  --archive-cyan: #00f0ff;
+
+  /* Pre-mixed translucencies, so components stop inventing their own */
+  --archive-magenta-04: rgba(255, 0, 255, 0.04);
+  --archive-magenta-08: rgba(255, 0, 255, 0.08);
+  --archive-magenta-16: rgba(255, 0, 255, 0.16);
+  --archive-magenta-32: rgba(255, 0, 255, 0.32);
+  --archive-magenta-64: rgba(255, 0, 255, 0.64);
+  --archive-cyan-08: rgba(0, 240, 255, 0.08);
+  --archive-cyan-24: rgba(0, 240, 255, 0.24);
+  --archive-cyan-48: rgba(0, 240, 255, 0.48);
+
+  /* ========================================================
+     2. TYPOGRAPHY
+
+     Two families only. Display is set uppercase with heavy
+     tracking — the tracking is what reads as "museum", not the
+     typeface. Body stays quiet and neutral.
+  ======================================================== */
+
+  --archive-font-display: 'Raleway', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --archive-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --archive-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  /* Fluid display scale. Desktop-first: the clamp max is the
+     intended desktop size, the min is the mobile fallback. */
+  --archive-type-monument: clamp(3rem, 9vw, 8.25rem); /* homepage wordmark */
+  --archive-type-display: clamp(2.5rem, 6vw, 5rem); /* page titles */
+  --archive-type-title: clamp(1.75rem, 3.2vw, 2.75rem); /* section titles */
+  --archive-type-heading: clamp(1.25rem, 1.8vw, 1.5rem); /* card / block titles */
+  --archive-type-body: 0.9375rem;
+  --archive-type-small: 0.8125rem;
+  --archive-type-micro: 0.6875rem; /* metadata, catalogue numbers */
+
+  /* Tracking. The single most important variable in the system. */
+  --archive-track-monument: 0.16em;
+  --archive-track-display: 0.1em;
+  --archive-track-label: 0.24em; /* eyebrows, catalogue numbers */
+  --archive-track-body: 0.005em;
+
+  --archive-weight-light: 300;
+  --archive-weight-regular: 400;
+  --archive-weight-medium: 500;
+  --archive-weight-bold: 700;
+
+  --archive-leading-tight: 1;
+  --archive-leading-snug: 1.2;
+  --archive-leading-body: 1.65;
+
+  /* ========================================================
+     3. SPACE
+
+     Hierarchy is built from this scale and nothing else — no
+     rules, no boxes, no dividers. If two things need separating,
+     they get --archive-space-* between them.
+  ======================================================== */
+
+  --archive-space-3xs: 0.25rem;
+  --archive-space-2xs: 0.5rem;
+  --archive-space-xs: 0.75rem;
+  --archive-space-sm: 1rem;
+  --archive-space-md: 1.5rem;
+  --archive-space-lg: 2.5rem;
+  --archive-space-xl: 4rem;
+  --archive-space-2xl: 6rem;
+  --archive-space-3xl: 9rem;
+  --archive-space-4xl: 13rem; /* between major "rooms" */
+
+  --archive-gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --archive-measure: 62ch; /* max reading width */
+  --archive-max-width: 1600px;
+
+  /* ========================================================
+     4. MOTION
+
+     Everything is 200–300ms, ease-out, no overshoot.
+     Ambient motion is measured in tens of seconds.
+  ======================================================== */
+
+  --archive-ease: cubic-bezier(0.22, 0.61, 0.36, 1); /* ease-out, no bounce */
+  --archive-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --archive-speed-fast: 160ms;
+  --archive-speed: 240ms;
+  --archive-speed-slow: 300ms;
+  --archive-speed-reveal: 480ms; /* entrances only */
+
+  --archive-ambient-drift: 96s; /* idle artifact rotation */
+  --archive-ambient-breath: 11s; /* idle glow */
+
+  /* ========================================================
+     5. FORM
+  ======================================================== */
+
+  --archive-radius-xs: 2px;
+  --archive-radius-sm: 4px;
+  --archive-radius-md: 8px;
+  --archive-radius-lg: 16px;
+  --archive-radius-pill: 999px;
+
+  --archive-blur-glass: 20px;
+
+  /* Elevation is achieved with shadow + a light source, never
+     with a border. */
+  --archive-shadow-rest: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --archive-shadow-raised: 0 28px 80px rgba(0, 0, 0, 0.66);
+  --archive-shadow-lift: 0 40px 120px rgba(0, 0, 0, 0.72);
+
+  --archive-glow-magenta: 0 0 60px var(--archive-magenta-32);
+  --archive-glow-cyan: 0 0 40px var(--archive-cyan-24);
+
+  --archive-z-player: 900;
+  --archive-z-header: 800;
+  --archive-z-overlay: 700;
+
+  /* ========================================================
+     6. LEGACY ALIASES — do not use in new code
+  ======================================================== */
+
+  --archive-black: var(--archive-bg);
+  --archive-white: var(--archive-text);
+  --archive-surface-2: var(--archive-surface-raised);
+  --archive-surface-3: var(--archive-surface-raised);
+  --archive-surface-elevated: var(--archive-surface-raised);
+  --archive-border: var(--archive-line);
+  --archive-border-hover: var(--archive-magenta-32);
+  --archive-accent: var(--archive-magenta);
+  --archive-accent-cyan: var(--archive-cyan);
+}
+
+/* Motion is a luxury, not a requirement. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --archive-speed-fast: 1ms;
+    --archive-speed: 1ms;
+    --archive-speed-slow: 1ms;
+    --archive-speed-reveal: 1ms;
+    --archive-ambient-drift: 0s;
+    --archive-ambient-breath: 0s;
+  }
+}
+
+/* ==========================================================
+   ARCHIVEOS — THE VITRINE
+   RUUD BOY ARCHIVES
+
+   The artifact display case. Permanently present, never a modal.
+   The whole design rests on one idea:
+
+       The music awakens the artifact.
+       Light responds. Geometry barely moves.
+
+   Every reactive property is a CSS custom property written by
+   archive-vitrine.js on each animation frame:
+
+       --v-energy   0→1   overall loudness
+       --v-bass     0→1   low-band energy, drives the fractures
+       --v-air      0→1   high-band energy, drives the rim light
+
+   The JS never touches a class per frame and never sets a style
+   other than these three numbers, so the compositor does all the
+   real work and the animation stays on the GPU.
+
+   States (class on .vitrine):
+       .is-idle    slow drift, near-dormant glow
+       .is-awake   playing — fractures lit, core breathing
+       .is-loaded  an artifact has been selected
+========================================================== */
+
+.vitrine {
+  --v-energy: 0;
+  --v-bass: 0;
+  --v-air: 0;
+
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: min(86vh, 900px);
+  padding-block: var(--archive-space-2xl);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ==========================================================
+   THE ROOM
+
+   Three stacked light sources: an overhead wash, a magenta
+   ground bounce that intensifies with bass, and a vignette that
+   closes the walls in. All pointer-events:none.
+========================================================== */
+
+.vitrine__room {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Overhead gallery light falling on the plinth. */
+.vitrine__room::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -18%;
+  width: min(150vw, 1500px);
+  aspect-ratio: 1 / 1;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 0, 255, calc(0.05 + var(--v-energy) * 0.09)) 28%,
+    transparent 62%
+  );
+  transition: background var(--archive-speed-slow) var(--archive-ease);
+}
+
+/* Vignette — the walls of the room. */
+.vitrine__room::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, transparent 40%, var(--archive-void) 100%);
+}
+
+/* Reflective floor. The artifact stands on something. */
+.vitrine__floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(255, 0, 255, calc(0.03 + var(--v-bass) * 0.07)) 60%, transparent);
+  transition: background var(--archive-speed) var(--archive-ease);
+}
+
+/* ==========================================================
+   THE CASE
+
+   A glass box in perspective. The perspective is deliberately
+   shallow — this is a museum vitrine, not a 3D showcase.
+========================================================== */
+
+.vitrine__stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: min(46vw, 520px);
+  aspect-ratio: 1 / 1;
+  perspective: 1600px;
+  perspective-origin: 50% 45%;
+}
+
+.vitrine__case {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* The glass itself: a faint edge-lit frame. Border only exists
+   because glass has edges — this is the one place a border earns
+   its keep. */
+.vitrine__glass {
+  position: absolute;
+  inset: 6%;
+  border-radius: var(--archive-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0%, transparent 42%, transparent 58%, rgba(255, 255, 255, 0.025) 100%);
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.6),
+    0 0 calc(40px + var(--v-energy) * 70px) rgba(255, 0, 255, calc(0.06 + var(--v-energy) * 0.24));
+  backdrop-filter: blur(0.5px);
+  transition: box-shadow var(--archive-speed-slow) var(--archive-ease);
+  pointer-events: none;
+}
+
+/* Rim light along the top edge of the glass — tracks the high band. */
+.vitrine__glass::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border-top: 1px solid rgba(255, 255, 255, calc(0.12 + var(--v-air) * 0.5));
+  transition: border-color var(--archive-speed-fast) var(--archive-ease);
+}
+
+/* ==========================================================
+   THE ARTIFACT
+
+   Idle: a ±7° drift over 96 seconds. Almost motionless — you
+   should have to look twice to be sure it moved at all.
+   It does NOT scale with the bass. Only light responds.
+========================================================== */
+
+.vitrine__artifact {
+  position: relative;
+  width: 74%;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+  animation: vitrine-drift var(--archive-ambient-drift) ease-in-out infinite;
+}
+
+@keyframes vitrine-drift {
+  0%,
+  100% {
+    transform: rotateY(-7deg) rotateX(1.5deg);
+  }
+  50% {
+    transform: rotateY(7deg) rotateX(-1.5deg);
+  }
+}
+
+.vitrine__art {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--archive-radius-xs);
+  /* Dormant artwork is desaturated and dim. Playback restores it. */
+  filter: brightness(calc(0.62 + var(--v-energy) * 0.42)) saturate(calc(0.75 + var(--v-energy) * 0.45))
+    contrast(1.04);
+  transition: filter var(--archive-speed-slow) var(--archive-ease);
+}
+
+/* Empty state: no artifact selected yet. */
+.vitrine:not(.is-loaded) .vitrine__art {
+  opacity: 0;
+}
+
+.vitrine__placeholder {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  gap: var(--archive-space-sm);
+  text-align: center;
+  color: var(--archive-text-faint);
+  transition: opacity var(--archive-speed-slow) var(--archive-ease);
+}
+
+.vitrine.is-loaded .vitrine__placeholder {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vitrine__placeholder-mark {
+  width: 96px;
+  height: 96px;
+  border: 1px solid var(--archive-line-strong);
+  transform: rotate(45deg);
+  animation: vitrine-breathe var(--archive-ambient-breath) ease-in-out infinite;
+}
+
+/* ==========================================================
+   FRACTURE LINES
+
+   The magenta seams running through the object. Dormant they are
+   nearly invisible; under playback the bass pushes energy along
+   them. Rendered as a conic sweep masked to thin radial lines, so
+   no images or SVG are required.
+========================================================== */
+
+.vitrine__fractures {
+  position: absolute;
+  inset: -8%;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: calc(0.05 + var(--v-bass) * 0.85);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 8deg,
+    var(--archive-magenta) 9deg 10deg,
+    transparent 11deg 52deg,
+    var(--archive-magenta-soft) 53deg 54deg,
+    transparent 55deg 120deg,
+    var(--archive-magenta) 121deg 122deg,
+    transparent 123deg 196deg,
+    var(--archive-magenta-deep) 197deg 198deg,
+    transparent 199deg 268deg,
+    var(--archive-magenta) 269deg 270deg,
+    transparent 271deg 324deg,
+    var(--archive-magenta-soft) 325deg 326deg,
+    transparent 327deg 360deg
+  );
+  /* Hollow out the centre so the seams read as edges, not a fan. */
+  -webkit-mask-image: radial-gradient(circle, transparent 26%, #000 42%, #000 60%, transparent 78%);
+  mask-image: radial-gradient(circle, transparent 26%, #000 42%, #000 60%, transparent 78%);
+  filter: blur(calc(1px + var(--v-bass) * 2px));
+  mix-blend-mode: screen;
+  transition:
+    opacity var(--archive-speed) var(--archive-ease),
+    filter var(--archive-speed) var(--archive-ease);
+}
+
+/* Energy travelling through the cracks: a slow rotation of the
+   seam pattern that only runs while the artifact is awake. */
+.vitrine.is-awake .vitrine__fractures {
+  animation: vitrine-travel 24s linear infinite;
+}
+
+@keyframes vitrine-travel {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================
+   INTERNAL CORE
+
+   The energy inside the object. Breathes on a slow loop when
+   idle; the loop deepens rather than speeds up under playback.
+========================================================== */
+
+.vitrine__core {
+  position: absolute;
+  z-index: 1;
+  width: 58%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 0, 255, calc(0.12 + var(--v-energy) * 0.5)) 0%,
+    rgba(138, 59, 226, calc(0.06 + var(--v-energy) * 0.22)) 38%,
+    transparent 70%
+  );
+  filter: blur(calc(18px + var(--v-bass) * 22px));
+  animation: vitrine-breathe var(--archive-ambient-breath) ease-in-out infinite;
+  transition:
+    background var(--archive-speed) var(--archive-ease),
+    filter var(--archive-speed) var(--archive-ease);
+}
+
+@keyframes vitrine-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================
+   PLINTH & REFLECTION
+========================================================== */
+
+.vitrine__plinth {
+  position: absolute;
+  bottom: -2%;
+  left: 50%;
+  width: 62%;
+  height: 10%;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 0, 255, calc(0.16 + var(--v-bass) * 0.42)) 0%,
+    transparent 70%
+  );
+  filter: blur(16px);
+  transition: background var(--archive-speed) var(--archive-ease);
+}
+
+/* ==========================================================
+   THE LABEL
+
+   Museum wall text. Sits beneath the case, centred, tiny.
+========================================================== */
+
+.vitrine__label {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: var(--archive-space-2xs);
+  margin-top: var(--archive-space-lg);
+  text-align: center;
+}
+
+.vitrine__catalog {
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-magenta-soft);
+}
+
+.vitrine__title {
+  font-family: var(--archive-font-display);
+  font-size: var(--archive-type-title);
+  font-weight: var(--archive-weight-light);
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+  color: var(--archive-text);
+  margin: 0;
+}
+
+.vitrine__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-2xs);
+  font-size: var(--archive-type-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+}
+
+.vitrine__meta > span:empty {
+  display: none;
+}
+
+/* General sibling (~), not adjacent (+): the separator must only
+   appear on a non-empty span that actually follows another
+   non-empty one. With `+` a hidden middle field still counted,
+   which produced a leading interpunct when BPM and key were both
+   absent but mood was present. */
+.vitrine__meta > span:not(:empty) ~ span:not(:empty)::before {
+  content: '·';
+  margin-right: var(--archive-space-2xs);
+  color: var(--archive-text-faint);
+}
+
+/* ==========================================================
+   THE MONUMENT — homepage wordmark above the case
+========================================================== */
+
+.vitrine__monument {
+  position: relative;
+  z-index: 2;
+  margin-bottom: var(--archive-space-xl);
+  text-align: center;
+}
+
+.vitrine__wordmark {
+  margin: 0;
+  font-family: var(--archive-font-display);
+  font-size: var(--archive-type-monument);
+  font-weight: var(--archive-weight-light);
+  line-height: var(--archive-leading-tight);
+  letter-spacing: var(--archive-track-monument);
+  text-transform: uppercase;
+  /* Indent by the tracking so the optical centre is true — with
+     0.16em tracking the trailing space throws the block right. */
+  text-indent: var(--archive-track-monument);
+  color: var(--archive-text);
+}
+
+.vitrine__standfirst {
+  margin: var(--archive-space-md) auto 0;
+  max-width: 46ch;
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+  line-height: 2;
+}
+
+/* ==========================================================
+   AWAKE / DORMANT TRANSITIONS
+========================================================== */
+
+.vitrine.is-awake .vitrine__glass {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* On pause the room goes quiet: JS eases --v-* back to 0 and
+   these longer transitions let the light fall away rather than
+   snap off. */
+.vitrine:not(.is-awake) .vitrine__glass,
+.vitrine:not(.is-awake) .vitrine__core,
+.vitrine:not(.is-awake) .vitrine__fractures,
+.vitrine:not(.is-awake) .vitrine__plinth {
+  transition-duration: 900ms;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 1024px) {
+  .vitrine__stage {
+    width: min(70vw, 440px);
+  }
+}
+
+@media (max-width: 768px) {
+  .vitrine {
+    min-height: auto;
+    padding-block: var(--archive-space-xl);
+  }
+
+  .vitrine__stage {
+    width: min(82vw, 380px);
+  }
+
+  .vitrine__monument {
+    margin-bottom: var(--archive-space-lg);
+  }
+
+  .vitrine__standfirst {
+    line-height: 1.9;
+  }
+}
+
+/* ==========================================================
+   REDUCED MOTION
+
+   The case still lights up — light is information here — but
+   nothing drifts, travels or breathes.
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .vitrine__artifact,
+  .vitrine__core,
+  .vitrine__placeholder-mark,
+  .vitrine.is-awake .vitrine__fractures {
+    animation: none;
+  }
+
+  .vitrine__artifact {
+    transform: none;
+  }
+}
+
+/* ==========================================================
+   ARCHIVEOS — THE EXPANDED DECK
+
+   The product page as an album release.
+
+   Two responsibilities:
+
+     1. Lay out the display case against the identity panel
+     2. Restyle Horizon's commerce blocks into archival licence
+        rows, WITHOUT changing their markup or behaviour
+
+   Everything under .archive-deck__licence is an override of
+   Horizon's own classes. Those overrides are deliberately scoped
+   to this container — the same blocks appear in the cart, quick-add
+   and featured-product surfaces, and must keep Horizon's styling
+   there. Never lift these rules to a bare selector.
+
+   Values come from archive-tokens.css. The display case itself is
+   styled entirely by archive-vitrine.css; nothing here touches it
+   beyond sizing the frame it sits in.
+========================================================== */
+
+.archive-deck {
+  --deck-gap: var(--archive-space-2xl);
+  --deck-case: minmax(0, 1fr);
+  --deck-panel: minmax(0, 1fr);
+
+  display: grid;
+  grid-template-columns: var(--deck-case) var(--deck-panel);
+  gap: var(--deck-gap);
+  align-items: center;
+
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-block: var(--deck-pad-start, 64px) var(--deck-pad-end, 96px);
+  padding-inline: var(--archive-space-lg);
+
+  box-sizing: border-box;
+}
+
+/* Case on the right, identity first in the reading order. */
+.archive-deck[data-case-position='right'] .archive-deck__stage {
+  order: 2;
+}
+
+/* ----------------------------------------------------------
+   THE CASE
+---------------------------------------------------------- */
+
+.archive-deck__stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--archive-space-md);
+  min-width: 0;
+}
+
+/* The vitrine sizes itself to its container on the homepage, where
+   that container is a full viewport. Here it is a column, so the
+   frame is constrained rather than the case being restyled. */
+.archive-deck__stage .vitrine__stage {
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1;
+}
+
+/* --- Audition control --- */
+
+.archive-deck__audition {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--archive-space-2xs);
+
+  padding: var(--archive-space-2xs) var(--archive-space-md)
+    var(--archive-space-2xs) var(--archive-space-2xs);
+
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-pill);
+
+  background: var(--archive-surface);
+  color: var(--archive-text);
+
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--archive-speed) var(--archive-ease),
+    background var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-deck__audition:hover {
+  border-color: var(--archive-cyan-24);
+  color: var(--archive-cyan);
+}
+
+.archive-deck.is-playing .archive-deck__audition {
+  border-color: var(--archive-cyan-24);
+  color: var(--archive-cyan);
+}
+
+.archive-deck__audition-icon {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: var(--archive-radius-pill);
+  background: var(--archive-surface-raised);
+
+  transition: box-shadow var(--archive-speed) var(--archive-ease);
+}
+
+.archive-deck.is-playing .archive-deck__audition-icon {
+  box-shadow: 0 0 18px -4px var(--archive-cyan-48);
+}
+
+/* Same icon-swap technique as the transport deck: both icons share
+   one grid cell so the control never reflows mid-toggle. */
+.archive-deck__icon {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  transition: opacity var(--archive-speed-fast) var(--archive-ease);
+}
+
+.archive-deck__icon--pause,
+.archive-deck.is-playing .archive-deck__icon--play {
+  opacity: 0;
+}
+
+.archive-deck.is-playing .archive-deck__icon--pause {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------
+   IDENTITY
+---------------------------------------------------------- */
+
+.archive-deck__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--archive-space-lg);
+  min-width: 0;
+}
+
+.archive-deck__catalog {
+  margin: 0 0 var(--archive-space-2xs);
+
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-cyan);
+}
+
+.archive-deck__title {
+  margin: 0;
+
+  font-size: var(--archive-type-display);
+  font-weight: var(--archive-weight-light);
+  line-height: var(--archive-leading-tight);
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+
+  color: var(--archive-text);
+}
+
+/* --- Specification table --- */
+
+.archive-deck__spec {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, auto));
+  gap: var(--archive-space-sm) var(--archive-space-lg);
+
+  margin: var(--archive-space-md) 0 0;
+}
+
+.archive-deck__spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.archive-deck__spec dt {
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-faint);
+}
+
+.archive-deck__spec dd {
+  margin: 0;
+  font-size: 15px;
+  color: var(--archive-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----------------------------------------------------------
+   LICENCE — overrides of Horizon's blocks
+
+   Scoped to .archive-deck__licence on purpose. These same blocks
+   render in cart, quick-add and featured-product; they must look
+   like Horizon everywhere except here.
+---------------------------------------------------------- */
+
+.archive-deck__licence {
+  display: flex;
+  flex-direction: column;
+  gap: var(--archive-space-md);
+
+  padding-top: var(--archive-space-md);
+  border-top: 1px solid var(--archive-line);
+}
+
+/* Option group heading — "Licence" reads as a wall label. */
+.archive-deck__licence .variant-option legend,
+.archive-deck__licence .variant-option__swatch-value {
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-faint);
+}
+
+.archive-deck__licence .variant-option--buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--archive-space-3xs);
+
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* Each variant becomes a licence row rather than a pill. Tiers are
+   a list of things you can buy, not a set of size chips. */
+.archive-deck__licence .variant-option__button-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--archive-space-sm);
+
+  width: 100%;
+  min-height: 52px;
+  padding: var(--archive-space-2xs) var(--archive-space-sm);
+  margin: 0;
+
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-md);
+
+  background: var(--archive-surface);
+  color: var(--archive-text-muted);
+
+  font-size: 14px;
+  letter-spacing: var(--archive-track-body);
+  text-transform: none;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--archive-speed) var(--archive-ease),
+    background var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-deck__licence .variant-option__button-label:hover {
+  border-color: var(--archive-line-strong);
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
+}
+
+/* Selected tier. Light, not paint. */
+.archive-deck__licence input:checked + .variant-option__button-label,
+.archive-deck__licence .variant-option__button-label[aria-checked='true'] {
+  border-color: var(--archive-cyan-24);
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
+}
+
+.archive-deck__licence input:focus-visible + .variant-option__button-label {
+  outline: 2px solid var(--archive-cyan);
+  outline-offset: 2px;
+}
+
+/* Unavailable tiers stay legible — an archive shows what it has
+   catalogued, including what it cannot sell. */
+.archive-deck__licence .variant-option__button-label--unavailable {
+  opacity: 0.4;
+}
+
+/* --- Price --- */
+
+.archive-deck__licence .price,
+.archive-deck__licence .price-block {
+  font-size: var(--archive-type-title, 28px);
+  font-weight: var(--archive-weight-light);
+  letter-spacing: var(--archive-track-body);
+  color: var(--archive-text);
+}
+
+/* --- Buy buttons --- */
+
+.archive-deck__licence .buy-buttons-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--archive-space-2xs);
+}
+
+.archive-deck__licence .button {
+  border-radius: var(--archive-radius-md);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  font-size: var(--archive-type-micro);
+  min-height: 52px;
+}
+
+/* --- Description --- */
+
+.archive-deck__licence .product-description,
+.archive-deck__licence .rte {
+  color: var(--archive-text-muted);
+  font-size: 14px;
+  line-height: var(--archive-leading-body);
+}
+
+/* ----------------------------------------------------------
+   RESPONSIVE
+---------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .archive-deck {
+    --deck-gap: var(--archive-space-xl);
+  }
+}
+
+@media (max-width: 860px) {
+  .archive-deck {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: var(--archive-space-sm);
+    padding-block: var(--archive-space-lg) var(--archive-space-2xl);
+  }
+
+  /* Case first on mobile regardless of the desktop setting — the
+     artwork is the reason the visitor opened the page. */
+  .archive-deck[data-case-position='right'] .archive-deck__stage {
+    order: 0;
+  }
+
+  .archive-deck__stage .vitrine__stage {
+    max-width: 420px;
+  }
+}
+
+/* The transport deck is fixed to the bottom of every page. Without
+   this the last licence row sits underneath it. */
+.archive-deck {
+  scroll-margin-bottom: 120px;
+}
+
+@media (max-width: 768px) {
+  .archive-deck {
+    padding-bottom: 180px;
+  }
+}
+
+body{margin:0;background:var(--archive-bg);color:var(--archive-text);
+ font-family:Inter,system-ui,sans-serif}
+.pv-note{padding:32px 32px 0;font-size:12px;color:var(--archive-text-muted);
+ max-width:80ch;line-height:1.6}
+.pv-note code{color:var(--archive-text)}
+.pv-lbl{padding:32px 32px 0;font-size:11px;letter-spacing:var(--archive-track-label);
+ text-transform:uppercase;color:var(--archive-text-faint)}
+</style></head><body>
+<p class="pv-lbl">ArchiveOS · Expanded Deck</p>
+<p class="pv-note">Rendered from the real <code>archive-tokens.css</code>, <code>archive-vitrine.css</code>
+and <code>archive-deck.css</code>. The licence rows use Horizon's actual class names
+(<code>.variant-option__button-label</code>) so the scoped overrides are faithful — but the blocks
+themselves are mocked, since Horizon's Liquid can't run here. Artwork is a placeholder gradient.</p>
+
+<section class="archive-deck archive-shell" data-case-position="left"
+  style="--deck-pad-start:48px;--deck-pad-end:64px">
+  <div class="archive-deck__stage">
+    <div class="vitrine__stage" data-vitrine>
+      <div class="vitrine__case">
+        <div class="vitrine__glass" aria-hidden="true"></div>
+        <div class="vitrine__artifact">
+          <div class="vitrine__core" aria-hidden="true"></div>
+          <div class="vitrine__fractures" aria-hidden="true"></div>
+          <img class="vitrine__art" data-vitrine-art alt=""
+            src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 400%22><defs><radialGradient id=%22g%22 cx=%2235%25%22 cy=%2230%25%22><stop offset=%220%25%22 stop-color=%22%232a1040%22/><stop offset=%22100%25%22 stop-color=%22%23070709%22/></radialGradient></defs><rect width=%22400%22 height=%22400%22 fill=%22url(%23g)%22/></svg>">
+        </div>
+        <div class="vitrine__plinth" aria-hidden="true"></div>
+      </div>
+    </div>
+    <button type="button" class="archive-deck__audition" data-archive-play>
+      <span class="archive-deck__audition-icon" aria-hidden="true">
+        <span class="archive-deck__icon archive-deck__icon--play"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M15.375 8.48516C16.5417 9.15874 16.5417 10.8427 15.375 11.5163L7.875 15.8464C6.70833 16.52 5.25 15.678 5.25 14.3308L5.25 5.67058C5.25 4.32343 6.70833 3.48146 7.875 4.15504L15.375 8.48516Z" fill="currentColor"/>
+</svg>
+</span>
+        <span class="archive-deck__icon archive-deck__icon--pause"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12.5 5v10" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>
+    <path d="M7.5 5v10" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>
+</svg>
+</span>
+      </span>
+      <span class="archive-deck__audition-label">Audition</span>
+    </button>
+  </div>
+
+  <div class="archive-deck__panel">
+    <header class="archive-deck__identity">
+      <p class="archive-deck__catalog">Archive 0417</p>
+      <h1 class="archive-deck__title">Vantablack Cathedral</h1>
+      <dl class="archive-deck__spec">
+        <div class="archive-deck__spec-item"><dt>Tempo</dt><dd>142 BPM</dd></div>
+        <div class="archive-deck__spec-item"><dt>Key</dt><dd>F# min</dd></div>
+        <div class="archive-deck__spec-item"><dt>Mood</dt><dd>Cavernous</dd></div>
+        <div class="archive-deck__spec-item"><dt>Type</dt><dd>Trap</dd></div>
+        <div class="archive-deck__spec-item"><dt>Duration</dt><dd>3:04</dd></div>
+      </dl>
+    </header>
+
+    <div class="archive-deck__licence">
+      <div class="price">$49.00</div>
+      <fieldset class="variant-option variant-option--buttons">
+        <legend>Licence</legend>
+        <input type="radio" name="licence" id="MP3 Lease" hidden >
+      <label class="variant-option__button-label" for="MP3 Lease">
+        <span class="variant-option__button-label__text">MP3 Lease</span>
+        <span>$29.00</span>
+      </label>
+        <input type="radio" name="licence" id="WAV Lease" hidden checked>
+      <label class="variant-option__button-label" for="WAV Lease">
+        <span class="variant-option__button-label__text">WAV Lease</span>
+        <span>$49.00</span>
+      </label>
+        <input type="radio" name="licence" id="Trackout Stems" hidden >
+      <label class="variant-option__button-label" for="Trackout Stems">
+        <span class="variant-option__button-label__text">Trackout Stems</span>
+        <span>$99.00</span>
+      </label>
+        <input type="radio" name="licence" id="Exclusive Rights" hidden >
+      <label class="variant-option__button-label variant-option__button-label--unavailable" for="Exclusive Rights">
+        <span class="variant-option__button-label__text">Exclusive Rights</span>
+        <span>Sold</span>
+      </label>
+      </fieldset>
+      <div class="buy-buttons-block">
+        <button class="button">Add to cart</button>
+      </div>
+      <div class="product-description">
+        Catalogued 2026. Recorded to tape, transferred at 96kHz. Includes trackout stems
+        on the Trackout tier and above.
+      </div>
+    </div>
+  </div>
+</section>
+</body></html>

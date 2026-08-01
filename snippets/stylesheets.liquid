@@ -11,7 +11,13 @@
     2. archive-shell    the room — canvas, type, nav, de-Shopify
     3. archive-card     artifact cards
     4. archive-vitrine  the display case
-    5. archive-player   the persistent transport deck
+    5. archive-deck     the product page (expanded deck)
+    6. archive-player   the persistent transport deck
+
+  archive-deck.css loads after archive-vitrine.css because the
+  product page reuses the vitrine's own markup and constrains the
+  frame it sits in. It also carries scoped overrides of Horizon's
+  commerce blocks, which must therefore come after base.css.
 
   archive-design.css is no longer loaded. archive-tokens.css is the
   single source of truth for design values.
@@ -44,4 +50,5 @@
 {{ 'archive-shell.css' | asset_url | stylesheet_tag }}
 {{ 'archive-card.css' | asset_url | stylesheet_tag }}
 {{ 'archive-vitrine.css' | asset_url | stylesheet_tag }}
+{{ 'archive-deck.css' | asset_url | stylesheet_tag }}
 {{ 'archive-player.css' | asset_url | stylesheet_tag }}

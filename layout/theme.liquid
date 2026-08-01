@@ -156,7 +156,12 @@
       'ruud-global-player' is retained in /snippets as a reference implementation but is
       no longer rendered — it had unbalanced markup and its controller (ruud-player.js)
       is commented out in snippets/scripts.liquid. See ARCHIVE-REDESIGN.md.
+
+      'archive-feed' is the deck's fallback queue, used only on templates that
+      render no artifact cards (the product page in particular). It must render
+      before the deck's controller runs. See snippets/archive-feed.liquid.
     {%- endcomment -%}
+    {% render 'archive-feed' %}
     {% render 'archive-player' %}
   </body>
 </html>

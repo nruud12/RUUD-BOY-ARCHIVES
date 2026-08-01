@@ -1,0 +1,258 @@
+{%- comment -%}
+  ==========================================================
+  ARCHIVEOS — THE EXPANDED DECK
+  RUUD BOY ARCHIVES
+
+  The product page as an album release, not a storefront listing.
+
+  WHAT THIS OWNS AND WHAT IT DOES NOT
+
+  This section owns *layout and presentation only*. Every
+  purchasable element — price, licence tiers, add to cart — is
+  rendered through Horizon's own theme blocks via
+  {% content_for 'blocks' %}. Nothing about cart, variant
+  resolution or checkout is reimplemented here, so the commerce
+  path is exactly the one Horizon ships and tests.
+
+  Licence tiers ARE product variants. The variant-picker block is
+  placed inside .archive-deck__licence and restyled by
+  assets/archive-deck.css into archival licence rows. If you find
+  yourself writing variant logic in this file, stop — it belongs
+  to the block.
+
+  THE CASE
+
+  The artwork sits in a vitrine, reusing the homepage display-case
+  markup and therefore archive-vitrine.css and archive-vitrine.js
+  unchanged. The case reacts to playback exactly as it does on the
+  homepage; the controller finds it by [data-vitrine] and needs no
+  knowledge that it is now on a product page.
+
+  WHY THIS IS NOT AN .archive-card
+
+  The deck is an artifact *host* ([data-archive-artifact]), not a
+  card. archive-card-ui.js builds its queue from .archive-card only.
+  A product page carrying a single card would collapse the queue to
+  one entry, and next/previous would stop working — the exact bug
+  the catalogue feed was built to fix. Hosts can be auditioned and
+  show active state; only cards form the queue.
+  ==========================================================
+{%- endcomment -%}
+
+{%- liquid
+  assign artifact = closest.product | default: product
+  assign archive_no = artifact.metafields.custom.archive.value
+  assign bpm = artifact.metafields.custom.bpm.value
+  assign musical_key = artifact.metafields.custom.key.value
+  assign mood = artifact.metafields.custom.mood.value
+  assign artifact_type = artifact.metafields.custom.type.value
+  assign duration = artifact.metafields.custom.duration.value
+
+  assign audio = artifact.metafields.custom.audio_preview.value
+  if audio == blank
+    assign audio = artifact.metafields.product.audio.value
+  endif
+-%}
+
+<script type="application/ld+json">
+  {{ closest.product | structured_data }}
+</script>
+
+<section
+  class="archive-deck archive-shell"
+  data-archive-deck
+  data-case-position="{{ section.settings.case_position }}"
+  style="
+    --deck-pad-start: {{ section.settings['padding-block-start'] | default: 64 }}px;
+    --deck-pad-end: {{ section.settings['padding-block-end'] | default: 96 }}px;
+  "
+  {%- if audio != blank %}
+    data-archive-artifact
+    data-track-id="{{ artifact.id }}"
+  {%- endif %}
+>
+  {%- comment -%}
+    The artifact record. Identical shape to the one on every card,
+    from the same snippet — the deck and the grid hand the player
+    the same object.
+  {%- endcomment -%}
+  {%- if audio != blank -%}
+    <script
+      type="application/json"
+      class="archive-track-data"
+      data-archive-track="{{ artifact.id }}"
+    >
+      {%- render 'archive-track-record', product: artifact -%}
+    </script>
+  {%- endif -%}
+
+  <div class="archive-deck__stage">
+    {%- comment -%}
+      The display case. Class names are the vitrine's own, so it
+      inherits archive-vitrine.css and is driven by
+      archive-vitrine.js with no changes to either.
+    {%- endcomment -%}
+    <div class="vitrine__stage" data-vitrine>
+      <div class="vitrine__case">
+        <div class="vitrine__glass" aria-hidden="true"></div>
+
+        <div class="vitrine__artifact">
+          <div class="vitrine__core" aria-hidden="true"></div>
+          <div class="vitrine__fractures" aria-hidden="true"></div>
+
+          {%- if artifact.featured_image -%}
+            <img
+              class="vitrine__art"
+              data-vitrine-art
+              src="{{ artifact.featured_image | image_url: width: 1400 }}"
+              alt="{{ artifact.title | escape }}"
+              width="1400"
+              height="1400"
+              fetchpriority="high"
+              decoding="async"
+            >
+          {%- else -%}
+            <div class="vitrine__placeholder" aria-hidden="true">
+              <div class="vitrine__placeholder-mark"></div>
+            </div>
+          {%- endif -%}
+        </div>
+
+        <div class="vitrine__plinth" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    {%- if audio != blank -%}
+      <button
+        type="button"
+        class="archive-deck__audition"
+        data-archive-play
+        aria-label="Audition {{ artifact.title | escape }}"
+      >
+        <span class="archive-deck__audition-icon" aria-hidden="true">
+          <span class="archive-deck__icon archive-deck__icon--play">
+            {{- 'icon-play.svg' | inline_asset_content -}}
+          </span>
+          <span class="archive-deck__icon archive-deck__icon--pause">
+            {{- 'icon-pause.svg' | inline_asset_content -}}
+          </span>
+        </span>
+        <span class="archive-deck__audition-label">Audition</span>
+      </button>
+    {%- endif -%}
+  </div>
+
+  <div class="archive-deck__panel">
+    <header class="archive-deck__identity">
+      {%- if archive_no != blank -%}
+        <p class="archive-deck__catalog">Accession {{ archive_no }}</p>
+      {%- endif -%}
+
+      <h1 class="archive-deck__title">{{ artifact.title }}</h1>
+
+      {%- if bpm != blank or musical_key != blank or mood != blank or artifact_type != blank or duration != blank -%}
+        <dl class="archive-deck__spec">
+          {%- if bpm != blank -%}
+            <div class="archive-deck__spec-item">
+              <dt>Tempo</dt>
+              <dd>{{ bpm }} BPM</dd>
+            </div>
+          {%- endif -%}
+
+          {%- if musical_key != blank -%}
+            <div class="archive-deck__spec-item">
+              <dt>Key</dt>
+              <dd>{{ musical_key }}</dd>
+            </div>
+          {%- endif -%}
+
+          {%- if mood != blank -%}
+            <div class="archive-deck__spec-item">
+              <dt>Character</dt>
+              <dd>{{ mood }}</dd>
+            </div>
+          {%- endif -%}
+
+          {%- if artifact_type != blank -%}
+            <div class="archive-deck__spec-item">
+              <dt>Classification</dt>
+              <dd>{{ artifact_type }}</dd>
+            </div>
+          {%- endif -%}
+
+          {%- if duration != blank -%}
+            <div class="archive-deck__spec-item">
+              <dt>Runtime</dt>
+              <dd>{{ duration }}</dd>
+            </div>
+          {%- endif -%}
+        </dl>
+      {%- endif -%}
+    </header>
+
+    {%- comment -%}
+      Terms of access. Everything purchasable lives here, and all of
+      it is Horizon's own blocks — price, variant-picker, buy-buttons,
+      description. Ordering is controlled from the theme editor.
+
+      The heading is the one gated moment on this page, so it carries
+      the restricted register (see .claude/VOICE.md). The blocks
+      beneath it keep Horizon's own plain wording, because the last
+      step before Shopify's checkout has to stay legible.
+    {%- endcomment -%}
+    <div class="archive-deck__licence">
+      <h2 class="archive-deck__licence-heading">Terms of access</h2>
+
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Expanded deck",
+  "tag": "section",
+  "class": "section-archive-deck",
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "case_position",
+      "label": "Display case position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    }
+  ],
+  "presets": [{ "name": "Expanded deck" }]
+}
+{% endschema %}

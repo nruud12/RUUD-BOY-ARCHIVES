@@ -26,16 +26,16 @@
       "settings": {
         "show_wordmark": true,
         "wordmark": "Ruud Boy Archives",
-        "standfirst": "Original artifacts, carefully catalogued for modern artists",
-        "empty_title": "Select an artifact"
+        "standfirst": "Original artifacts, catalogued and held for modern artists",
+        "empty_title": "Awaiting selection"
       }
     },
     "room_title": {
       "type": "archive-room-title",
       "settings": {
-        "eyebrow": "The Collection",
-        "title": "Recently catalogued",
-        "link_label": "Browse the archive",
+        "eyebrow": "The Holdings",
+        "title": "Recent accessions",
+        "link_label": "Enter the reading room",
         "link": "shopify://collections/all"
       }
     },
