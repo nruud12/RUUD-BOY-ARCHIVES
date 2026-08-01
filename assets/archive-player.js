@@ -31,7 +31,21 @@
 
         },
 
-        load(track) {
+        /**
+         * @param {object} track
+         * @param {object} [options]
+         * @param {boolean} [options.seated] True when this is a page
+         *   DECLARING the artifact it displays, rather than a visitor
+         *   changing it. Views use this to tell a seating apart from an
+         *   exchange — the case must not perform its exchange for an
+         *   artifact the page already rendered.
+         *
+         *   Carried on the event because only the caller knows which
+         *   this is. A view cannot infer it without remembering what it
+         *   drew, and remembering is what the artifact-state rule
+         *   forbids.
+         */
+        load(track, options) {
 
             if (!track?.audio) return;
 
@@ -50,7 +64,8 @@
             ArchiveOS.set("playing", false);
 
             ArchiveOS.emit("archive:trackchange", {
-                track
+                track,
+                seated: Boolean(options && options.seated)
             });
 
             ArchiveOS.emit("archive:timeupdate", {

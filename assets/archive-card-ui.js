@@ -44,15 +44,74 @@
   const ARTIFACT_HOSTS = '.archive-card, [data-archive-artifact]';
 
   const CardUI = {
-    /** @type {string|null} id of the artifact currently in the case */
-    activeId: null,
+    /**
+     * The artifact's runtime identity — READ, never stored.
+     *
+     * This was a field mirrored from every trackchange. A mirror can
+     * drift, and a drifted mirror is two views disagreeing about which
+     * artifact is on display. Derived from the one runtime identity
+     * instead, so disagreement is not expressible.
+     *
+     * @type {string|null}
+     */
+    get activeId() {
+      const track = window.ArchiveOS && window.ArchiveOS.get('currentTrack');
+      return track && track.id != null ? String(track.id) : null;
+    },
 
     /** @type {Array|null} parsed catalogue feed, lazily populated */
     feedCache: null,
 
+    /** Phase 1 — claim the DOM. Writes no state, emits nothing. */
     init() {
       this.bindClicks();
       this.bindPlayerEvents();
+    },
+
+    /**
+     * Phase 2 — every view is listening now, so the declaration can be
+     * seated and all three views will hear it.
+     *
+     * This deliberately does NOT run in init(). Seating emits
+     * `archive:trackchange`, and any module registered after this one
+     * would not yet have bound its listener — the vitrine registers
+     * later and would miss the artifact it exists to display.
+     */
+    ready() {
+      this.seatDisplayedArtifact();
+    },
+
+    /**
+     * Seats the artifact this page puts on display into shared state.
+     *
+     * A page that displays an artifact — the vitrine on the homepage,
+     * the Expanded Deck on a product page — declares it with an
+     * artifact record. Without this, that declaration reached the DOM
+     * but never the event bus: the case showed a piece while the
+     * console reported nothing loaded, and the archive contradicted
+     * itself before the visitor touched anything.
+     *
+     * Loaded, never played. `player.load()` sets currentTrack and
+     * emits trackchange, so every view renders the same artifact from
+     * the same source. No audio is fetched until the visitor asks.
+     *
+     * Deliberately does nothing if something is already loaded — a
+     * queue advance or a restored session outranks a page default.
+     */
+    seatDisplayedArtifact() {
+      const player = window.ArchiveOS && window.ArchiveOS.getModule('player');
+      if (!player || window.ArchiveOS.get('currentTrack')) return;
+
+      const host = document.querySelector('[data-archive-artifact]');
+      if (!host) return;
+
+      const track = this.readTrack(host);
+      if (!track || !track.audio) return;
+
+      /* Flagged as a seating so views can tell this apart from an
+         exchange. The page has already rendered this artifact; the
+         case must not darken and relight for a piece that never left. */
+      player.load(track, { seated: true });
     },
 
     /* ------------------------------------------------------
@@ -126,7 +185,8 @@
         const track = event.detail && event.detail.track;
         if (!track) return;
 
-        this.activeId = String(track.id);
+        /* Nothing is assigned. The identity already changed in state
+           before this event was emitted; this only repaints. */
         this.markActive(this.activeId);
       });
 
@@ -350,6 +410,10 @@
   if (window.ArchiveOS) {
     window.ArchiveOS.register('cardUI', CardUI);
   } else {
-    document.addEventListener('DOMContentLoaded', () => CardUI.init());
+    // Standalone fallback: both phases, in order.
+    document.addEventListener('DOMContentLoaded', () => {
+      CardUI.init();
+      CardUI.ready();
+    });
   }
 })();

@@ -187,6 +187,141 @@ Load order is load-bearing (`snippets/stylesheets.liquid`):
 
 `ruud-player.css` (27 KB, legacy) is **no longer loaded**.
 
+### Artifact state
+
+Two laws govern the current artifact. The first says who owns it. The second
+says how it gets there.
+
+---
+
+#### Law I — One artifact, three views
+
+> An artifact may have many representations.
+> It has exactly one runtime identity.
+> Every representation observes that identity.
+> No representation stores its own copy.
+> No representation invents a default.
+> Every interaction acts upon the shared artifact.
+> If two views disagree, the implementation is wrong.
+
+The runtime identity is `currentTrack` in `archive-core.js`, written in
+exactly one place — `archive-player.js`, inside `load()`.
+
+The case, the wall label and the console are representations. So is an
+artifact card, and so is the Expanded Deck. None of them owns the artifact.
+
+**In practice.** A view that needs the current identity **derives** it.
+`CardUI.activeId` is a getter over `currentTrack`, not a field. It cannot
+drift, because it does not remember.
+
+A view needs no memory of what it last rendered. If a view seems to need one,
+the information it is missing is almost always a property of the *transition*
+rather than of the artifact — and a transition has a caller who already knows.
+Put it on the event. `archive:trackchange` carries `seated` for exactly this
+reason: the case must tell a seating from an exchange, and being told costs
+nothing, whereas inferring it would mean holding an id that could go stale.
+
+**The DOM is a rendering, not state.** A view may write to it freely and read
+back what it wrote *within a single operation*. It may not consult rendered
+output to answer a question about the state machine. Reading an attribute to
+decide whether to animate is the second thing wearing the clothes of the
+first.
+
+---
+
+#### Law II — Declaration and seating
+
+> A section may **declare** an artifact.
+> Seating it into state is what makes it real.
+
+A template says which artifact it displays by emitting the shared record
+(`snippets/archive-track-record.liquid`) and marking itself
+`data-archive-artifact`. That is a declaration. It is inert.
+
+At boot, `archive-card-ui.js` reads the first declaration on the page and
+seats it — `player.load(track, { seated: true })` — which writes
+`currentTrack` and emits `archive:trackchange`. Only then does the artifact
+exist at runtime, and only then may any view render it.
+
+**Why the distinction is load-bearing:**
+
+Server-rendered markup is the *first frame* of the declaration, not a
+competing answer. The vitrine paints its artifact in Liquid so the case is
+never empty while JavaScript starts, and `data-track-id` on the section names
+the declared artifact permanently — it is not updated on exchange, because it
+was never a record of what is on display.
+
+Seating **defers**. `seatDisplayedArtifact()` does nothing if something is
+already loaded: a queue advance or a restored session outranks a page default.
+A declaration is a proposal, not a claim.
+
+Seating is **flagged**, and every view is entitled to know. A seating is the
+archive stating what this page shows; an exchange is the visitor changing it.
+The case relights for one and not the other, and the console paints a seating
+instantly rather than morphing into agreement with the other two views.
+Without the flag, every page load would darken and relight the case for a
+piece that never left, and the console would appear to catch up.
+
+##### Boot has two phases
+
+`ArchiveOS.boot()` runs every module's `init()`, then every module's
+`ready()`.
+
+```
+init()   claim your DOM, bind listeners.  Write no state. Emit nothing.
+ready()  everyone is listening.           Only now may a declaration be seated.
+```
+
+Seating emits `archive:trackchange`. If it happens during `init()`, only the
+modules registered *before* the seater ever hear it — and registration order
+is the order of `<script>` tags in `snippets/scripts.liquid`, a delivery
+detail that must never be load-bearing.
+
+This was a live defect. `archive-vitrine.js` registers after
+`archive-card-ui.js`, so the case never received the seating of the artifact
+it exists to display. It looked correct only because Liquid had painted the
+same artifact. **Agreement by coincidence is indistinguishable from agreement
+by design, right up until it is not.**
+
+##### A view may not assert what it cannot know
+
+The console renders in `layout/theme.liquid`. The artifact is declared by a
+*section*, and Liquid gives the layout no way to see into one. So the server
+genuinely does not know whether a page has an artifact, and the console must
+not pretend otherwise.
+
+It ships `is-unseated` — which asserts nothing — and boot resolves it to
+exactly one of two answers: the seated artifact, or a real `is-empty`. It
+previously shipped `is-empty` with "No artifact in the case" hardcoded, which
+was false on every page that declares one: the case displayed an artifact
+while the console denied there was one, in the server response, before any
+script ran.
+
+The empty copy still lives in the markup. Under `is-unseated` the identity
+column is `display: none`, so it is neither visible nor in the accessibility
+tree — present, but not claimed. **Withholding is not the same as denying.**
+
+---
+
+**A useful test for both laws.** If a test can fabricate a state where one
+view disagrees with another, the disagreement is expressible in production
+too. When the mirrors were removed, two suites failed precisely because they
+had been assigning a view's identity directly — a state that can no longer
+exist.
+
+`tests/proof-seating.js` holds both laws to 43 assertions: run it with
+`node tests/proof-seating.js`. It boots the real modules against a minimal DOM
+stub, so it fails if either law is weakened. `tests/` is not a Shopify theme
+directory and is not uploaded by `shopify theme push`.
+
+**The harness must not choose the load order.** It loads modules in the order
+`snippets/scripts.liquid` does and boots through `ArchiveOS.boot()` — never by
+calling `init()` by hand. An earlier version called `Vitrine.init()` before
+`CardUI.init()`, an order the theme never produces, and that is precisely what
+hid the boot race above. A harness that tests an arrangement production cannot
+reach proves nothing about production. The same applies to markup: the harness
+builds the console with the copy Liquid actually ships.
+
 ### Runtime
 
 ArchiveOS is a small module registry with an event bus on `document`.

@@ -91,14 +91,36 @@
 }
 
 /* Rest state. The console should almost disappear until someone
-   reaches for it — furniture in a dark room, not a fixed bar. */
-.archive-player.is-empty {
+   reaches for it — furniture in a dark room, not a fixed bar.
+
+   Two states share this treatment and they are NOT the same claim:
+
+     .is-unseated  the archive has not yet said what is on display.
+                   Shipped by Liquid, because the layout cannot see
+                   into the section that declares the artifact.
+     .is-empty     resolved at boot: there is genuinely no artifact.
+
+   Only .is-empty is allowed to say so in words. See the note in
+   snippets/archive-player.liquid. */
+.archive-player.is-empty,
+.archive-player.is-unseated {
   opacity: 0.42;
 }
 
 .archive-player.is-empty:hover,
-.archive-player.is-empty:focus-within {
+.archive-player.is-empty:focus-within,
+.archive-player.is-unseated:hover,
+.archive-player.is-unseated:focus-within {
   opacity: 1;
+}
+
+/* Unseated says nothing. The identity column is removed rather than
+   blanked, so it leaves the accessibility tree too — a screen reader
+   should not meet an empty heading where an artifact will be. The
+   transport stays present and labelled throughout. */
+.archive-player.is-unseated .archive-player__meta,
+.archive-player.is-unseated .archive-player__artwork-stack {
+  display: none;
 }
 
 .archive-player.is-playing {
@@ -117,10 +139,14 @@
    hover/focus rule above. `forwards` would freeze opacity at 1 and
    silently break that hover reveal.
 
-   Scoped to .is-empty because that is always the state on first
-   paint. The 0.42 endpoint below must keep matching the rest-state
-   value above by hand — there is no third place to define it once
-   for both.
+   Scoped to .is-unseated because that is always the state on first
+   paint — the console ships unseated and boot resolves it. The 0.42
+   endpoint below must keep matching the rest-state value above by
+   hand — there is no third place to define it once for both.
+
+   This delay does double duty: it also covers the moment between
+   first paint and seating, so the identity column arrives with the
+   console rather than appearing to be filled in afterwards.
 ---------------------------------------------------------- */
 
 @keyframes player-arrive {
@@ -132,7 +158,7 @@
   }
 }
 
-.archive-player[data-template='index'].is-empty {
+.archive-player[data-template='index'].is-unseated {
   animation: player-arrive var(--archive-motion-reveal) var(--archive-ease) backwards;
   animation-delay: var(--archive-motion-reveal);
 }

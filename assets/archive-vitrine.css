@@ -180,6 +180,32 @@
   transform-style: preserve-3d;
 }
 
+/* Acting on the case acts on the artifact.
+
+   Invisible by design — the case already looks like something you
+   can approach, and a control drawn on the glass would read as a
+   media player pasted onto an exhibit. The affordance is the object
+   itself. Focus is the one state that must be visible, because a
+   keyboard visitor has no other way to know the case is reachable. */
+.vitrine__audition {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+
+  border-radius: var(--archive-radius-sm);
+}
+
+.vitrine__audition:focus-visible {
+  outline: 2px solid var(--archive-cyan);
+  outline-offset: 4px;
+}
+
 /* The glass itself: a faint edge-lit frame. Border only exists
    because glass has edges — this is the one place a border earns
    its keep. */
@@ -285,7 +311,51 @@
      property of the object being there, not of it being loud. */
   filter: brightness(calc(0.88 + var(--v-energy) * 0.3)) saturate(calc(0.82 + var(--v-energy) * 0.5))
     contrast(1.04) drop-shadow(0 18px 28px rgba(0, 0, 0, 0.4));
-  transition: filter var(--archive-speed-slow) var(--archive-ease);
+  transition:
+    filter var(--archive-speed-slow) var(--archive-ease),
+    opacity var(--archive-motion-settle) var(--archive-ease);
+}
+
+/* ==========================================================
+   CHANGING THE ARTIFACT
+
+   A museum does not cross-fade one object into another. The case
+   is darkened, the piece is exchanged, the light returns.
+
+   That is what `.is-changing` expresses. The artwork and the wall
+   label withdraw together, the swap happens at the darkest point
+   where nothing is visible to jump, and the light comes back. The
+   visitor perceives one continuous act — an exhibit being replaced
+   — rather than two images trading places.
+
+   It doubles as the loading state. The dark interval is exactly the
+   time the next artifact needs to decode, so waiting reads as the
+   deliberate pause in an exchange rather than as a delay. No
+   skeleton, no spinner, no placeholder — an archive does not
+   announce that it is fetching something.
+
+   The label's children carry the fade rather than .vitrine__label
+   itself, which owns the entrance animation; a filling animation
+   would outrank a plain opacity declaration.
+========================================================== */
+
+.vitrine.is-changing .vitrine__art {
+  opacity: 0;
+}
+
+.vitrine__catalog,
+.vitrine__title,
+.vitrine__meta {
+  transition: opacity var(--archive-motion-settle) var(--archive-ease);
+}
+
+/* One composed label, not four fields. They withdraw and return
+   together, so the caption reads as a single printed card being
+   changed rather than as separate values updating. */
+.vitrine.is-changing .vitrine__catalog,
+.vitrine.is-changing .vitrine__title,
+.vitrine.is-changing .vitrine__meta {
+  opacity: 0;
 }
 
 /* Empty state: no artifact selected yet. */

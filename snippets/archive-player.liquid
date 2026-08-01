@@ -14,6 +14,29 @@
   a single deck follow the visitor across navigations without the
   server needing to know what is playing.
 
+  ---------------------------------------------------------
+  WHY THIS SHIPS `is-unseated` AND NOT `is-empty`
+
+  The deck renders in the layout. The artifact on display is
+  declared by a SECTION — the vitrine, or the Expanded Deck — and
+  Liquid gives the layout no way to see across into it.
+
+  So the server genuinely does not know whether this page has an
+  artifact, and the deck must not claim to. It previously shipped
+  `is-empty` with the words "No artifact in the case" hardcoded,
+  which was simply false on every page that declares one: the case
+  showed an artifact while the console denied there was one. Two
+  views disagreeing, in the server response, before any script ran.
+
+  `is-unseated` asserts nothing. It is the honest state: the
+  archive has not yet stated what is on display. At boot,
+  archive-ui.js resolves it to exactly one of two answers — the
+  seated artifact, or a genuine `is-empty`.
+
+  Do not put artifact text back in this file. The deck is the third
+  view of one artifact, and a view does not invent a default.
+  ---------------------------------------------------------
+
   Artwork is two stacked layers, not one <img>. Swapping a single
   src cannot cross-fade — the old pixels are gone the instant the
   new ones decode. archive-ui.js alternates between the two layers
@@ -29,7 +52,7 @@
 
 <div
   id="archive-player"
-  class="archive-player is-empty"
+  class="archive-player is-unseated"
   data-archive-player
   data-template="{{ template }}"
   role="region"

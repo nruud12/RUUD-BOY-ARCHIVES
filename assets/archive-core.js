@@ -89,6 +89,26 @@
 
         },
 
+        /**
+         * Boot runs in two phases, and the split is architectural.
+         *
+         *   1. init()   — a module claims its DOM and binds listeners.
+         *                 It must not write state or emit events.
+         *   2. ready()  — every module is now listening. Only here may
+         *                 a module seat a declaration into state.
+         *
+         * Without the split, seating happens during phase 1 and only
+         * the modules registered BEFORE the seater ever hear it. The
+         * vitrine registers after archive-card-ui.js, so it missed the
+         * seating entirely; the case looked correct only because Liquid
+         * had painted the same artifact. Agreement by coincidence is
+         * indistinguishable from agreement by design right up until it
+         * is not.
+         *
+         * Registration order must not be load-bearing. It is the order
+         * of <script> tags in snippets/scripts.liquid, which is a
+         * delivery detail, not a contract.
+         */
         boot() {
 
     console.group("ArchiveOS Boot");
@@ -99,6 +119,15 @@
 
         if (typeof module.init === "function") {
             module.init();
+        }
+
+    });
+
+    Object.entries(modules).forEach(([name, module]) => {
+
+        if (typeof module.ready === "function") {
+            console.log(`Ready ${name}`);
+            module.ready();
         }
 
     });

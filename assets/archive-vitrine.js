@@ -43,6 +43,17 @@
   const ATTACK = 0.34;
   const RELEASE = 0.07;
 
+  const reduceMotion =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* How long the case stays dark while an artifact is exchanged.
+     Matches --archive-motion-settle. Under reduced motion the token
+     collapses to 1ms, so this must collapse too — otherwise the case
+     would sit blank for a quarter of a second with no transition to
+     explain it. */
+  const REST_MS = reduceMotion ? 0 : 300;
+
   const Vitrine = {
     el: null,
     art: null,
@@ -86,8 +97,8 @@
 
     bindEvents() {
       document.addEventListener('archive:trackchange', (e) => {
-        const track = e.detail && e.detail.track;
-        if (track) this.showArtifact(track);
+        const detail = e.detail || {};
+        if (detail.track) this.showArtifact(detail.track, Boolean(detail.seated));
       });
 
       document.addEventListener('archive:play', () => this.awaken());
@@ -102,18 +113,92 @@
        a visible transition: a short cross-dissolve, no movement.
     ------------------------------------------------------ */
 
-    showArtifact(track) {
+    /**
+     * Puts an artifact in the case.
+     *
+     * A SEATING is the archive stating what this page displays. The
+     * page already rendered it server-side, so the case paints and
+     * stays lit — darkening and relighting for a piece that never
+     * left would be theatre.
+     *
+     * An EXCHANGE is the visitor changing the artifact. The case
+     * darkens, the piece is swapped while nothing is visible, and the
+     * light returns — one continuous act rather than two images
+     * trading places. See "CHANGING THE ARTIFACT" in
+     * archive-vitrine.css.
+     *
+     * The dark interval also absorbs decoding. We wait for BOTH the
+     * image to decode and a minimum dwell to elapse, so a cached
+     * artifact does not flash through the exchange and an uncached
+     * one does not strand the case in darkness — the pause reads as
+     * deliberate either way, with no loading affordance shown.
+     *
+     * `seated` arrives on the event because only the caller knows
+     * which of the two this is. Inferring it would mean remembering
+     * what was last drawn, and a remembered id can drift — a drifted
+     * guard makes the case SKIP an exchange it owed, leaving the wrong
+     * artifact on the wall while the console names another. The view
+     * is told; it never has to know.
+     *
+     * @param {object} track
+     * @param {boolean} [seated]
+     */
+    showArtifact(track, seated) {
       this.el.classList.add('is-loaded');
 
-      if (this.art && track.image) {
-        const next = new Image();
-        next.onload = () => {
-          this.art.src = track.image;
-          this.art.alt = track.title || 'Artifact';
-        };
-        next.src = track.image;
+      if (seated) {
+        this.paint(track);
+        return;
       }
 
+      this.el.classList.add('is-changing');
+
+      const commit = () => {
+        this.paint(track);
+
+        // Next frame, so the swap is painted before the light returns.
+        requestAnimationFrame(() => {
+          this.el.classList.remove('is-changing');
+        });
+      };
+
+      Promise.all([this.preload(track.image), this.dwell()]).then(commit, commit);
+    },
+
+    /** Writes an artifact into the case. No transition, no state. */
+    paint(track) {
+      if (this.art && track.image) {
+        this.art.src = track.image;
+        this.art.alt = track.title || 'Artifact';
+      }
+      this.writeLabel(track);
+    },
+
+    /** Resolves once the artifact has decoded, or immediately if it cannot. */
+    preload(src) {
+      if (!src) return Promise.resolve();
+
+      const img = new Image();
+      img.src = src;
+
+      if (typeof img.decode === 'function') {
+        return img.decode().catch(() => {});
+      }
+
+      return new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    },
+
+    /** The minimum darkness of the exchange. Collapses under reduced motion. */
+    dwell() {
+      return new Promise((resolve) => {
+        setTimeout(resolve, REST_MS);
+      });
+    },
+
+    writeLabel(track) {
       /* Blank rather than a dangling dash — see the note in
          snippets/product-card.liquid. CSS hides the empty element. */
       this.setText(

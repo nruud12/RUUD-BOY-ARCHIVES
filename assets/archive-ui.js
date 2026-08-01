@@ -67,8 +67,8 @@
     activeArtwork: 0,
     barCount: 0,
     scrubbing: false,
-    started: false,
 
+    /** Phase 1 — claim the DOM and bind. Writes no state, emits nothing. */
     init() {
       this.cacheElements();
 
@@ -78,6 +78,40 @@
       this.bindPlayerEvents();
       this.bindInput();
       this.syncVolume();
+    },
+
+    /**
+     * Phase 2 — seating has run, so the console can stop withholding.
+     *
+     * It ships `is-unseated`: the layout renders the deck but the
+     * artifact is declared by a section, which Liquid cannot see from
+     * there. Until boot resolves it the console knows nothing and says
+     * nothing.
+     *
+     * If seating found an artifact, `updateTrack` has already run and
+     * cleared the class. If it did not, the console is genuinely empty
+     * and may now say so — the one moment that claim is true.
+     *
+     * That "already run" is not guaranteed by phase ordering alone.
+     * Module `ready()` calls fire in registration order, and this
+     * module registers before archive-card-ui.js — so when this runs,
+     * seating may not have happened yet, and resolveSeating() below can
+     * briefly mark the console `is-empty` before the real seating
+     * lands. It self-corrects in the same synchronous tick only
+     * because `ArchiveOS.emit` dispatches its CustomEvent synchronously
+     * (see archive-core.js): the later `archive:trackchange` from
+     * seating reaches `updateTrack`, which removes both classes again
+     * before anything paints. If `emit` ever became async, this would
+     * become a visible flash instead of a non-event.
+     */
+    ready() {
+      if (!this.el.root) return;
+      this.resolveSeating();
+    },
+
+    resolveSeating() {
+      this.el.root.classList.remove('is-unseated');
+      this.el.root.classList.toggle('is-empty', !ArchiveOS.get('currentTrack'));
     },
 
     cacheElements() {
@@ -206,9 +240,9 @@
 
     bindPlayerEvents() {
       ArchiveOS.on('archive:trackchange', (event) => {
-        const track = (event.detail && event.detail.track) || null;
-        if (!track) return;
-        this.updateTrack(track);
+        const detail = event.detail || {};
+        if (!detail.track) return;
+        this.updateTrack(detail.track, Boolean(detail.seated));
       });
 
       ArchiveOS.on('archive:play', () => this.setPlaying(true));
@@ -240,8 +274,12 @@
         const player = ArchiveOS.getModule('player');
         if (!player) return;
 
-        // Nothing loaded yet: the play button starts the archive
-        // rather than doing nothing.
+        /* Nothing seated — this page declares no artifact, so the
+           console has nothing to toggle. It does not pick one: it asks
+           the queue to advance from nowhere, and archive-card-ui.js
+           resolves that to the first entry of whatever the queue is on
+           this page (visible cards, else the catalogue feed). The
+           console must not invent a default; asking is not choosing. */
         if (!ArchiveOS.get('currentTrack')) {
           const cards = ArchiveOS.getModule('cardUI');
           if (cards && typeof cards.next === 'function') cards.next(true);
@@ -309,25 +347,66 @@
        RENDERING
     ------------------------------------------------------ */
 
-    updateTrack(track) {
-      // First artifact of the session retires the rest state.
-      if (!this.started) {
-        this.started = true;
-        this.el.root.classList.remove('is-empty');
-      }
+    /**
+     * Renders an artifact onto the console.
+     *
+     * A SEATING is presented as already true: the archive is stating
+     * what this page displays, and the case has shown it since first
+     * paint. Morphing the title and cross-fading the artwork would
+     * animate the console into agreement with the other two views,
+     * which reads as the console catching up.
+     *
+     * An EXCHANGE is the visitor changing the artifact, and earns the
+     * transition.
+     *
+     * @param {object} track
+     * @param {boolean} [seated]
+     */
+    updateTrack(track, seated) {
+      /* Whether the console is empty is not something to remember —
+         it is a question state already answers. This was a `started`
+         flag that latched on the first artifact and never reset. */
+      this.el.root.classList.remove('is-unseated');
+      this.el.root.classList.remove('is-empty');
 
-      this.morph(this.el.title, track.title || 'Unattributed artifact');
+      const title = track.title || 'Unattributed artifact';
+
+      if (seated) {
+        this.setText(this.el.title, title);
+        this.showArtwork(track.image || '');
+      } else {
+        this.morph(this.el.title, title);
+        this.setArtwork(track.image || '');
+      }
 
       this.setText(this.el.archive, track.archive || '');
       this.setText(this.el.bpm, track.bpm || '');
       this.setText(this.el.key, track.key || '');
       this.setText(this.el.mood, track.mood || '');
 
-      this.setArtwork(track.image || '');
       this.drawWaveform(track);
 
       this.el.root.style.setProperty('--progress', '0');
       if (this.el.progress) this.el.progress.value = '0';
+    },
+
+    /** Puts artwork up with no cross-fade. Used for seatings. */
+    showArtwork(src) {
+      if (this.artwork.length < 2) return;
+
+      const current = this.artwork[this.activeArtwork];
+      const other = this.artwork[1 - this.activeArtwork];
+
+      other.classList.remove('is-showing', 'is-leaving');
+
+      if (!src) {
+        current.classList.remove('is-showing');
+        current.removeAttribute('src');
+        return;
+      }
+
+      current.src = src;
+      current.classList.add('is-showing');
     },
 
     setText(node, value) {

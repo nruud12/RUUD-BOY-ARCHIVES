@@ -19,15 +19,51 @@
 {%- liquid
   assign default_product = section.settings.default_artifact
   assign wordmark = section.settings.wordmark | default: shop.name
+
+  assign audio = default_product.metafields.custom.audio_preview.value
+  if audio == blank
+    assign audio = default_product.metafields.product.audio.value
+  endif
 -%}
+
+{%- comment -%}
+  THE ARTIFACT ON DISPLAY
+
+  This section does not own the artifact — it declares which one is on
+  display, in the same record shape every other surface uses. On boot
+  archive-card-ui.js seats that record into ArchiveOS state, and from
+  that moment the case, the wall label and the console are all
+  rendering the one `currentTrack`.
+
+  The Liquid below paints the first frame of the same artifact the
+  record names, so the case is never empty while JavaScript starts.
+  It is the same declaration rendered twice, not a second source of
+  truth: nothing here can disagree with state, because state is
+  seated FROM here.
+
+  `data-track-id` below names the DECLARED artifact and is never
+  rewritten. It is not a record of what the case currently shows —
+  after an exchange the case displays whatever state holds, and this
+  attribute still names what the page arrived declaring.
+{%- endcomment -%}
 
 <section
   class="vitrine archive-shell{% if default_product.featured_image %} is-loaded{% endif %}"
   data-vitrine
-  {% if default_product != blank %}
-    data-vitrine-default="{{ default_product.id }}"
+  {% if audio != blank %}
+    data-archive-artifact
+    data-track-id="{{ default_product.id }}"
   {% endif %}
 >
+  {%- if audio != blank -%}
+    <script
+      type="application/json"
+      class="archive-track-data"
+      data-archive-track="{{ default_product.id }}"
+    >
+      {%- render 'archive-track-record', product: default_product -%}
+    </script>
+  {%- endif -%}
   {%- comment -%} Atmosphere. Decorative only. {%- endcomment -%}
   <div class="vitrine__room" aria-hidden="true"></div>
   <div class="vitrine__floor" aria-hidden="true"></div>
@@ -79,6 +115,24 @@
       </div>
 
       <div class="vitrine__plinth" aria-hidden="true"></div>
+
+      {%- comment -%}
+        The case is a view of the artifact, so acting on it acts on the
+        artifact — the same gesture a card offers. A real button, not a
+        click handler on a div: it belongs in the tab order and carries
+        its own name.
+
+        It is the redundant path. The primary control is the console's
+        play button, which is already on screen and already understood.
+      {%- endcomment -%}
+      {%- if audio != blank -%}
+        <button
+          type="button"
+          class="vitrine__audition"
+          data-archive-play
+          aria-label="Audition {{ default_product.title | escape }}"
+        ></button>
+      {%- endif -%}
     </div>
   </div>
 
