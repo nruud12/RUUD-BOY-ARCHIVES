@@ -266,12 +266,24 @@
    It does NOT scale with the bass. Only light responds.
 ========================================================== */
 
+/* The piece stands on its base.
+
+   Centred in the case, the artifact's lower edge sat around 87% of
+   the case height while the plinth glow sat below 98% — an object
+   floating a clear gap above the base it appears to rest on. Nothing
+   else in the room contradicted the illusion as directly.
+
+   Seating it lower closes that gap so the contact shadow lands where
+   the plinth is. Margin rather than transform: the idle drift owns
+   this element's transform, and a translate here would be overwritten
+   by the animation. */
 .vitrine__artifact {
   position: relative;
   width: 74%;
   aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
+  margin-block-start: 7%;
   transform-style: preserve-3d;
   animation: vitrine-drift var(--archive-ambient-drift) ease-in-out infinite;
 }
@@ -520,12 +532,19 @@
    band and out of the exhibit. A wall label in a gallery is mounted
    close to the work it describes — the tighter gap both reads as
    more deliberate and brings the complete exhibit onto one screen. */
+/* A printed card, not three stacked fields.
+
+   The rhythm is deliberately uneven. An accession number belongs TO
+   the title — it is the same statement, so it sits tight against it.
+   The specification is a different register and stands apart. A
+   uniform gap between all three reads as generated output; the
+   asymmetry is what makes it read as typeset. */
 .vitrine__label {
   position: relative;
   z-index: 2;
   display: grid;
   justify-items: center;
-  gap: var(--archive-space-2xs);
+  gap: 0;
   margin-top: var(--archive-space-md);
   text-align: center;
 }
@@ -544,6 +563,14 @@
   letter-spacing: var(--archive-track-label);
   text-transform: uppercase;
   color: var(--archive-text-subtle);
+
+  /* Tight to the title beneath it — one statement, two lines. */
+  margin-bottom: var(--archive-space-3xs);
+
+  /* Optical centring. Letter-spacing adds a trailing space after the
+     final character, which shifts centred text left by half of it.
+     Indenting by the tracking puts the block back on the true axis. */
+  text-indent: var(--archive-track-label);
 }
 
 .vitrine__title {
@@ -554,6 +581,14 @@
   text-transform: uppercase;
   color: var(--archive-text);
   margin: 0;
+
+  /* Optical centring, as the monument already does. Without it the
+     title sits visibly left of the case it describes — the trailing
+     letter-space is counted in the line box but has no glyph. */
+  text-indent: var(--archive-track-display);
+
+  /* The specification is a separate register and stands apart. */
+  margin-bottom: var(--archive-space-xs);
 }
 
 .vitrine__meta {
@@ -561,7 +596,11 @@
   align-items: center;
   gap: var(--archive-space-2xs);
   font-size: var(--archive-type-micro);
-  letter-spacing: 0.14em;
+
+  /* Was a hard-coded 0.14em — the one tracking value in the theme
+     that did not come from the scale. */
+  letter-spacing: var(--archive-track-label);
+
   text-transform: uppercase;
   color: var(--archive-text-subtle);
 }
