@@ -80,7 +80,14 @@
    White, not magenta. A gallery's overhead light is white — tinting
    it turned the whole room into a colour wash and put the accent
    everywhere instead of on the object. The accent now lives only
-   inside the artifact and in the bounce beneath it. */
+   inside the artifact and in the bounce beneath it.
+
+   A tight core sits inside the broad wash — the lamp, not just its
+   spill. Without it the wash reads as ambient fog with no source;
+   the core gives the eye something to identify as a fixture
+   overhead, which is what turns "lit" into "lit by something". Its
+   radius is small enough that it does not raise the room's overall
+   brightness, only its legibility as architecture. */
 .vitrine__room::before {
   content: '';
   position: absolute;
@@ -89,12 +96,18 @@
   width: min(150vw, 1500px);
   aspect-ratio: 1 / 1;
   transform: translateX(-50%);
-  background: radial-gradient(
-    circle at 50% 35%,
-    rgba(255, 255, 255, calc(0.05 + var(--v-energy) * 0.03)) 0%,
-    rgba(255, 255, 255, calc(0.02 + var(--v-energy) * 0.02)) 30%,
-    transparent 62%
-  );
+  background:
+    radial-gradient(
+      circle at 50% 38%,
+      rgb(var(--archive-light-key-rgb) / calc(0.08 + var(--v-energy) * 0.02)) 0%,
+      transparent 13%
+    ),
+    radial-gradient(
+      circle at 50% 35%,
+      rgb(var(--archive-light-key-rgb) / calc(0.05 + var(--v-energy) * 0.03)) 0%,
+      rgb(var(--archive-light-key-rgb) / calc(0.02 + var(--v-energy) * 0.02)) 30%,
+      transparent 62%
+    );
   transition: background var(--archive-speed-slow) var(--archive-ease);
 }
 
@@ -103,7 +116,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 80% 70% at 50% 45%, transparent 40%, var(--archive-void) 100%);
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, transparent 40%, var(--archive-light-vignette) 100%);
 }
 
 /* Reflective floor. The artifact stands on something. */
@@ -118,7 +131,7 @@
   background: linear-gradient(
     to bottom,
     transparent,
-    rgba(255, 255, 255, calc(0.012 + var(--v-bass) * 0.022)) 60%,
+    rgb(var(--archive-light-key-rgb) / calc(0.012 + var(--v-bass) * 0.022)) 60%,
     transparent
   );
   transition: background var(--archive-speed) var(--archive-ease);
@@ -174,7 +187,7 @@
   position: absolute;
   inset: 6%;
   border-radius: var(--archive-radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--archive-glass-edge-soft);
   /* The case has a backing board.
 
      The artifacts are near-black images. Against a case interior that
@@ -187,16 +200,25 @@
   background:
     radial-gradient(
       ellipse 78% 68% at 50% 42%,
-      rgba(255, 255, 255, calc(0.055 + var(--v-energy) * 0.03)) 0%,
-      rgba(255, 255, 255, 0.022) 55%,
+      rgb(var(--archive-light-key-rgb) / calc(0.055 + var(--v-energy) * 0.03)) 0%,
+      rgb(var(--archive-light-key-rgb) / 0.022) 55%,
       transparent 100%
     ),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0%, transparent 42%, transparent 58%, rgba(255, 255, 255, 0.025) 100%);
+    var(--archive-reflect-sheen);
+
+  /* Interior from the material; cast light from the artifact's own
+     energy. The cast is the one thing here that is NOT a constant —
+     it scales with what the object is doing. */
   box-shadow:
-    inset 0 0 60px rgba(0, 0, 0, 0.34),
-    0 0 calc(40px + var(--v-energy) * 70px) rgba(255, 0, 255, calc(0.02 + var(--v-energy) * 0.1));
-  backdrop-filter: blur(0.5px);
-  transition: box-shadow var(--archive-speed-slow) var(--archive-ease);
+    var(--archive-glass-interior),
+    0 0 calc(40px + var(--v-energy) * 70px)
+      rgb(var(--archive-light-artifact-rgb) / calc(0.02 + var(--v-energy) * 0.1));
+
+  /* Glass you look THROUGH. */
+  backdrop-filter: blur(var(--archive-glass-blur-thin));
+  -webkit-backdrop-filter: blur(var(--archive-glass-blur-thin));
+
+  transition: box-shadow var(--archive-motion-settle) var(--archive-ease);
   pointer-events: none;
 }
 
@@ -206,7 +228,7 @@
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  border-top: 1px solid rgba(255, 255, 255, calc(0.12 + var(--v-air) * 0.5));
+  border-top: 1px solid rgb(var(--archive-light-key-rgb) / calc(0.12 + var(--v-air) * 0.5));
   transition: border-color var(--archive-speed-fast) var(--archive-ease);
 }
 
@@ -253,9 +275,16 @@
      unmistakably present and lit, while playback still adds a clear
      lift. The awake state gains MORE range than before, not less:
      the gap between resting and sounding is preserved in saturation
-     and in the surrounding light rather than in exposure alone. */
+     and in the surrounding light rather than in exposure alone.
+
+     Presence is not just exposure, though — a flatly bright square
+     still reads as an image. The trailing drop-shadow gives the
+     artifact a contact shadow against the backing board, the cue
+     that tells the eye the object sits proud of the case rather than
+     being printed on it. It is constant, not reactive: depth is a
+     property of the object being there, not of it being loud. */
   filter: brightness(calc(0.88 + var(--v-energy) * 0.3)) saturate(calc(0.82 + var(--v-energy) * 0.5))
-    contrast(1.04);
+    contrast(1.04) drop-shadow(0 18px 28px rgba(0, 0, 0, 0.4));
   transition: filter var(--archive-speed-slow) var(--archive-ease);
 }
 
@@ -552,6 +581,46 @@
 .vitrine:not(.is-awake) .vitrine__fractures,
 .vitrine:not(.is-awake) .vitrine__plinth {
   transition-duration: 900ms;
+}
+
+/* ==========================================================
+   ARRIVAL
+
+   A one-time reveal on page load, not an ambient effect — it runs
+   once and then gets out of the way. The case resolves first; the
+   label follows at a stagger short enough to overlap the case's own
+   settle, so the sequence reads as one continuous arrival rather
+   than three separate pops. The console picks this up in its own
+   file, staggered later again, so the whole page settles in one
+   unbroken beat: case, then label, then console.
+
+   Built entirely from --archive-motion-reveal so it collapses to
+   near-nothing under prefers-reduced-motion the same way every other
+   transition in this file already does — no separate override
+   needed here.
+========================================================== */
+
+@keyframes vitrine-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vitrine__monument,
+.vitrine__stage {
+  animation: vitrine-arrive var(--archive-motion-reveal) var(--archive-ease) both;
+}
+
+/* Starts before the case has finished settling — the overlap is
+   what makes the sequence read as one motion rather than a relay. */
+.vitrine__label {
+  animation: vitrine-arrive var(--archive-motion-reveal) var(--archive-ease) both;
+  animation-delay: calc(var(--archive-motion-reveal) * 0.5);
 }
 
 /* ==========================================================

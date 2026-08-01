@@ -59,7 +59,7 @@
      above it. */
   border-top: 0;
 
-  transition: opacity var(--archive-speed-slow) var(--archive-ease);
+  transition: opacity var(--archive-motion-withdraw) var(--archive-ease);
 }
 
 /* The soft edge. Replaces the rule — this is the deck rising out of
@@ -72,6 +72,22 @@
   height: var(--archive-space-lg);
   pointer-events: none;
   background: linear-gradient(to top, var(--archive-bg), transparent);
+}
+
+/* A hairline catch of the room's own overhead light along the top
+   edge. The same fixture that lights the vitrine reaches the console
+   too, because it is equipment standing in the same room, not a
+   panel stacked on top of the page. Reusing --archive-light-key-rgb
+   rather than inventing a console-specific value is what makes it
+   read as one room's light rather than a second lighting system. */
+.archive-player::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  pointer-events: none;
+  background: rgb(var(--archive-light-key-rgb) / 0.06);
 }
 
 /* Rest state. The console should almost disappear until someone
@@ -87,6 +103,38 @@
 
 .archive-player.is-playing {
   border-top-color: var(--archive-cyan-24);
+}
+
+/* ----------------------------------------------------------
+   ARRIVAL — homepage only
+
+   The console is the visitor's third stop, after the case and the
+   wall label, so on the homepage it settles in rather than asserting
+   itself from the first frame. `backwards` only — never `forwards` —
+   is deliberate: it holds the console invisible through the delay,
+   but once the animation completes it stops touching opacity
+   entirely, handing control straight back to .is-empty and the
+   hover/focus rule above. `forwards` would freeze opacity at 1 and
+   silently break that hover reveal.
+
+   Scoped to .is-empty because that is always the state on first
+   paint. The 0.42 endpoint below must keep matching the rest-state
+   value above by hand — there is no third place to define it once
+   for both.
+---------------------------------------------------------- */
+
+@keyframes player-arrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.42;
+  }
+}
+
+.archive-player[data-template='index'].is-empty {
+  animation: player-arrive var(--archive-motion-reveal) var(--archive-ease) backwards;
+  animation-delay: var(--archive-motion-reveal);
 }
 
 /* ----------------------------------------------------------
