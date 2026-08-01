@@ -114,9 +114,11 @@
         next.src = track.image;
       }
 
+      /* Blank rather than a dangling dash — see the note in
+         snippets/product-card.liquid. CSS hides the empty element. */
       this.setText(
         this.fields.catalog,
-        track.archive ? `Accession ${track.archive}` : 'Accession pending'
+        track.archive ? `Archive ${track.archive}` : ''
       );
       this.setText(this.fields.title, track.title || '');
       this.setText(this.fields.bpm, track.bpm ? `${track.bpm} BPM` : '');

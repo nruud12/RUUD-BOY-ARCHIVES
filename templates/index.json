@@ -24,6 +24,7 @@
     "vitrine": {
       "type": "archive-vitrine",
       "settings": {
+        "default_artifact": "abyss",
         "show_wordmark": true,
         "wordmark": "Ruud Boy Archives",
         "standfirst": "Original artifacts, catalogued and held for modern artists",
@@ -34,7 +35,7 @@
       "type": "archive-room-title",
       "settings": {
         "eyebrow": "The Holdings",
-        "title": "Recent accessions",
+        "title": "Recently catalogued",
         "link_label": "Enter the reading room",
         "link": "shopify://collections/all"
       }

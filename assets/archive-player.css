@@ -39,18 +39,50 @@
   box-sizing: border-box;
 
   color: var(--archive-text);
-  background: color-mix(in srgb, var(--archive-bg) 92%, transparent);
-  backdrop-filter: blur(20px) saturate(140%);
-  border-top: 1px solid var(--archive-line);
 
-  transition:
-    opacity var(--archive-speed) var(--archive-ease),
-    border-color var(--archive-speed) var(--archive-ease);
+  /* Opaque, and no backdrop blur.
+
+     The frosted treatment was sampling whatever passed behind the
+     deck and smearing it across the bar — the vitrine's wall label
+     bled through as a bright ghost, and any pale content scrolling
+     underneath did the same. Reading as a solid piece of furniture
+     also suits the room better than a floating pane of glass: the
+     deck is a console in the gallery, not a translucent overlay. */
+  background: var(--archive-bg);
+
+  /* No hard rule along the top.
+
+     A 1px line across the full width read as a toolbar pinned over
+     the page and cut the room in half. The deck now emerges from the
+     floor instead: the edge is a short gradient (see ::before), so
+     the console belongs to the architecture rather than floating
+     above it. */
+  border-top: 0;
+
+  transition: opacity var(--archive-speed-slow) var(--archive-ease);
 }
 
-/* Rest state. Present, but clearly not in use. */
+/* The soft edge. Replaces the rule — this is the deck rising out of
+   the darkness, not a border drawn on top of it. */
+.archive-player::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: var(--archive-space-lg);
+  pointer-events: none;
+  background: linear-gradient(to top, var(--archive-bg), transparent);
+}
+
+/* Rest state. The console should almost disappear until someone
+   reaches for it — furniture in a dark room, not a fixed bar. */
 .archive-player.is-empty {
-  opacity: 0.72;
+  opacity: 0.42;
+}
+
+.archive-player.is-empty:hover,
+.archive-player.is-empty:focus-within {
+  opacity: 1;
 }
 
 .archive-player.is-playing {
@@ -66,7 +98,9 @@
   align-items: center;
   gap: var(--archive-space-xs);
 
-  flex: 0 1 320px;
+  /* Wide enough that the rest-state caption sits on one line. At
+     320px it wrapped to two and the deck lost its horizon. */
+  flex: 0 1 400px;
   min-width: 0;
 }
 
@@ -428,15 +462,22 @@
   opacity: 0.1;
 }
 
-.archive-player__progress {
+/* Scoped with the parent class deliberately. Horizon styles
+   input[type='range'] — an element+attribute selector — which
+   outranks a lone class, so the unscoped version lost and the input
+   painted its background straight over the waveform. */
+.archive-player .archive-player__progress {
   position: absolute;
   inset: 0;
 
   width: 100%;
   height: 100%;
   margin: 0;
+  padding: 0;
 
   background: transparent;
+  border: none;
+  box-shadow: none;
   -webkit-appearance: none;
   appearance: none;
 
@@ -538,14 +579,16 @@
   transition: opacity var(--archive-speed-fast) var(--archive-ease);
 }
 
-.archive-player__volume-slider {
+.archive-player .archive-player__volume-slider {
   width: 72px;
   height: 3px;
   margin: 0;
+  padding: 0;
 
   -webkit-appearance: none;
   appearance: none;
 
+  border: none;
   border-radius: var(--archive-radius-pill);
   background: var(--archive-line-strong);
   cursor: pointer;

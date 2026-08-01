@@ -160,13 +160,15 @@
         Now sounding
       </div>
 
-      <div class="archive-card__catalog">
-        {%- if archive_number != blank -%}
-          Accession {{ archive_number }}
-        {%- else -%}
-          Accession pending
-        {%- endif -%}
-      </div>
+      {%- comment -%}
+        No number, no line. An unnumbered artifact printed "Archive —"
+        on every card in the grid; repeated across the room the
+        dangling dash read as a fault rather than as absent data. A
+        catalogue without a number simply says nothing.
+      {%- endcomment -%}
+      {%- if archive_number != blank -%}
+        <div class="archive-card__catalog">Archive {{ archive_number }}</div>
+      {%- endif -%}
 
       <h3 class="archive-card__title">{{ product.title }}</h3>
 

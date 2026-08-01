@@ -39,11 +39,23 @@
   text-rendering: optimizeLegibility;
 }
 
-.archive-os,
+/* Horizon paints backgrounds on its wrappers and sections; they must
+   be cleared so the archive canvas shows through.
+
+   NOT .archive-os itself. That selector is <body> — the same element
+   the canvas is set on immediately above — so including it here
+   overrode the dark background at equal specificity and left the
+   browser's default white showing through the entire site. */
 .archive-os .page-wrapper,
 .archive-os .content-for-layout,
 .archive-os .shopify-section {
   background-color: transparent;
+}
+
+/* The canvas also belongs on the root so overscroll, and any gap the
+   body does not cover, stay in the archive rather than flashing white. */
+html:has(.archive-os) {
+  background-color: var(--archive-bg);
 }
 
 /* The persistent transport deck is fixed to the bottom of every
@@ -143,6 +155,21 @@
   box-shadow: none;
 }
 
+/* ...but not the artifact card itself.
+
+   The rule above is right for Horizon's boxes and wrong for the
+   artifact card, which needs a surface to sit on. Horizon's colour
+   scheme paints white beneath the card body, so dissolving the card
+   background exposed it and the catalogue number and title rendered
+   white-on-white — invisible on every artifact in the grid.
+
+   Matching --archive-bg restores legibility without reintroducing a
+   panel: the card is the same value as the canvas, so there is still
+   no visible edge, no box and no shadow. */
+.archive-os .archive-card {
+  background-color: var(--archive-bg) !important;
+}
+
 /* Horizon paints per-block background colours from the theme
    editor. Those were set to demo values (lime green, #111) that
    fight the canvas. Neutralise them inside artifact contexts. */
@@ -169,6 +196,130 @@
 }
 
 /* ==========================================================
+   THE READING ROOM
+
+   Horizon runs the collection grid full-bleed. An artifact touching
+   the window edge reads as an accident rather than as a decision, so
+   the room sits within the same measure as every other room in the
+   archive.
+========================================================== */
+
+.archive-os .collection-wrapper,
+.archive-os .facets-block-wrapper {
+  padding-inline: var(--archive-gutter);
+}
+
+/* Finding aids, not a toolbar.
+
+   Horizon delivers the facets as a filled band carrying 15px
+   sentence-case interface type — the most storefront-looking element
+   left in the room. The band is removed and the controls are set as
+   archival labels: caption size, wide tracking, low contrast. Their
+   separation comes from the space around them, not from a strip of
+   colour behind them. */
+.archive-os .facets-block-wrapper {
+  background: transparent !important;
+  padding-block: var(--archive-space-sm) var(--archive-space-lg);
+}
+
+.archive-os .facets-block-wrapper,
+.archive-os .facets-block-wrapper button,
+.archive-os .facets-block-wrapper summary,
+.archive-os .facets-block-wrapper label,
+.archive-os .facets-block-wrapper select,
+.archive-os .products-count-wrapper,
+.archive-os .sorting-filter {
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+}
+
+.archive-os .facets-block-wrapper button:hover,
+.archive-os .facets-block-wrapper summary:hover {
+  color: var(--archive-text);
+}
+
+/* The caret is interface furniture. Kept, but quietened. */
+.archive-os .facets-block-wrapper svg {
+  opacity: 0.45;
+}
+
+/* A room title that opens a page needs to clear the sticky header.
+   Mid-page the standard measure is enough; at the top it is not, and
+   the caption collided with the navigation. */
+.archive-os .content-for-layout > .shopify-section:first-child .archive-room {
+  padding-block-start: calc(var(--archive-space-2xl) + var(--header-height, 90px));
+}
+
+/* ==========================================================
+   THE CLOSING ROOM
+
+   The footer is the last thing a visitor sees, and it was the last
+   place the theme still spoke as a shop: filled bands, a poster-face
+   heading, and a form. It is now a plain wall of quiet labels — the
+   final room of the archive rather than a marketing block.
+========================================================== */
+
+.archive-os footer,
+.archive-os .footer,
+.archive-os .footer-utilities {
+  background-color: transparent !important;
+}
+
+.archive-os footer {
+  padding-block: var(--archive-space-3xl) var(--archive-space-xl);
+}
+
+/* Column headings become wall labels. */
+.archive-os footer h2,
+.archive-os footer h3,
+.archive-os footer .email-signup__heading,
+.archive-os footer .footer-block__heading {
+  font-family: var(--archive-font-body) !important;
+  font-size: var(--archive-type-micro) !important;
+  font-weight: var(--archive-weight-medium) !important;
+  letter-spacing: var(--archive-track-label) !important;
+  text-transform: uppercase;
+  color: var(--archive-text-subtle) !important;
+}
+
+.archive-os footer a,
+.archive-os footer p,
+.archive-os footer li,
+.archive-os footer label,
+.archive-os .footer-utilities a,
+.archive-os .footer-utilities p {
+  font-size: var(--archive-type-small);
+  letter-spacing: var(--archive-track-body);
+  color: var(--archive-text-faint);
+  transition: color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-os footer a:hover,
+.archive-os .footer-utilities a:hover {
+  color: var(--archive-text-muted);
+}
+
+/* The register. A single ruled line, no filled field, no button
+   chrome — the archive asks quietly or not at all. */
+.archive-os footer input[type='email'] {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--archive-line) !important;
+  border-radius: 0 !important;
+  padding-inline: 0 !important;
+  color: var(--archive-text) !important;
+  transition: border-color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-os footer input[type='email']:focus {
+  outline: none;
+  border-bottom-color: var(--archive-line-strong) !important;
+}
+
+/* ==========================================================
    4. NAVIGATION
 
    Thin, wide-tracked, low-contrast. It should be findable but
@@ -192,6 +343,33 @@
   -webkit-backdrop-filter: blur(var(--archive-blur-glass));
   background: linear-gradient(to bottom, rgba(5, 5, 5, 0.82), rgba(5, 5, 5, 0)) !important;
   transition: background var(--archive-speed) var(--archive-ease);
+}
+
+/* Navigation type.
+
+   The theme editor had the menu set in Anton at 28px in purple — a
+   poster face at heading size, which read as the loudest element on
+   every page and unmistakably as a customised Shopify theme. The
+   archive's navigation should be findable and quiet: body face,
+   caption size, wide tracking, low contrast. !important is needed
+   because the font and colour come from theme settings. */
+.archive-os #header-group a:not(.header__logo-link),
+.archive-os .header__menu-item,
+.archive-os .menu-drawer__menu-item {
+  font-family: var(--archive-font-body) !important;
+  font-size: var(--archive-type-micro) !important;
+  font-weight: var(--archive-weight-medium) !important;
+  letter-spacing: var(--archive-track-label) !important;
+  line-height: 1 !important;
+  text-transform: uppercase;
+  color: var(--archive-text-subtle) !important;
+  transition: color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-os #header-group a:not(.header__logo-link):hover,
+.archive-os .header__menu-item:hover,
+.archive-os .menu-drawer__menu-item:hover {
+  color: var(--archive-text) !important;
 }
 
 .archive-os .header__row {
@@ -280,8 +458,12 @@
   padding-block: var(--archive-space-3xl);
 }
 
+/* Asymmetric on purpose. A wall caption belongs to the room it
+   introduces, so it needs a wide gap above it and a much smaller one
+   below. Equal padding left the title floating between two areas,
+   closer to the section it had nothing to do with. */
 .archive-room--tight {
-  padding-block: var(--archive-space-2xl);
+  padding-block: var(--archive-space-2xl) var(--archive-space-md);
 }
 
 .archive-room--flush {
@@ -302,7 +484,7 @@
   justify-content: space-between;
   gap: var(--archive-space-lg);
   flex-wrap: wrap;
-  margin-bottom: var(--archive-space-xl);
+  margin-bottom: var(--archive-space-md);
 }
 
 .archive-section-head__title {

@@ -86,9 +86,9 @@
   <div class="vitrine__label" aria-live="polite" aria-atomic="true">
     <div class="vitrine__catalog" data-vitrine-catalog>
       {%- if default_product.metafields.custom.archive.value != blank -%}
-        Accession {{ default_product.metafields.custom.archive.value }}
+        Archive {{ default_product.metafields.custom.archive.value }}
       {%- else -%}
-        Accession pending
+        Archive —
       {%- endif -%}
     </div>
 

@@ -23,12 +23,20 @@
          .archive-card__details
 ========================================================== */
 
+/* The card sits on the archive canvas, explicitly.
+
+   Horizon's colour scheme paints a white backdrop behind the card
+   body which no ancestor reports as its own background-color. With
+   the card transparent, the catalogue number and title rendered
+   white-on-white and vanished on every artifact. Matching
+   --archive-bg keeps the card invisible as a panel — no box, no
+   edge — while guaranteeing the record is legible. */
 .archive-card {
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: transparent;
+  background-color: var(--archive-bg);
   border: 0;
   transition: transform var(--archive-speed-slow) var(--archive-ease);
 }
@@ -59,10 +67,21 @@
   will-change: transform;
 }
 
+/* Approaching an exhibit lights it.
+
+   Hover previously dropped the artwork to 55% brightness so the play
+   affordance would read against it — which meant the artifact receded
+   at the exact moment the visitor leaned in. The light now comes up
+   instead: a small lift in exposure and saturation, as though a case
+   lamp had been switched on. The audition control carries its own
+   contrast rather than borrowing it from a dimmed artifact.
+
+   The zoom is halved. At 1.03 it read as a product tile responding
+   to a cursor; at 1.015 it reads as the object being approached. */
 .archive-card:hover .archive-card__media img,
 .archive-card:hover .card-gallery img {
-  transform: scale(1.03);
-  filter: brightness(0.55) saturate(0.9);
+  transform: scale(1.015);
+  filter: brightness(1.08) saturate(1.06);
 }
 
 /* ==========================================================

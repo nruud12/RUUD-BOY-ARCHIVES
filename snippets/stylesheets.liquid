@@ -36,15 +36,26 @@
   which is itself dead and unreferenced. Do NOT load archive-card-old.css
   without first restoring those 21 values — it would render unstyled.
 
-  ruud-player.css is legacy (27KB) and styles the retired
-  #ruud-global-player markup. It stays loaded for now because a
-  handful of its rules still reach product/collection pages; it is
-  scheduled for removal in the catalogue + player pass.
-  See ARCHIVE-REDESIGN.md.
+  ruud-player.css is NO LONGER LOADED.
+
+  It was retained on the assumption that "a handful of its rules
+  still reach product/collection pages". That turned out to be true
+  and harmful. It styled .product-card__content five times over:
+
+    background:#101010; border:1px solid; border-radius:22px
+    backdrop-filter: blur(18px)
+    gap:22px !important; padding:20px !important
+    :hover translateY(-6px) + magenta border
+
+  The box, radius and magenta hover fought archive-card.css, and the
+  backdrop-filter composited the artifact metadata away entirely —
+  archive numbers and titles rendered invisible on every card.
+
+  It styles the retired #ruud-global-player markup, which no longer
+  renders anywhere. Removing the tag rather than overriding 27KB of
+  rules one at a time.
   ==========================================================
 {%- endcomment -%}
-
-{{ 'ruud-player.css' | asset_url | stylesheet_tag }}
 
 {{ 'archive-tokens.css' | asset_url | stylesheet_tag }}
 {{ 'archive-shell.css' | asset_url | stylesheet_tag }}

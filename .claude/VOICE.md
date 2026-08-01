@@ -25,8 +25,8 @@ visitor-facing surface.
 |---|---|---|
 | The item for sale | artifact | product, beat, item, track |
 | The whole catalogue | the holdings | catalog, shop, store, inventory |
-| Catalogue number | Accession 0417 | Archive 0417, SKU, product ID |
-| No number assigned | Accession pending | Archive —, N/A |
+| Catalogue number | Archive 0417 | Accession, SKU, product ID |
+| No number assigned | Archive — | N/A, Unnumbered |
 | Previewing audio | audition | preview, play, listen, demo |
 | Currently playing | now sounding | now playing |
 | The transport deck | audition console | player, transport deck, widget |

@@ -1,3 +1,198 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Vitrine</title>
+<style>/* ==========================================================
+   ARCHIVEOS — DESIGN TOKENS
+   RUUD BOY ARCHIVES
+
+   The single source of truth for colour, type, space, motion
+   and elevation. Nothing in this file may contain a selector
+   other than :root — it declares values, never appearance.
+
+   Load order matters:
+     1. archive-tokens.css   ← you are here
+     2. archive-shell.css
+     3. archive-card.css
+     4. archive-vitrine.css
+     5. archive-player.css
+
+   NOTE ON LEGACY NAMES
+   Two conflicting token sets previously existed (one in
+   archive-design.css, one dumped as raw text after </html> in
+   layout/theme.liquid). They disagreed on what --archive-accent
+   meant: one said cyan, the other magenta. Both are aliased at the
+   bottom of this file so older stylesheets keep working, but new
+   work should use the canonical names only.
+========================================================== */
+
+:root {
+  /* ========================================================
+     1. COLOUR — THE ROOM
+
+     The archive is almost entirely dark. Accent is a light
+     source, not a paint. If more than ~5% of a viewport is
+     magenta, something has gone wrong.
+  ======================================================== */
+
+  --archive-void: #000000; /* true black — vitrine interior, page edges */
+  --archive-bg: #050505; /* base canvas */
+  --archive-surface: #0b0b0b; /* cards, panels */
+  --archive-surface-raised: #121212; /* hover / elevated panels */
+  --archive-surface-inset: #030303; /* wells, media backdrops */
+
+  /* Typography */
+  --archive-text: #ffffff;
+  --archive-text-muted: rgba(255, 255, 255, 0.58);
+  --archive-text-subtle: rgba(255, 255, 255, 0.34);
+  --archive-text-faint: rgba(255, 255, 255, 0.18);
+
+  /* Lines. Almost never visible on purpose. */
+  --archive-line: rgba(255, 255, 255, 0.07);
+  --archive-line-strong: rgba(255, 255, 255, 0.14);
+
+  /* Light sources */
+  --archive-magenta: #ff00ff;
+  --archive-magenta-soft: #ff2bd6;
+  --archive-magenta-deep: #8a3be2;
+  --archive-cyan: #00f0ff;
+
+  /* Pre-mixed translucencies, so components stop inventing their own */
+  --archive-magenta-04: rgba(255, 0, 255, 0.04);
+  --archive-magenta-08: rgba(255, 0, 255, 0.08);
+  --archive-magenta-16: rgba(255, 0, 255, 0.16);
+  --archive-magenta-32: rgba(255, 0, 255, 0.32);
+  --archive-magenta-64: rgba(255, 0, 255, 0.64);
+  --archive-cyan-08: rgba(0, 240, 255, 0.08);
+  --archive-cyan-24: rgba(0, 240, 255, 0.24);
+  --archive-cyan-48: rgba(0, 240, 255, 0.48);
+
+  /* ========================================================
+     2. TYPOGRAPHY
+
+     Two families only. Display is set uppercase with heavy
+     tracking — the tracking is what reads as "museum", not the
+     typeface. Body stays quiet and neutral.
+  ======================================================== */
+
+  --archive-font-display: 'Raleway', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --archive-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --archive-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  /* Fluid display scale. Desktop-first: the clamp max is the
+     intended desktop size, the min is the mobile fallback. */
+  --archive-type-monument: clamp(3rem, 9vw, 8.25rem); /* homepage wordmark */
+  --archive-type-display: clamp(2.5rem, 6vw, 5rem); /* page titles */
+  --archive-type-title: clamp(1.75rem, 3.2vw, 2.75rem); /* section titles */
+  --archive-type-heading: clamp(1.25rem, 1.8vw, 1.5rem); /* card / block titles */
+  --archive-type-body: 0.9375rem;
+  --archive-type-small: 0.8125rem;
+  --archive-type-micro: 0.6875rem; /* metadata, catalogue numbers */
+
+  /* Tracking. The single most important variable in the system. */
+  --archive-track-monument: 0.16em;
+  --archive-track-display: 0.1em;
+  --archive-track-label: 0.24em; /* eyebrows, catalogue numbers */
+  --archive-track-body: 0.005em;
+
+  --archive-weight-light: 300;
+  --archive-weight-regular: 400;
+  --archive-weight-medium: 500;
+  --archive-weight-bold: 700;
+
+  --archive-leading-tight: 1;
+  --archive-leading-snug: 1.2;
+  --archive-leading-body: 1.65;
+
+  /* ========================================================
+     3. SPACE
+
+     Hierarchy is built from this scale and nothing else — no
+     rules, no boxes, no dividers. If two things need separating,
+     they get --archive-space-* between them.
+  ======================================================== */
+
+  --archive-space-3xs: 0.25rem;
+  --archive-space-2xs: 0.5rem;
+  --archive-space-xs: 0.75rem;
+  --archive-space-sm: 1rem;
+  --archive-space-md: 1.5rem;
+  --archive-space-lg: 2.5rem;
+  --archive-space-xl: 4rem;
+  --archive-space-2xl: 6rem;
+  --archive-space-3xl: 9rem;
+  --archive-space-4xl: 13rem; /* between major "rooms" */
+
+  --archive-gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --archive-measure: 62ch; /* max reading width */
+  --archive-max-width: 1600px;
+
+  /* ========================================================
+     4. MOTION
+
+     Everything is 200–300ms, ease-out, no overshoot.
+     Ambient motion is measured in tens of seconds.
+  ======================================================== */
+
+  --archive-ease: cubic-bezier(0.22, 0.61, 0.36, 1); /* ease-out, no bounce */
+  --archive-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --archive-speed-fast: 160ms;
+  --archive-speed: 240ms;
+  --archive-speed-slow: 300ms;
+  --archive-speed-reveal: 480ms; /* entrances only */
+
+  --archive-ambient-drift: 96s; /* idle artifact rotation */
+  --archive-ambient-breath: 11s; /* idle glow */
+
+  /* ========================================================
+     5. FORM
+  ======================================================== */
+
+  --archive-radius-xs: 2px;
+  --archive-radius-sm: 4px;
+  --archive-radius-md: 8px;
+  --archive-radius-lg: 16px;
+  --archive-radius-pill: 999px;
+
+  --archive-blur-glass: 20px;
+
+  /* Elevation is achieved with shadow + a light source, never
+     with a border. */
+  --archive-shadow-rest: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --archive-shadow-raised: 0 28px 80px rgba(0, 0, 0, 0.66);
+  --archive-shadow-lift: 0 40px 120px rgba(0, 0, 0, 0.72);
+
+  --archive-glow-magenta: 0 0 60px var(--archive-magenta-32);
+  --archive-glow-cyan: 0 0 40px var(--archive-cyan-24);
+
+  --archive-z-player: 900;
+  --archive-z-header: 800;
+  --archive-z-overlay: 700;
+
+  /* ========================================================
+     6. LEGACY ALIASES — do not use in new code
+  ======================================================== */
+
+  --archive-black: var(--archive-bg);
+  --archive-white: var(--archive-text);
+  --archive-surface-2: var(--archive-surface-raised);
+  --archive-surface-3: var(--archive-surface-raised);
+  --archive-surface-elevated: var(--archive-surface-raised);
+  --archive-border: var(--archive-line);
+  --archive-border-hover: var(--archive-magenta-32);
+  --archive-accent: var(--archive-magenta);
+  --archive-accent-cyan: var(--archive-cyan);
+}
+
+/* Motion is a luxury, not a requirement. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --archive-speed-fast: 1ms;
+    --archive-speed: 1ms;
+    --archive-speed-slow: 1ms;
+    --archive-speed-reveal: 1ms;
+    --archive-ambient-drift: 0s;
+    --archive-ambient-breath: 0s;
+  }
+}
 /* ==========================================================
    ARCHIVEOS — THE VITRINE
    RUUD BOY ARCHIVES
@@ -25,16 +220,6 @@
        .is-loaded  an artifact has been selected
 ========================================================== */
 
-/* One screen, three parts: monument, case, wall label.
-
-   Previously the case was sized independently of the room, so on a
-   723px-tall window the composition needed 987px — the case ran off
-   the bottom and the wall label never appeared at all. The case is
-   now the flexible row: the monument and label take the height they
-   need, and the artifact receives everything that is left. It fills
-   the screen at any window size and the label is always visible.
-
-   Bottom padding clears the fixed audition console. */
 .vitrine {
   --v-energy: 0;
   --v-bass: 0;
@@ -44,18 +229,7 @@
   display: grid;
   place-items: center;
   min-height: min(86vh, 900px);
-
-  /* Asymmetric. The room needs enough headroom to clear the sticky
-     header, and enough foot to keep the wall label from colliding
-     with the fixed console.
-
-     The caption deliberately sits just below the fold: on a short
-     window the case, the caption and the console cannot all fit, and
-     of the three the artifact is the one that must not shrink. You
-     approach the case first and read the label second — which is how
-     it works in a gallery. */
-  padding-block: var(--archive-space-lg)
-    calc(var(--archive-space-md) + var(--archive-player-clearance, 104px));
+  padding-block: var(--archive-space-2xl);
   overflow: hidden;
   isolation: isolate;
 }
@@ -140,19 +314,7 @@
   z-index: 1;
   display: grid;
   place-items: center;
-
-  /* Sized so the whole case clears the fixed audition console.
-
-     Previously the case was cut off by the deck at the bottom of the
-     viewport, which reads as a layout accident rather than a crop.
-     The subtracted allowance covers the header, the name plate and
-     the console, so the case is always fully visible however short
-     the window — and still reaches 720px on a tall screen. */
-  /* The case grows into the height freed by the quieter name plate.
-     The darkness around it is unchanged — the room stays as empty as
-     it was; the artifact simply occupies more of it, so it reads as
-     precious rather than distant. */
-  width: min(62vw, calc(100svh - 372px), 790px);
+  width: min(58vw, 62vh, 720px);
   aspect-ratio: 1 / 1;
   perspective: 1600px;
   perspective-origin: 50% 45%;
@@ -175,25 +337,10 @@
   inset: 6%;
   border-radius: var(--archive-radius-sm);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  /* The case has a backing board.
-
-     The artifacts are near-black images. Against a case interior that
-     was also pure black, the object had no silhouette and the case
-     read as empty. A real vitrine lights its back wall so the piece
-     sits ON something. This is the faintest possible lift — still
-     unmistakably dark — but it gives the artwork an edge to register
-     against, which is what makes it read as an object rather than a
-     void. It brightens slightly as the piece wakes. */
   background:
-    radial-gradient(
-      ellipse 78% 68% at 50% 42%,
-      rgba(255, 255, 255, calc(0.055 + var(--v-energy) * 0.03)) 0%,
-      rgba(255, 255, 255, 0.022) 55%,
-      transparent 100%
-    ),
     linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0%, transparent 42%, transparent 58%, rgba(255, 255, 255, 0.025) 100%);
   box-shadow:
-    inset 0 0 60px rgba(0, 0, 0, 0.34),
+    inset 0 0 60px rgba(0, 0, 0, 0.6),
     0 0 calc(40px + var(--v-energy) * 70px) rgba(255, 0, 255, calc(0.02 + var(--v-energy) * 0.1));
   backdrop-filter: blur(0.5px);
   transition: box-shadow var(--archive-speed-slow) var(--archive-ease);
@@ -245,16 +392,8 @@
   height: 100%;
   object-fit: contain;
   border-radius: var(--archive-radius-xs);
-  /* Dormant is quiet, not absent.
-
-     At 0.62 brightness the artifact read as an empty case from normal
-     viewing distance — you had to lean in to see there was an object
-     at all. Resting brightness now sits high enough that the piece is
-     unmistakably present and lit, while playback still adds a clear
-     lift. The awake state gains MORE range than before, not less:
-     the gap between resting and sounding is preserved in saturation
-     and in the surrounding light rather than in exposure alone. */
-  filter: brightness(calc(0.88 + var(--v-energy) * 0.3)) saturate(calc(0.82 + var(--v-energy) * 0.5))
+  /* Dormant artwork is desaturated and dim. Playback restores it. */
+  filter: brightness(calc(0.62 + var(--v-energy) * 0.42)) saturate(calc(0.75 + var(--v-energy) * 0.45))
     contrast(1.04);
   transition: filter var(--archive-speed-slow) var(--archive-ease);
 }
@@ -415,19 +554,15 @@
    Museum wall text. Sits beneath the case, centred, tiny.
 ========================================================== */
 
-/* The caption belongs to the case.
-
-   It sat --archive-space-xl away, which pushed it into the console's
-   band and out of the exhibit. A wall label in a gallery is mounted
-   close to the work it describes — the tighter gap both reads as
-   more deliberate and brings the complete exhibit onto one screen. */
+/* More air between the case and its label, and between the lines of
+   the label itself. A wall caption stands apart from the work. */
 .vitrine__label {
   position: relative;
   z-index: 2;
   display: grid;
   justify-items: center;
-  gap: var(--archive-space-2xs);
-  margin-top: var(--archive-space-md);
+  gap: var(--archive-space-xs);
+  margin-top: var(--archive-space-xl);
   text-align: center;
 }
 
@@ -435,10 +570,6 @@
    else: magenta is the light inside the object, cyan means the
    artifact is sounding. A catalogue number is neither — it is
    quiet authority. */
-.vitrine__catalog:empty {
-  display: none;
-}
-
 .vitrine__catalog {
   font-size: var(--archive-type-micro);
   font-weight: var(--archive-weight-medium);
@@ -489,30 +620,14 @@
 .vitrine__monument {
   position: relative;
   z-index: 2;
-  margin-bottom: var(--archive-space-md);
+  margin-bottom: var(--archive-space-xl);
   text-align: center;
 }
 
-/* Deliberately NOT --archive-type-monument here.
-
-   At the monument scale the wordmark ran to two lines and occupied
-   345px of an 828px viewport, pushing the case entirely below the
-   fold — the name of the archive was outranking the artifact it
-   exists to show. This sits it on one line and hands the screen
-   back to the case. The tracking still carries the authority. */
-/* A masthead, not a monument.
-
-   The artifact must be the first thing the eye lands on. At the old
-   size the wordmark was large, pure white and wide-tracked at the top
-   of the page — it won the first look every time, and the case only
-   got the second. Dropping the scale and easing the contrast makes it
-   read as the name plate above the case rather than as the headline.
-   The tracking still carries the authority; it no longer shouts. */
 .vitrine__wordmark {
   margin: 0;
   font-family: var(--archive-font-display);
-  font-size: clamp(0.9375rem, 1.7vw, 1.4375rem);
-  color: var(--archive-text-subtle);
+  font-size: var(--archive-type-monument);
   font-weight: var(--archive-weight-light);
   line-height: var(--archive-leading-tight);
   letter-spacing: var(--archive-track-monument);
@@ -523,17 +638,14 @@
   color: var(--archive-text);
 }
 
-/* One line, not two. The second line cost 22px of exhibit height and
-   added nothing — a standfirst that wraps reads as a paragraph
-   rather than as a subtitle. */
 .vitrine__standfirst {
-  margin: var(--archive-space-2xs) auto 0;
-  max-width: 72ch;
+  margin: var(--archive-space-md) auto 0;
+  max-width: 46ch;
   font-size: var(--archive-type-micro);
-  letter-spacing: 0.16em;
+  letter-spacing: var(--archive-track-label);
   text-transform: uppercase;
-  color: var(--archive-text-faint);
-  line-height: 1.6;
+  color: var(--archive-text-subtle);
+  line-height: 2;
 }
 
 /* ==========================================================
@@ -602,3 +714,63 @@
     transform: none;
   }
 }
+
+body{margin:0;background:var(--archive-bg);color:var(--archive-text);font-family:Inter,system-ui,sans-serif}
+.pv{padding:24px 32px;font-size:11px;letter-spacing:var(--archive-track-label);
+ text-transform:uppercase;color:var(--archive-text-faint)}
+.vitrine{--v-energy:0;--v-bass:0;--v-air:0}
+#awake{--v-energy:.62;--v-bass:.55;--v-air:.4}
+</style></head><body>
+<p class="pv">Vitrine · dormant</p>
+
+<section class="vitrine archive-shell is-loaded is-idle" >
+  <div class="vitrine__room" aria-hidden="true"></div>
+  <div class="vitrine__floor" aria-hidden="true"></div>
+  <div class="vitrine__monument">
+    <h1 class="vitrine__wordmark">Ruud Boy Archives</h1>
+    <p class="vitrine__standfirst">Original artifacts, catalogued and held for modern artists</p>
+  </div>
+  <div class="vitrine__stage">
+    <div class="vitrine__case">
+      <div class="vitrine__glass" aria-hidden="true"></div>
+      <div class="vitrine__artifact">
+        <div class="vitrine__core" aria-hidden="true"></div>
+        <div class="vitrine__fractures" aria-hidden="true"></div>
+        <img class="vitrine__art" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><defs><radialGradient id='g' cx='38%25' cy='30%25'><stop offset='0%25' stop-color='%233a1550'/><stop offset='60%25' stop-color='%23140a1e'/><stop offset='100%25' stop-color='%23070709'/></radialGradient></defs><rect width='400' height='400' fill='url(%23g)'/></svg>" alt="">
+      </div>
+      <div class="vitrine__plinth" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="vitrine__label">
+    <div class="vitrine__catalog">Archive 0417</div>
+    <h2 class="vitrine__title">Vantablack Cathedral</h2>
+    <div class="vitrine__meta"><span>142 BPM</span><span>F# min</span><span>Cavernous</span></div>
+  </div>
+</section>
+<p class="pv">Vitrine · sounding</p>
+
+<section class="vitrine archive-shell is-loaded is-awake" id="awake">
+  <div class="vitrine__room" aria-hidden="true"></div>
+  <div class="vitrine__floor" aria-hidden="true"></div>
+  <div class="vitrine__monument">
+    <h1 class="vitrine__wordmark">Ruud Boy Archives</h1>
+    <p class="vitrine__standfirst">Original artifacts, catalogued and held for modern artists</p>
+  </div>
+  <div class="vitrine__stage">
+    <div class="vitrine__case">
+      <div class="vitrine__glass" aria-hidden="true"></div>
+      <div class="vitrine__artifact">
+        <div class="vitrine__core" aria-hidden="true"></div>
+        <div class="vitrine__fractures" aria-hidden="true"></div>
+        <img class="vitrine__art" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><defs><radialGradient id='g' cx='38%25' cy='30%25'><stop offset='0%25' stop-color='%233a1550'/><stop offset='60%25' stop-color='%23140a1e'/><stop offset='100%25' stop-color='%23070709'/></radialGradient></defs><rect width='400' height='400' fill='url(%23g)'/></svg>" alt="">
+      </div>
+      <div class="vitrine__plinth" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="vitrine__label">
+    <div class="vitrine__catalog">Archive 0417</div>
+    <h2 class="vitrine__title">Vantablack Cathedral</h2>
+    <div class="vitrine__meta"><span>142 BPM</span><span>F# min</span><span>Cavernous</span></div>
+  </div>
+</section>
+</body></html>

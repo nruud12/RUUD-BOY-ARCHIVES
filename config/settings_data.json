@@ -29,6 +29,8 @@
     "type_case_h6": "uppercase",
     "page_background_color": "{{ settings.color_palette.background }}",
     "card_hover_effect": "subtle-zoom",
+    "quick_add": false,
+    "mobile_quick_add": false,
     "badge_sale_background_color": "{{ settings.color_palette.color1 }}",
     "badge_sale_text_color": "{{ settings.color_palette.background }}",
     "badge_sold_out_background_color": "{{ settings.color_palette.foreground }}",
@@ -73,11 +75,11 @@
     "variant_button_width": "equal-width-buttons",
     "content_for_index": [],
     "color_palette": {
-      "background": "#ffffff",
-      "foreground": "#000000",
-      "color1": "#39FF14",
-      "color2": "#e8d5c7",
-      "color3": "#e6e6e6"
+      "background": "#050505",
+      "foreground": "#ffffff",
+      "color1": "#0b0b0b",
+      "color2": "#121212",
+      "color3": "#1a1a1a"
     }
   },
   "presets": {
@@ -139,10 +141,10 @@
       "variant_button_radius": 0,
       "variant_button_width": "equal-width-buttons",
       "color_palette": {
-        "background": "#ffffff",
-        "foreground": "#000000",
+        "background": "#050505",
+        "foreground": "#ffffff",
         "color1": "#a42325",
-        "color2": "#e8d5c7",
+        "color2": "#121212",
         "color3": "#E6E6E6"
       }
     }

@@ -712,10 +712,15 @@
    beyond sizing the frame it sits in.
 ========================================================== */
 
+/* The artifact is the hero. The case takes the golden section of the
+   composition — 61.8% against 38.2% — so the artwork dominates and
+   commerce sits in the smaller column until the visitor turns to it. */
 .archive-deck {
   --deck-gap: var(--archive-space-2xl);
-  --deck-case: minmax(0, 1fr);
+  --deck-case: minmax(0, 1.618fr);
   --deck-panel: minmax(0, 1fr);
+
+  font-family: var(--archive-font-body);
 
   display: grid;
   grid-template-columns: var(--deck-case) var(--deck-panel);
@@ -753,7 +758,7 @@
    frame is constrained rather than the case being restyled. */
 .archive-deck__stage .vitrine__stage {
   width: 100%;
-  max-width: 560px;
+  max-width: 760px;
   aspect-ratio: 1;
 }
 
@@ -767,11 +772,11 @@
   padding: var(--archive-space-2xs) var(--archive-space-md)
     var(--archive-space-2xs) var(--archive-space-2xs);
 
-  border: 1px solid var(--archive-line);
+  border: none;
   border-radius: var(--archive-radius-pill);
 
   background: var(--archive-surface);
-  color: var(--archive-text);
+  color: var(--archive-text-muted);
 
   font-size: var(--archive-type-micro);
   letter-spacing: var(--archive-track-label);
@@ -786,12 +791,12 @@
 }
 
 .archive-deck__audition:hover {
-  border-color: var(--archive-cyan-24);
-  color: var(--archive-cyan);
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
 }
 
 .archive-deck.is-playing .archive-deck__audition {
-  border-color: var(--archive-cyan-24);
+  background: var(--archive-surface-raised);
   color: var(--archive-cyan);
 }
 
@@ -834,42 +839,64 @@
    IDENTITY
 ---------------------------------------------------------- */
 
+/* Wider rhythm than the case side. The panel reads top-to-bottom as
+   identity → specification → terms, and each needs air between it
+   and the next or the column reads as a form. */
 .archive-deck__panel {
   display: flex;
   flex-direction: column;
-  gap: var(--archive-space-lg);
+  gap: var(--archive-space-xl);
   min-width: 0;
+  padding-block: var(--archive-space-md);
 }
 
+/* The wall label above the title. Cyan, but at low opacity — an
+   accession number is quiet authority, not a highlight. */
 .archive-deck__catalog {
-  margin: 0 0 var(--archive-space-2xs);
+  margin: 0 0 var(--archive-space-sm);
 
   font-size: var(--archive-type-micro);
   letter-spacing: var(--archive-track-label);
   text-transform: uppercase;
   color: var(--archive-cyan);
+  opacity: 0.72;
 }
 
+/* Raleway, uppercase, wide tracking. This is the single line that
+   makes the page read as a museum rather than a storefront — the
+   tracking does the work, not the typeface.
+
+   --archive-type-title, not --archive-type-display: display tops out
+   at 5rem, and at that size an uppercase title with 0.1em tracking
+   breaks into three lines inside a half-width column. The monument
+   scale belongs to the homepage wordmark, not to every artifact. */
 .archive-deck__title {
   margin: 0;
 
-  font-size: var(--archive-type-display);
+  font-family: var(--archive-font-display);
+  font-size: var(--archive-type-title);
   font-weight: var(--archive-weight-light);
-  line-height: var(--archive-leading-tight);
+  line-height: var(--archive-leading-snug);
   letter-spacing: var(--archive-track-display);
   text-transform: uppercase;
 
   color: var(--archive-text);
+  text-wrap: balance;
 }
 
 /* --- Specification table --- */
 
+/* A catalogue card's specification block. Laid out as a wrapping
+   row rather than an auto-fit grid: auto-fit stretched columns to
+   equal widths, which put "F# min" and "Cavernous" on the same
+   measure and read as a pricing table. Intrinsic widths with a
+   wide gutter read as a specimen label. */
 .archive-deck__spec {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(96px, auto));
-  gap: var(--archive-space-sm) var(--archive-space-lg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--archive-space-sm) var(--archive-space-xl);
 
-  margin: var(--archive-space-md) 0 0;
+  margin: var(--archive-space-lg) 0 0;
 }
 
 .archive-deck__spec-item {
@@ -888,9 +915,11 @@
 
 .archive-deck__spec dd {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--archive-type-body);
+  line-height: var(--archive-leading-snug);
   color: var(--archive-text);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* ----------------------------------------------------------
@@ -901,16 +930,32 @@
    like Horizon everywhere except here.
 ---------------------------------------------------------- */
 
+/* Separated by space, not a rule. The design brief is explicit that
+   hierarchy comes from --archive-space-* and nothing else; the only
+   borders that survive elsewhere in the system are there because
+   glass has edges. A divider here would be decoration. */
 .archive-deck__licence {
   display: flex;
   flex-direction: column;
   gap: var(--archive-space-md);
 
-  padding-top: var(--archive-space-md);
-  border-top: 1px solid var(--archive-line);
+  margin-top: var(--archive-space-md);
 }
 
-/* Option group heading — "Licence" reads as a wall label. */
+/* The one restricted-register moment on the page. Sized as a wall
+   label, not a section heading — it announces a condition of access,
+   it does not shout. */
+.archive-deck__licence-heading {
+  margin: 0;
+
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+}
+
+/* Option group heading — reads as a wall label. */
 .archive-deck__licence .variant-option legend,
 .archive-deck__licence .variant-option__swatch-value {
   font-size: var(--archive-type-micro);
@@ -938,15 +983,21 @@
   gap: var(--archive-space-sm);
 
   width: 100%;
-  min-height: 52px;
+  min-height: 56px;
   padding: var(--archive-space-2xs) var(--archive-space-sm);
   margin: 0;
 
-  border: 1px solid var(--archive-line);
+  /* No outline box. A tier is a shelf in the case: it reads as a
+     surface lifted out of the background, and the selected one is
+     marked by light rather than by a heavier frame. */
+  border: none;
   border-radius: var(--archive-radius-md);
 
   background: var(--archive-surface);
   color: var(--archive-text-muted);
+
+  position: relative;
+  overflow: hidden;
 
   font-size: 14px;
   letter-spacing: var(--archive-track-body);
@@ -961,22 +1012,62 @@
 }
 
 .archive-deck__licence .variant-option__button-label:hover {
-  border-color: var(--archive-line-strong);
   background: var(--archive-surface-raised);
   color: var(--archive-text);
 }
 
-/* Selected tier. Light, not paint. */
-.archive-deck__licence input:checked + .variant-option__button-label,
-.archive-deck__licence .variant-option__button-label[aria-checked='true'] {
-  border-color: var(--archive-cyan-24);
+/* Horizon nests the <input> INSIDE this label, so :has() is the only
+   way to reach the checked state — an adjacent-sibling selector never
+   matches. It also draws a fake border with ::before. Rather than add
+   a competing pseudo-element, we repurpose theirs: no box at rest, a
+   single lit edge down the leading side when the edition is selected.
+   Same cyan the case uses for "currently sounding". */
+.archive-deck__licence .variant-option__button-label::before {
+  border: none;
+  border-inline-start: 2px solid transparent;
+  inset: 0;
+  transition: border-color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-deck__licence .variant-option__button-label:has(:checked) {
   background: var(--archive-surface-raised);
   color: var(--archive-text);
 }
 
-.archive-deck__licence input:focus-visible + .variant-option__button-label {
+.archive-deck__licence .variant-option__button-label:has(:checked)::before {
+  border-inline-start-color: var(--archive-cyan);
+}
+
+.archive-deck__licence .variant-option__button-label:has(:focus-visible) {
   outline: 2px solid var(--archive-cyan);
   outline-offset: 2px;
+}
+
+/* Editions, not options. A faint roman numeral turns a list of
+   variants into a run of editions of the same artifact. */
+.archive-deck__licence .variant-option--buttons {
+  counter-reset: edition;
+}
+
+.archive-deck__licence .variant-option__button-label {
+  counter-increment: edition;
+}
+
+.archive-deck__licence .variant-option__button-label__text::before {
+  content: counter(edition, upper-roman);
+
+  display: inline-block;
+  width: 2.25em;
+
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  color: var(--archive-text-faint);
+
+  transition: color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-deck__licence .variant-option__button-label:has(:checked) .variant-option__button-label__text::before {
+  color: var(--archive-cyan);
 }
 
 /* Unavailable tiers stay legible — an archive shows what it has
@@ -987,12 +1078,17 @@
 
 /* --- Price --- */
 
+/* Quieter than the artifact title on purpose. At --archive-type-title
+   the price competed with the artwork for first read; commerce should
+   stay secondary until the visitor turns to it. */
 .archive-deck__licence .price,
 .archive-deck__licence .price-block {
-  font-size: var(--archive-type-title, 28px);
+  font-size: var(--archive-type-heading);
   font-weight: var(--archive-weight-light);
+  line-height: var(--archive-leading-snug);
   letter-spacing: var(--archive-track-body);
   color: var(--archive-text);
+  font-variant-numeric: tabular-nums;
 }
 
 /* --- Buy buttons --- */
@@ -1003,12 +1099,56 @@
   gap: var(--archive-space-2xs);
 }
 
+/* The one place the archive asks for something.
+
+   Quiet at rest — a control, not a banner — but full width and tall
+   enough to be unmistakably the action on the page. On hover the
+   cyan light rises through it, the same light the case uses when an
+   artifact sounds, so the purchase belongs to the interface rather
+   than sitting on top of it. */
 .archive-deck__licence .button {
+  width: 100%;
+  min-height: 60px;
+  padding-inline: var(--archive-space-md);
+
+  border: none;
   border-radius: var(--archive-radius-md);
+
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
+
+  font-family: var(--archive-font-display);
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
   letter-spacing: var(--archive-track-label);
   text-transform: uppercase;
-  font-size: var(--archive-type-micro);
-  min-height: 52px;
+
+  cursor: pointer;
+
+  transition:
+    background var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease),
+    box-shadow var(--archive-speed-slow) var(--archive-ease);
+}
+
+.archive-deck__licence .button:hover {
+  color: var(--archive-cyan);
+  background: var(--archive-surface-raised);
+  box-shadow:
+    inset 0 -1px 0 0 var(--archive-cyan-24),
+    0 0 32px -12px var(--archive-cyan-48);
+}
+
+.archive-deck__licence .button:focus-visible {
+  outline: 2px solid var(--archive-cyan);
+  outline-offset: 3px;
+}
+
+.archive-deck__licence .button[disabled] {
+  color: var(--archive-text-faint);
+  background: var(--archive-surface);
+  box-shadow: none;
+  cursor: default;
 }
 
 /* --- Description --- */
@@ -1122,26 +1262,10 @@ themselves are mocked, since Horizon's Liquid can't run here. Artwork is a place
       <div class="price">$49.00</div>
       <fieldset class="variant-option variant-option--buttons">
         <legend>Licence</legend>
-        <input type="radio" name="licence" id="MP3 Lease" hidden >
-      <label class="variant-option__button-label" for="MP3 Lease">
-        <span class="variant-option__button-label__text">MP3 Lease</span>
-        <span>$29.00</span>
-      </label>
-        <input type="radio" name="licence" id="WAV Lease" hidden checked>
-      <label class="variant-option__button-label" for="WAV Lease">
-        <span class="variant-option__button-label__text">WAV Lease</span>
-        <span>$49.00</span>
-      </label>
-        <input type="radio" name="licence" id="Trackout Stems" hidden >
-      <label class="variant-option__button-label" for="Trackout Stems">
-        <span class="variant-option__button-label__text">Trackout Stems</span>
-        <span>$99.00</span>
-      </label>
-        <input type="radio" name="licence" id="Exclusive Rights" hidden >
-      <label class="variant-option__button-label variant-option__button-label--unavailable" for="Exclusive Rights">
-        <span class="variant-option__button-label__text">Exclusive Rights</span>
-        <span>Sold</span>
-      </label>
+        <label class="variant-option__button-label"><input type="radio" name="licence" hidden ><span class="variant-option__button-label__text">MP3 Lease</span><span>$29.00</span></label>
+        <label class="variant-option__button-label"><input type="radio" name="licence" hidden checked><span class="variant-option__button-label__text">WAV Lease</span><span>$49.00</span></label>
+        <label class="variant-option__button-label"><input type="radio" name="licence" hidden ><span class="variant-option__button-label__text">Trackout Stems</span><span>$99.00</span></label>
+        <label class="variant-option__button-label variant-option__button-label--unavailable"><input type="radio" name="licence" hidden ><span class="variant-option__button-label__text">Exclusive Rights</span><span>Sold</span></label>
       </fieldset>
       <div class="buy-buttons-block">
         <button class="button">Add to cart</button>
