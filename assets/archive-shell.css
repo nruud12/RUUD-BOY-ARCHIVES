@@ -279,6 +279,63 @@ html:has(.archive-os) {
   opacity: 0.45;
 }
 
+/* Facet dropdowns (Availability, Price, BPM, Mood, Key) — the popover
+   surface Horizon floats under each facet label. Same glass/line
+   vocabulary as every other pane in the room instead of the stock
+   popover chrome (theme-setting radius, generic drop shadow). Scoped
+   to the horizontal desktop popover, which is the only place this
+   floating box exists — the mobile/vertical drawer renders the same
+   content inline with no card around it. */
+.archive-os .facets--horizontal .facets__panel-content {
+  background-color: var(--archive-surface-raised);
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-xs);
+  box-shadow: var(--archive-shadow-rest);
+}
+
+/* Facet value pills (BPM, Key — any facet whose values are short
+   enough that Horizon renders them as pills instead of checkboxes).
+   Horizon's default is a rounded-pill SaaS button; the archive has one
+   button language already (see "8. BUTTONS & LINKS") — a hairline
+   outline that fills with light on hover — so the pill borrows it
+   rather than inventing a second control style. Selection is shown by
+   inverting fill, the same convention used for a checked checkbox. */
+.archive-os .facets__pill-label {
+  border-radius: var(--archive-radius-xs);
+  box-shadow: none;
+  border: 1px solid var(--archive-line-strong);
+  color: var(--archive-text-subtle);
+  background-color: transparent;
+  transition:
+    border-color var(--archive-speed) var(--archive-ease),
+    background-color var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-os .facets__pill-input:not(:checked) + .facets__pill-label:hover {
+  border-color: var(--archive-magenta-64);
+  background-color: var(--archive-magenta-08);
+  color: var(--archive-text);
+}
+
+.archive-os .facets__pill-input:checked + .facets__pill-label {
+  border-color: var(--archive-text);
+  background-color: var(--archive-text);
+  color: var(--archive-bg);
+}
+
+/* Per-filter and clear-all actions read as chrome-heavy buttons under
+   Horizon's default skin. They are quiet finding-aid text everywhere
+   else in the archive (see the predictive-search clear button in
+   "11. SEARCH"); give them the same treatment here. */
+.archive-os .clear-filter,
+.archive-os .facets__clear-all-link,
+.archive-os .facets__clear-all {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 /* A room title that opens a page needs to clear the sticky header.
    Mid-page the standard measure is enough; at the top it is not, and
    the caption collided with the navigation. */
