@@ -1,0 +1,102 @@
+{%- comment -%}
+  ==========================================================
+  ARCHIVEOS — THE PRESERVATION SANCTUM
+  RUUD BOY ARCHIVES
+
+  The architectural room the archive stands in. Built from seven
+  registered production PNG layers (1536×1024, same canvas) — this
+  section composites them; it does not draw anything. The Archive
+  Seal / RB-001 plaque is already rendered into the back-wall plate
+  and is not recreated here.
+
+  STATUS: structural milestone. Isolated component, not linked from
+  any template — preview by adding it via the theme editor without
+  saving. Does not replace hero-v2. Does not touch playback beyond
+  reading the existing archive:trackchange / archive:play /
+  archive:pause events archive-player.js already emits.
+
+  Files:
+    sections/archive-sanctum.liquid
+    assets/archive-sanctum.css
+    assets/archive-sanctum.js
+  ==========================================================
+{%- endcomment -%}
+
+{%- comment -%} Self-contained: loads only on pages where this section is actually placed, not sitewide via snippets/stylesheets.liquid. {%- endcomment -%}
+{{ 'archive-sanctum.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'archive-sanctum.js' | asset_url }}" defer></script>
+
+<div class="archive-sanctum" data-sanctum aria-hidden="true">
+  <div class="archive-sanctum__frame">
+    <img
+      class="archive-sanctum__layer archive-sanctum__layer--wall"
+      src="{{ 'sanctum-back-wall.png' | asset_url }}"
+      width="1536"
+      height="1024"
+      alt=""
+      loading="lazy"
+    >
+    <img
+      class="archive-sanctum__layer archive-sanctum__layer--columns"
+      src="{{ 'sanctum-columns.png' | asset_url }}"
+      width="1536"
+      height="1024"
+      alt=""
+      loading="lazy"
+    >
+    <img
+      class="archive-sanctum__layer archive-sanctum__layer--floor"
+      src="{{ 'sanctum-memory-floor.png' | asset_url }}"
+      width="1536"
+      height="1024"
+      alt=""
+      loading="lazy"
+    >
+    <img
+      class="archive-sanctum__layer archive-sanctum__layer--light-shafts"
+      src="{{ 'sanctum-atmosphere-light-shafts.png' | asset_url }}"
+      width="1536"
+      height="1024"
+      alt=""
+      loading="lazy"
+    >
+    <img
+      class="archive-sanctum__layer archive-sanctum__layer--haze"
+      src="{{ 'sanctum-atmosphere-haze.png' | asset_url }}"
+      width="1536"
+      height="1024"
+      alt=""
+      loading="lazy"
+    >
+    <img
+      class="archive-sanctum__layer archive-sanctum__layer--dust"
+      src="{{ 'sanctum-atmosphere-dust.png' | asset_url }}"
+      width="1536"
+      height="1024"
+      alt=""
+      loading="lazy"
+    >
+    <img
+      class="archive-sanctum__layer archive-sanctum__layer--particles"
+      src="{{ 'sanctum-atmosphere-particles.png' | asset_url }}"
+      width="1536"
+      height="1024"
+      alt=""
+      loading="lazy"
+    >
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Sanctum",
+  "tag": "section",
+  "class": "section-archive-sanctum",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Sanctum"
+    }
+  ]
+}
+{% endschema %}

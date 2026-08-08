@@ -1,0 +1,181 @@
+/* ==========================================================
+   ARCHIVEOS — THE PRESERVATION SANCTUM
+   RUUD BOY ARCHIVES
+
+   The architectural room the archive stands in before an artifact
+   is retrieved. Built from seven registered photographic layers
+   (1536×1024, same canvas) supplied as production art — this file
+   composites and lights them. It does not draw the room.
+
+   Structural milestone only: static composition + a single reactive
+   light-spill hook wired to the existing playback bus. No parallax,
+   no ambient drift, no atmosphere re-ordering yet — those are tuned
+   visually once the assembled stack has been reviewed.
+
+   Values come from archive-tokens.css. No new token vocabulary is
+   introduced here — see "6. ENVIRONMENT" in that file for the light,
+   glass and motion tokens this composes.
+
+   Isolated component. Not linked from any template. Preview by
+   adding the section via the theme editor without saving.
+========================================================== */
+
+.archive-sanctum {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2; /* the source layers' registered 1536×1024 canvas */
+  overflow: hidden;
+  background-color: var(--archive-void);
+
+  /* Contains mix-blend-mode on the atmosphere layers to this stacking
+     context only — it must not blend with anything outside the room. */
+  isolation: isolate;
+
+  /* Grade the whole composite as one room rather than seven flat
+     layers. Applied to the container (after everything underneath has
+     been composited) so it reads as ambient light falloff, not a
+     per-layer edit — the seven source canvases are untouched. */
+  --sanctum-grade-brightness: 0.82;
+  --sanctum-grade-saturate: 0.86;
+  filter: brightness(var(--sanctum-grade-brightness)) saturate(var(--sanctum-grade-saturate));
+}
+
+.archive-sanctum__frame {
+  position: absolute;
+  inset: 0;
+}
+
+/* One rule for every layer's geometry; only paint order, opacity and
+   blend mode vary per layer below. Keeping geometry shared is what
+   keeps the seven canvases registered to each other. */
+.archive-sanctum__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ----------------------------------------------------------
+   STACK ORDER
+
+   Canonical for the base three (opaque wall → columns → floor).
+   The four atmosphere layers (4–7) are ordered here as a starting
+   point, not a locked decision — see the CSS custom properties
+   below, which exist so opacity can be tuned per layer without
+   hunting through the rule set.
+---------------------------------------------------------- */
+
+.archive-sanctum {
+  --sanctum-opacity-light-shafts: 0.85;
+  --sanctum-opacity-haze: 0.6;
+  --sanctum-opacity-dust: 0.5;
+  --sanctum-opacity-particles: 0.4;
+}
+
+.archive-sanctum__layer--wall {
+  z-index: 1;
+  /* Opaque base — carries the Archive Seal / RB-001 plaque already
+     rendered into the plate. Nothing else needs to draw it. */
+}
+
+.archive-sanctum__layer--columns {
+  z-index: 2;
+}
+
+.archive-sanctum__layer--floor {
+  z-index: 3;
+  /* The floor plate's own content (its far/near ellipse edge) starts
+     at ~33% down the 1536×1024 canvas — measured from the PNG's alpha
+     channel, not eyeballed — which overlaps the RB-001 seal baked into
+     the wall (crown through the "RB-001" text and its underline,
+     ending ~65% down, also measured, not eyeballed). Shifting the
+     whole layer down clears the seal while leaving the floor's own
+     geometry — its ellipse shape and perspective — pixel for pixel
+     untouched; only its position within the frame changes. A
+     percentage keeps this correct as the frame scales responsively. */
+  transform: translateY(33%);
+}
+
+.archive-sanctum__layer--light-shafts {
+  z-index: 4;
+  mix-blend-mode: screen;
+  opacity: var(--sanctum-opacity-light-shafts);
+}
+
+.archive-sanctum__layer--haze {
+  z-index: 5;
+  mix-blend-mode: screen;
+  opacity: var(--sanctum-opacity-haze);
+}
+
+.archive-sanctum__layer--dust {
+  z-index: 6;
+  mix-blend-mode: screen;
+  opacity: var(--sanctum-opacity-dust);
+}
+
+.archive-sanctum__layer--particles {
+  z-index: 7;
+  mix-blend-mode: screen;
+  opacity: var(--sanctum-opacity-particles);
+}
+
+/* ----------------------------------------------------------
+   REACTIVE LIGHT — the structural hook
+
+   RB-001's own spec: "the surrounding environment receives only a
+   soft light spill... energized, not glowing." --archive-light-
+   artifact-cast is the existing token for exactly this — the same
+   one the vitrine already casts into its room on playback. Sanctum
+   reuses it rather than inventing a second light source.
+
+   archive-sanctum.js toggles .is-awake on archive:play / archive:pause.
+   At rest this is fully transparent; nothing is visible until a track
+   is actually playing.
+---------------------------------------------------------- */
+
+.archive-sanctum::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background: radial-gradient(60% 50% at 50% 58%, var(--archive-light-artifact-cast), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--archive-motion-settle) var(--archive-ease);
+}
+
+.archive-sanctum.is-awake::after {
+  opacity: 1;
+  transition-duration: var(--archive-motion-illuminate);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-sanctum::after {
+    transition-duration: 1ms;
+  }
+}
+
+/* ----------------------------------------------------------
+   MOBILE
+
+   The brief: recompose, don't shrink the 3:2 frame proportionally
+   into a small rectangle. A taller portrait aspect keeps the room
+   feeling architectural instead of letterboxed, re-centred so the
+   seal on the back wall and the base of the columns both stay in
+   frame — the two elements the composition is built around.
+---------------------------------------------------------- */
+
+@media (max-width: 749px) {
+  .archive-sanctum {
+    aspect-ratio: 4 / 5;
+  }
+
+  .archive-sanctum__layer {
+    object-position: center 38%;
+  }
+}
