@@ -352,6 +352,16 @@
   outline-offset: 2px;
 }
 
+/* Horizon also renders a __pill child behind the checked label,
+   absolutely positioned to cover the row (variant-picker-styles.liquid:
+   background: var(--color-selected-variant-background)) — a theme
+   accent colour, solid magenta here, unrelated to the cyan-edge
+   selection state above. Horizon already sets pointer-events: none on
+   it, so it carries no behaviour; hiding it is purely cosmetic. */
+.archive-deck__licence .variant-option__button-label__pill {
+  display: none;
+}
+
 /* Editions, not options. A faint roman numeral turns a list of
    variants into a run of editions of the same artifact. */
 .archive-deck__licence .variant-option--buttons {
