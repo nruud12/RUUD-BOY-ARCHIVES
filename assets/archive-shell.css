@@ -531,6 +531,29 @@ html:has(.archive-os) {
   background: rgba(5, 5, 5, 0.9) !important;
 }
 
+/* Mobile menu drawer (snippets/header-drawer.liquid) carries a
+   merchant-configured color-custom-{id} background from the header
+   section's theme-editor settings, left at Horizon's white default —
+   the same class of leftover-demo-colour issue already cleaned out
+   elsewhere (see "3. DE-SHOPIFY"). Link text already resolves
+   correctly via .menu-drawer__menu-item above; only the panel itself
+   needs the canvas restored. Desktop nav is a separate component
+   (.mega-menu__link / .menu__item, styled above) and is unaffected. */
+.archive-os .menu-drawer {
+  background-color: var(--archive-bg);
+}
+
+/* Shared Horizon drawer heading (cart, mobile filters) renders in the
+   theme's stock Anton demo face via the generic .h4 utility — the same
+   face already swapped out everywhere else in the archive (see the
+   search-results heading in "11. SEARCH"). */
+.archive-os .theme-drawer__title {
+  font-family: var(--archive-font-display);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+}
+
 /* ==========================================================
    5. LAYOUT PRIMITIVES
 ========================================================== */
