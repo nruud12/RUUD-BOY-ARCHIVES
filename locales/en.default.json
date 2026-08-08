@@ -211,7 +211,7 @@
     "item_count_cutoff": "More than {{ count }} items",
     "language": "Language",
     "localization_region_and_language": "Region and language",
-    "no_products_found": "No products found.",
+    "no_products_found": "No artifacts match.",
     "no_results_found": "No results found",
     "page_placeholder_title": "Page title",
     "page_placeholder_content": "Select a page to display its content.",
@@ -294,7 +294,7 @@
     "taxes_included_shipping_at_checkout_without_policy": "Taxes included. Discounts and shipping calculated at checkout.",
     "taxes_included_shipping_at_checkout_without_policy_without_discounts": "Taxes included. Shipping is calculated at checkout.",
     "unavailable": "Unavailable",
-    "use_fewer_filters_html": "Try using fewer filters, or <a class=\"{{ class }}\" href=\"{{ link }}\">clear all filters</a>.",
+    "use_fewer_filters_html": "Return to <a class=\"{{ class }}\" href=\"{{ link }}\">the holdings</a>, or adjust the filters.",
     // Link or button to expand additional information
     "view_more_details": "View more details",
     "volume_pricing_available": "Volume pricing available",
