@@ -170,6 +170,28 @@
    frame — the two elements the composition is built around.
 ---------------------------------------------------------- */
 
+/* ----------------------------------------------------------
+   LABEL CLEARANCE — wall plaque, 768px band
+
+   Measured (not eyeballed): at 768px wide, once Sanctum fills a
+   composited vitrine's own box, the wall's baked plaque (crown
+   through "RB-001", ending ~65% down the layer) lands at the same
+   band as the vitrine's live wall label (measured at 60%–68% of
+   that box). Object-position's Y value has nothing to move here —
+   at this aspect the layer is already showing its full height with
+   no vertical crop to reposition — so the plaque is nudged up with
+   a transform instead, the same mechanism the floor layer already
+   uses above. Bracketed tightly around the 768px boundary alone so
+   it cannot reach 430px/390px, where no such collision exists, and
+   scoped to only take effect once Sanctum actually has a vitrine
+   label sibling — inert in the standalone theme-editor preview.
+---------------------------------------------------------- */
+@media (min-width: 700px) and (max-width: 768px) {
+  .archive-sanctum:has(~ .vitrine__label) .archive-sanctum__layer--wall {
+    transform: translateY(-8%);
+  }
+}
+
 @media (max-width: 768px) {
   .archive-sanctum {
     aspect-ratio: 4 / 5;
@@ -201,5 +223,37 @@
   .archive-sanctum__layer--columns {
     transform: scale(0.65);
     transform-origin: 50% 91%;
+  }
+}
+
+/* ----------------------------------------------------------
+   LABEL CLEARANCE — floor, desktop
+
+   Measured (not eyeballed): at 1440px wide, once Sanctum fills a
+   composited vitrine's own box, the floor's radial grid converges
+   at roughly 80% down that box — directly under the vitrine's wall
+   label (measured at 75%–85%). No existing token or layer already
+   handles this (--archive-light-artifact-cast is an additive,
+   playback-only glow, not a static dimmer), so this adds one
+   localized mask on the floor layer alone: the grid is quieted only
+   in the small zone the label actually occupies, staying at full
+   strength under the case/plinth and everywhere else. As with the
+   wall-plaque rule above, scoped to width and to only take effect
+   once a vitrine label sibling actually exists.
+---------------------------------------------------------- */
+@media (min-width: 769px) {
+  .archive-sanctum:has(~ .vitrine__label) .archive-sanctum__layer--floor {
+    mask-image: radial-gradient(
+      ellipse 32% 10% at 50% 47%,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      rgba(0, 0, 0, 1) 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 32% 10% at 50% 47%,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      rgba(0, 0, 0, 1) 100%
+    );
   }
 }
