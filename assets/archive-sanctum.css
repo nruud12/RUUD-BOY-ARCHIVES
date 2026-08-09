@@ -190,9 +190,16 @@
      matching where the crop is already centred) and to the columns'
      own base — ~91% down their canvas, also measured — so the
      pedestals stay grounded at the floor instead of the whole layer
-     shrinking toward the vertical middle of the frame. */
+     shrinking toward the vertical middle of the frame.
+
+     0.5 was the full-visibility threshold (both clusters entirely in
+     frame, zero cropping) but measured contrast against the wall
+     showed the limiting factor was size, not brightness — a bright
+     but small element. 0.65 trades a small edge crop of each
+     cluster's outermost column for meaningfully larger, more
+     prominent ones. */
   .archive-sanctum__layer--columns {
-    transform: scale(0.5);
+    transform: scale(0.65);
     transform-origin: 50% 91%;
   }
 }
