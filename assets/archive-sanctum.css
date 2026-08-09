@@ -178,4 +178,21 @@
   .archive-sanctum__layer {
     object-position: center 38%;
   }
+
+  /* At 4:5, cover crops the columns' 1536-wide canvas down to its
+     centre ~53% — measured, not eyeballed — which leaves only a
+     sliver of each column cluster (they sit at ~4%–31% and ~69%–96%
+     of that canvas) inside the visible window. Scaling the columns
+     layer alone brings both clusters inward until they clear the
+     crop, without touching the wall, seal or floor framing tuned
+     above. transform-origin anchors the scale to the frame's own
+     horizontal centre (so both clusters move inward symmetrically,
+     matching where the crop is already centred) and to the columns'
+     own base — ~91% down their canvas, also measured — so the
+     pedestals stay grounded at the floor instead of the whole layer
+     shrinking toward the vertical middle of the frame. */
+  .archive-sanctum__layer--columns {
+    transform: scale(0.5);
+    transform-origin: 50% 91%;
+  }
 }
