@@ -170,7 +170,7 @@
    frame — the two elements the composition is built around.
 ---------------------------------------------------------- */
 
-@media (max-width: 749px) {
+@media (max-width: 768px) {
   .archive-sanctum {
     aspect-ratio: 4 / 5;
   }
