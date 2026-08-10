@@ -4,9 +4,18 @@
  *
  * Three movements, nothing more:
  *
- *   1. vitrine        the artifact display case, full viewport
+ *   1. hero           the Preservation Sanctum, full viewport
  *   2. room_title     a wall caption
  *   3. recently_*     the catalogue wall
+ *
+ * Sanctum Hero: `hero` (archive-hero-v2, the Hero Player) has been
+ * replaced by the Sanctum (archive-sanctum) as the site's master
+ * first-viewport environment. Only one may occupy the "hero" slot.
+ * archive-hero-v2's section, CSS and JS all remain in the theme,
+ * unreferenced by this template, and the persistent transport deck
+ * (snippets/archive-player.liquid, rendered sitewide in
+ * layout/theme.liquid) is untouched — the swap is reversible by
+ * restoring the entry this replaced.
  *
  * The previous composition still carried the inherited Savor
  * demo content (a food-brand story section, a lime-green
@@ -21,14 +30,13 @@
  */
 {
   "sections": {
-    "vitrine": {
-      "type": "archive-vitrine",
+    "hero": {
+      "type": "archive-sanctum",
       "settings": {
-        "default_artifact": "abyss",
-        "show_wordmark": true,
-        "wordmark": "Ruud Boy Archives",
-        "standfirst": "Original artifacts, catalogued and held for modern artists",
-        "empty_title": "Awaiting selection"
+        "tagline": "PRESERVE. HONOR. SHARE.",
+        "artifact_label": "RB-001",
+        "cta_label": "ENTER ARCHIVE",
+        "cta_link": "/collections/all"
       }
     },
     "room_title": {
@@ -138,5 +146,5 @@
       }
     }
   },
-  "order": ["vitrine", "room_title", "recently_catalogued"]
+  "order": ["hero", "room_title", "recently_catalogued"]
 }

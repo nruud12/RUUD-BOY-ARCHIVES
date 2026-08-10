@@ -257,3 +257,285 @@
     );
   }
 }
+
+/* ==========================================================
+   THE HERO WRAPPER
+
+   Everything above this line composes the seven-layer room and is
+   unchanged from the structural milestone. What follows only adds a
+   viewport-filling frame, a focal-point light and a content layer
+   around that room — it never edits a layer's own geometry, opacity
+   or blend mode.
+
+   Gold is scoped entirely to this wrapper (channel triple, same
+   convention archive-tokens.css uses for its own light sources) so
+   no ArchiveOS magenta/cyan enters the room. archive-tokens.css
+   itself is untouched.
+========================================================== */
+
+.archive-sanctum-hero {
+  --sanctum-gold-rgb: 196 162 92;
+
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--archive-void);
+  min-height: 100svh;
+  min-height: 100vh; /* fallback for browsers without svh */
+}
+
+/* Desktop/default: the room fills the whole first viewport edge to
+   edge. object-fit: cover on every layer (already set above) means
+   this never introduces horizontal overflow — it crops, it does not
+   stretch or letterbox sideways. */
+.archive-sanctum-hero .archive-sanctum {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+/* Mobile: restore the room's own tuned aspect-ratio/crop instead of
+   stretching it to fill the full viewport height. The 4:5 recompose
+   and column scale a few blocks up were measured against that exact
+   box — forcing it taller would crop the columns back out of frame.
+   The room sits at the top of the hero; the void below it is the
+   room's own background colour, read as the floor fading into dark. */
+@media (max-width: 768px) {
+  .archive-sanctum-hero .archive-sanctum {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: auto;
+    /* The desktop rule above sets aspect-ratio: auto at the same
+       specificity (.archive-sanctum-hero .archive-sanctum), which
+       otherwise wins over the base file's mobile aspect-ratio: 4/5
+       even inside this query. Without it re-asserted here, height:
+       auto has nothing to derive a height from — .archive-sanctum__frame
+       is absolutely positioned and contributes no intrinsic size — and
+       the room collapses to 0 height. */
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* Three light sources, one narrative: the crest is lit from within
+   (it is the room's emblem and stays a clear focal point on its
+   own), a faint beam falls from the ceiling, and the platform pools
+   the brightest — the stage the beam is aimed at. All three are
+   gradients on one element; nothing here is a new image asset. */
+.archive-sanctum-hero__spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 30% 22% at 50% 33%, rgb(var(--sanctum-gold-rgb) / 0.14), transparent 70%),
+    radial-gradient(ellipse 16% 55% at 50% -5%, rgb(var(--sanctum-gold-rgb) / 0.1), transparent 65%),
+    radial-gradient(ellipse 46% 32% at 50% 63%, rgb(var(--sanctum-gold-rgb) / 0.2), transparent 72%);
+  animation: sanctum-hero-breathe var(--archive-ambient-breath, 11s) ease-in-out infinite alternate;
+}
+
+@keyframes sanctum-hero-breathe {
+  from {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Very slow atmospheric drift, hero context only — the standalone
+   preview keeps the static composition it shipped with. Movement is
+   a fraction of the layer's own size, over the better part of a
+   minute and a half; it should read as air moving, not as an
+   effect. */
+@media (prefers-reduced-motion: no-preference) {
+  .archive-sanctum-hero .archive-sanctum__layer--haze {
+    animation: sanctum-hero-drift-haze 72s ease-in-out infinite alternate;
+  }
+
+  .archive-sanctum-hero .archive-sanctum__layer--dust {
+    animation: sanctum-hero-drift-dust 96s ease-in-out infinite alternate;
+  }
+
+  .archive-sanctum-hero .archive-sanctum__layer--particles {
+    animation: sanctum-hero-drift-particles 120s linear infinite alternate;
+  }
+}
+
+@keyframes sanctum-hero-drift-haze {
+  from {
+    transform: translate3d(-0.6%, 0, 0) scale(1.015);
+  }
+  to {
+    transform: translate3d(0.6%, 0, 0) scale(1.03);
+  }
+}
+
+@keyframes sanctum-hero-drift-dust {
+  from {
+    transform: translate3d(0, -0.8%, 0);
+  }
+  to {
+    transform: translate3d(0, 0.8%, 0);
+  }
+}
+
+@keyframes sanctum-hero-drift-particles {
+  from {
+    transform: translate3d(-0.4%, -0.4%, 0);
+  }
+  to {
+    transform: translate3d(0.4%, 0.4%, 0);
+  }
+}
+
+/* ----------------------------------------------------------
+   SCRIM
+
+   The masthead was shrunk and moved clear of the crest (see the
+   wordmark below), so this no longer needs to hide anything — the
+   crest's own engraving is meant to be visible again, as the room's
+   focal emblem. What is left is a plain cinematic vignette: corners
+   and edges recede a little, the crest-to-platform column down the
+   centre stays brightest.
+---------------------------------------------------------- */
+
+.archive-sanctum-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 60% at 50% 46%, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+/* ----------------------------------------------------------
+   CONTENT LAYER
+
+   Masthead is just the tagline now, sitting in the dark architecture
+   above the crest — no separate heading; the wall plate's own
+   engraving beneath the crest carries "RUUD BOY ARCHIVES" already,
+   so nothing here duplicates it. Foot sits close enough to the
+   persistent transport deck that the two read as one continuous
+   piece of furniture — RB-001 and the button introduce the console
+   below them rather than floating in a separate block of void. The
+   space between is left to the crest, the platform and the
+   spotlight; that column is the focal point, not the copy.
+---------------------------------------------------------- */
+
+.archive-sanctum-hero__content {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  padding-inline: var(--archive-gutter);
+  padding-block-start: calc(var(--archive-space-md) + var(--header-height, 90px));
+  padding-block-end: calc(var(--archive-space-md) + var(--archive-player-clearance, 104px));
+  pointer-events: none;
+}
+
+.archive-sanctum-hero__masthead,
+.archive-sanctum-hero__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* No .archive-sanctum-hero__wordmark rule here on purpose — the
+   foreground heading it styled was removed. The wall plate's own
+   engraving beneath the crest carries "RUUD BOY ARCHIVES" now; nothing
+   duplicates it in the content layer. */
+.archive-sanctum-hero__tagline {
+  margin: 0;
+  font-family: var(--archive-font-body);
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: rgb(var(--sanctum-gold-rgb) / 0.92);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
+  animation: sanctum-hero-reveal var(--archive-motion-reveal) var(--archive-ease) both;
+}
+
+.archive-sanctum-hero__artifact {
+  display: flex;
+  align-items: center;
+  gap: var(--archive-space-xs);
+  margin: 0 0 var(--archive-space-md);
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
+  animation: sanctum-hero-reveal var(--archive-motion-reveal) var(--archive-ease) 160ms both;
+}
+
+.archive-sanctum-hero__artifact-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--archive-radius-pill);
+  background: rgb(var(--sanctum-gold-rgb) / 0.9);
+}
+
+.archive-sanctum-hero__cta {
+  pointer-events: auto;
+  border-color: rgb(var(--sanctum-gold-rgb) / 0.4);
+  animation: sanctum-hero-reveal var(--archive-motion-reveal) var(--archive-ease) 220ms both;
+}
+
+.archive-sanctum-hero__cta:hover {
+  border-color: rgb(var(--sanctum-gold-rgb) / 0.85);
+  background-color: rgb(var(--sanctum-gold-rgb) / 0.1);
+  color: rgb(var(--sanctum-gold-rgb) / 1);
+}
+
+/* .archive-os :focus-visible stays the sitewide magenta — focus is
+   an accessibility signal, not a room accent, and it is the one
+   place the house rules already say the accent may shout. Not
+   overridden here on purpose. */
+
+@keyframes sanctum-hero-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-sanctum-hero__spotlight {
+    animation: none;
+    opacity: 1;
+  }
+
+  .archive-sanctum-hero__tagline,
+  .archive-sanctum-hero__artifact,
+  .archive-sanctum-hero__cta {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ----------------------------------------------------------
+   MOBILE CONTENT
+
+   Same content, same tight rhythm as desktop now that the masthead
+   is small — the room itself no longer fills the full height (see
+   the mobile room override above), so the foot naturally sits over
+   the void beneath it rather than over the room's own imagery.
+---------------------------------------------------------- */
+@media (max-width: 768px) {
+  .archive-sanctum-hero__content {
+    padding-block-start: calc(var(--archive-space-sm) + var(--header-height, 90px));
+    padding-block-end: calc(var(--archive-space-sm) + var(--archive-player-clearance, 104px));
+  }
+}
