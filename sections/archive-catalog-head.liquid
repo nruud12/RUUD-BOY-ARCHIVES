@@ -43,6 +43,28 @@
   </div>
 </div>
 
+{%- comment -%}
+  Horizon renders every custom section with a default background
+  drawn from settings.color_palette.background (white on this
+  store) unless a section explicitly overrides it — the same
+  pattern already traced through templates/collection.json's
+  "main" section and "filters" block. This section has no
+  background_color setting of its own, so it inherited that
+  default and rendered as a plain white Shopify panel.
+
+  Scoped to .section-archive-catalog-head — the class this
+  section's own schema already puts on its wrapper (see "class"
+  below) — so the fix cannot reach any other section. !important
+  is necessary because Horizon's default is applied with at least
+  the same specificity (frequently as an inline style), which a
+  plain override would lose to.
+{%- endcomment -%}
+{% stylesheet %}
+  .section-archive-catalog-head {
+    background-color: var(--archive-bg) !important;
+  }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "Archive Catalog Head",
