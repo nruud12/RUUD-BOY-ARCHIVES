@@ -73,6 +73,13 @@
         "padding-block-end": 32
       }
     },
+    "artifact_head": {
+      "type": "archive-catalog-head",
+      "settings": {
+        "eyebrow": "The Holdings",
+        "title": "The Artifact"
+      }
+    },
     "main": {
       "type": "main-collection",
       "blocks": {
@@ -159,6 +166,7 @@
   },
   "order": [
     "section",
+    "artifact_head",
     "main"
   ]
 }
