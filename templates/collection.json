@@ -88,7 +88,7 @@
             "show_filter_label": false,
             "enable_sorting": true,
             "enable_grid_density": false,
-            "background_color": "{{ settings.color_palette.color1 }}",
+            "background_color": "#050505",
             "text_color": "",
             "padding-block-start": 8,
             "padding-block-end": 8,
