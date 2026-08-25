@@ -470,6 +470,11 @@
   cursor: default;
 }
 
+.archive-deck__licence .shopify-payment-button__button--unbranded {
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
+}
+
 /* --- Description --- */
 
 .archive-deck__licence .product-description,
