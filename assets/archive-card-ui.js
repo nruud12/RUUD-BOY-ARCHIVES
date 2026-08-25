@@ -43,6 +43,14 @@
    */
   const ARTIFACT_HOSTS = '.archive-card, [data-archive-artifact]';
 
+  /* Mini Waveform bar geometry — copied unchanged from archive-ui.js
+     (Bar 3px + gap 2px = pitch 5, matching .archive-player__wf-bar).
+     Reusing the existing player's constants rather than tuning new
+     ones for "mini" is deliberate: see initWaveforms() below. */
+  const BAR_PITCH = 5;
+  const MIN_BARS = 24;
+  const MAX_BARS = 160;
+
   const CardUI = {
     /**
      * The artifact's runtime identity — READ, never stored.
@@ -66,6 +74,8 @@
     init() {
       this.bindClicks();
       this.bindPlayerEvents();
+      this.initWaveforms();
+      this.watchForNewCards();
     },
 
     /**
@@ -112,6 +122,103 @@
          exchange. The page has already rendered this artifact; the
          case must not darken and relight for a piece that never left. */
       player.load(track, { seated: true });
+    },
+
+    /* ------------------------------------------------------
+       MINI WAVEFORM
+
+       A deterministic fingerprint per card — see archive-card.css's
+       own "MINI WAVEFORM" note for the visual side. This duplicates,
+       rather than imports, archive-ui.js's hash → seeded-PRNG →
+       bar-height technique: the two files share no module scope, and
+       the algorithm is small, pure and self-contained, so a shared
+       helper would be new architecture for two call sites, not a
+       genuine simplification. Kept local on purpose.
+
+       No played/progress layer, unlike the persistent player's own
+       waveform: playback position belongs to RB-001 / the persistent
+       player, not the card. Non-interactive — the existing Preview
+       button remains the card's only playback control.
+    ------------------------------------------------------ */
+
+    /** Small deterministic PRNG (mulberry32) — see archive-ui.js. */
+    rng(seed) {
+      let a = seed >>> 0;
+      return () => {
+        a = (a + 0x6d2b79f5) >>> 0;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    },
+
+    hash(value) {
+      const str = String(value == null ? '' : value);
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i += 1) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    },
+
+    /** Bars that comfortably fill the given waveform container. */
+    desiredBarCount(container) {
+      const width = container ? container.clientWidth : 0;
+      if (!width) return MIN_BARS;
+      return Math.max(MIN_BARS, Math.min(MAX_BARS, Math.floor(width / BAR_PITCH)));
+    },
+
+    buildWaveformBars(container, seedValue) {
+      const count = this.desiredBarCount(container);
+      const seed = this.hash(seedValue);
+      const random = this.rng(seed || 1);
+
+      container.textContent = '';
+
+      for (let i = 0; i < count; i += 1) {
+        // Two octaves of noise plus a gentle arch, so the shape reads
+        // as a recording rather than as static — same formula as
+        // archive-ui.js's drawWaveform().
+        const arch = Math.sin((i / count) * Math.PI);
+        const coarse = random();
+        const fine = random();
+        const value = 0.18 + arch * 0.34 + coarse * 0.34 + fine * 0.14;
+        const height = Math.max(0.04, Math.min(1, value));
+
+        const bar = document.createElement('span');
+        bar.className = 'archive-card__waveform-bar';
+        bar.style.setProperty('--i', String(i));
+        bar.style.setProperty('--h', height.toFixed(3));
+        container.appendChild(bar);
+      }
+    },
+
+    /**
+     * Draws bars into every card's waveform container that doesn't
+     * have them yet. Idempotent by design (childElementCount guard),
+     * so it's safe to call again for cards the grid injects later.
+     */
+    initWaveforms() {
+      this.cards().forEach((card) => {
+        const container = card.querySelector('.archive-card__waveform');
+        if (!container || container.childElementCount > 0) return;
+
+        this.buildWaveformBars(container, card.dataset.trackId);
+      });
+    },
+
+    /**
+     * Horizon's paginated-list can inject new cards into the grid
+     * without a page load (see assets/paginated-list.js). bindClicks()
+     * above already covers this for free via document-level event
+     * delegation; drawing bars is proactive rather than event-driven,
+     * so it needs its own watcher.
+     */
+    watchForNewCards() {
+      const observer = new MutationObserver(() => this.initWaveforms());
+      observer.observe(document.body, { childList: true, subtree: true });
     },
 
     /* ------------------------------------------------------

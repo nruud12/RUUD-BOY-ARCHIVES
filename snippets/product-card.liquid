@@ -177,6 +177,15 @@
         {%- if musical_key != blank -%}<span>{{ musical_key }}</span>{%- endif -%}
         {%- if mood != blank -%}<span>{{ mood }}</span>{%- endif -%}
       </div>
+
+      {%- comment -%}
+        Mini Waveform (Card Components, Founder Package Engineering
+        Bible): a deterministic per-track fingerprint, drawn by
+        archive-card-ui.js. Decorative only — see archive-card.css.
+      {%- endcomment -%}
+      {%- if product.metafields.custom.audio_preview.value != blank -%}
+        <div class="archive-card__waveform" data-card-waveform aria-hidden="true"></div>
+      {%- endif -%}
     </div>
 
     {% render 'ruud-audio-player', product: product %}
