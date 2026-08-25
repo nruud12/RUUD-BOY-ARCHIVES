@@ -1,0 +1,70 @@
+{%- comment -%}
+  ==========================================================
+  ARCHIVEOS — ARCHIVE HOLDINGS HEAD
+  RUUD BOY ARCHIVES
+
+  Milestone C. Heading-only sibling section that introduces the
+  catalog (filters + product grid) below it on the collection
+  page. No Artifact mount, no JS, no audio, no product logic —
+  purely the same section-furniture primitives already proven in
+  sections/archive-catalog-head.liquid (Milestone A/B).
+
+  Rendered as its own section, between "artifact_head" and "main"
+  in templates/collection.json. Sections render as siblings, not
+  nested, so this cannot literally wrap the grid — visual
+  continuity comes from reusing .archive-room / .archive-shell /
+  .archive-section-head, the same primitives every other labeled
+  zone on this page already uses, not from DOM nesting.
+  ==========================================================
+{%- endcomment -%}
+
+<div class="archive-room archive-room--tight">
+  <div class="archive-shell">
+    <div class="archive-section-head">
+      <div>
+        <p class="archive-eyebrow">{{ section.settings.eyebrow }}</p>
+        <h2 class="archive-section-head__title">{{ section.settings.title }}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- comment -%}
+  Same scoped background fix as archive-catalog-head.liquid: Horizon
+  defaults every custom section's background to
+  settings.color_palette.background (white) unless overridden.
+  Scoped to .section-archive-holdings-head — this section's own
+  schema class — so it cannot reach any other section.
+{%- endcomment -%}
+{% stylesheet %}
+  .section-archive-holdings-head {
+    background-color: var(--archive-bg) !important;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Archive Holdings Head",
+  "tag": "section",
+  "class": "section-archive-holdings-head",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "The Collection"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "The Holdings"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Archive Holdings Head"
+    }
+  ]
+}
+{% endschema %}
