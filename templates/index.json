@@ -2,20 +2,27 @@
  * ------------------------------------------------------------
  * RUUD BOY ARCHIVES — HOMEPAGE
  *
- * Three movements, nothing more:
+ * Two movements now, not three:
  *
- *   1. hero           the Preservation Sanctum, full viewport
- *   2. room_title     a wall caption
- *   3. recently_*     the catalogue wall
+ *   1. room_title     a wall caption
+ *   2. recently_*     the catalogue wall
  *
- * Sanctum Hero: `hero` (archive-hero-v2, the Hero Player) has been
- * replaced by the Sanctum (archive-sanctum) as the site's master
- * first-viewport environment. Only one may occupy the "hero" slot.
- * archive-hero-v2's section, CSS and JS all remain in the theme,
- * unreferenced by this template, and the persistent transport deck
- * (snippets/archive-player.liquid, rendered sitewide in
- * layout/theme.liquid) is untouched — the swap is reversible by
- * restoring the entry this replaced.
+ * Sanctum Environment: the standalone `hero` entry (type
+ * archive-sanctum — full-viewport, with its own tagline/artifact
+ * label/CTA) has been retired. The Sanctum is now a persistent,
+ * sitewide environmental background (snippets/archive-sanctum-
+ * environment.liquid, rendered once from layout/theme.liquid)
+ * rather than a per-template hero, so this template no longer
+ * needs its own entry for it — the room is already behind this
+ * page, the same as every other page. sections/archive-sanctum.
+ * liquid (the old hero section + its CTA) remains in the theme,
+ * unreferenced, the same way archive-hero-v2 was retired before
+ * it — reversible by restoring this entry.
+ *
+ * archive-hero-v2's section, CSS and JS remain unreferenced, as
+ * before. The persistent transport deck (snippets/archive-
+ * player.liquid, rendered sitewide in layout/theme.liquid) is
+ * untouched by any of this.
  *
  * The previous composition still carried the inherited Savor
  * demo content (a food-brand story section, a lime-green
@@ -30,15 +37,6 @@
  */
 {
   "sections": {
-    "hero": {
-      "type": "archive-sanctum",
-      "settings": {
-        "tagline": "PRESERVE. HONOR. SHARE.",
-        "artifact_label": "RB-001",
-        "cta_label": "ENTER ARCHIVE",
-        "cta_link": "/collections/all"
-      }
-    },
     "room_title": {
       "type": "archive-room-title",
       "settings": {
@@ -140,11 +138,11 @@
         "section_width": "page-width",
         "horizontal_alignment": "flex-start",
         "gap": 0,
-        "background_color": "",
+        "background_color": "rgba(5, 5, 5, 0.2)",
         "padding-block-start": 0,
         "padding-block-end": 96
       }
     }
   },
-  "order": ["hero", "room_title", "recently_catalogued"]
+  "order": ["room_title", "recently_catalogued"]
 }
