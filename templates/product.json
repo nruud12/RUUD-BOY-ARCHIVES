@@ -134,6 +134,18 @@
     "product_recommendations_iA6pyd": {
       "type": "product-recommendations",
       "blocks": {
+        "header": {
+          "type": "text",
+          "name": "t:names.header",
+          "settings": {
+            "text": "<p>From The Archive</p>",
+            "type_preset": "custom",
+            "font_size": "0.6875rem",
+            "letter_spacing": "loose",
+            "case": "uppercase",
+            "text_color": "rgba(255, 255, 255, 0.34)"
+          }
+        },
         "static-product-card": {
           "type": "_product-card",
           "name": "t:names.product_card",
@@ -175,6 +187,9 @@
           ]
         }
       },
+      "block_order": [
+        "header"
+      ],
       "name": "t:names.product_recommendations",
       "settings": {
         "product": "{{ closest.product }}",
@@ -190,7 +205,7 @@
         "icons_shape": "none",
         "section_width": "full-width",
         "gap": 0,
-        "background_color": "{{ settings.color_palette.background }}",
+        "background_color": "#050505",
         "padding-block-start": 1,
         "padding-block-end": 1
       }
