@@ -536,3 +536,28 @@
     padding-bottom: 180px;
   }
 }
+
+/* ----------------------------------------------------------
+   RECOMMENDATIONS — MOBILE GRID SPACING
+
+   snippets/resource-list-styles.liquid caps every .resource-list
+   grid's gap to 12px below 749px via --resource-list-mobile-gap-max,
+   regardless of the desktop columns_gap/rows_gap setting. That's the
+   right default for Horizon's generic resource lists (blog grids,
+   collection-list, product-list), but it fights the Holdings Wall's
+   32px rhythm on the one resource-list grid ArchiveOS actually
+   styles. Scoped to the <product-recommendations> element so it
+   cannot reach those other consumers.
+---------------------------------------------------------- */
+
+@media screen and (max-width: 749px) {
+  product-recommendations .resource-list {
+    --resource-list-mobile-gap-max: 9999px;
+  }
+}
+
+@container resource-list (max-width: 749px) {
+  product-recommendations .resource-list {
+    --resource-list-mobile-gap-max: 9999px;
+  }
+}
