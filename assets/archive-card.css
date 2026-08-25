@@ -88,6 +88,33 @@
   transition: box-shadow var(--archive-motion-illuminate) var(--archive-ease);
 }
 
+/* The pane over the artifact — reuses the vitrine's own glass
+   material (archive-vitrine.css, .vitrine__glass) rather than
+   inventing a second implementation. Deliberately restrained: it
+   should read as a protective pane over a catalogued object, not
+   as a UI gloss effect — the artwork stays the primary surface.
+
+   Lives on its own pseudo-element, not on .archive-card__media
+   itself, because that element's box-shadow is already claimed by
+   three separate state rules below (hover ring, is-playing ring,
+   is-active ring) — each one replaces the property outright rather
+   than adding to it, so a glass shadow declared there would vanish
+   the instant a card is hovered or played. */
+.archive-card__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--archive-radius-sm);
+  pointer-events: none;
+
+  background: var(--archive-reflect-sheen);
+  box-shadow:
+    var(--archive-glass-interior),
+    inset 0 1px 0 var(--archive-reflect-rim);
+  backdrop-filter: blur(var(--archive-glass-blur-thin));
+  -webkit-backdrop-filter: blur(var(--archive-glass-blur-thin));
+}
+
 .archive-card__media img,
 .archive-card .card-gallery img {
   display: block;
