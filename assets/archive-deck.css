@@ -264,8 +264,21 @@
   color: var(--archive-text-subtle);
 }
 
-/* Option group heading — reads as a wall label. */
-.archive-deck__licence .variant-option legend,
+/* Redundant next to "Terms of access" above it — kept for assistive
+   technology (it's the fieldset's accessible group name) but hidden
+   visually, using the same technique as base.css .visually-hidden. */
+.archive-deck__licence .variant-option legend {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .archive-deck__licence .variant-option__swatch-value {
   font-size: var(--archive-type-micro);
   letter-spacing: var(--archive-track-label);
