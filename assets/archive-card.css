@@ -47,7 +47,32 @@
   height: 100%;
   background-color: var(--archive-bg);
   border: 0;
-  transition: transform var(--archive-speed-slow) var(--archive-ease);
+  transition:
+    transform var(--archive-speed-slow) var(--archive-ease),
+    opacity var(--archive-speed-slow) var(--archive-ease);
+}
+
+/* ==========================================================
+   ENTRANCE — see archive-card-ui.js "ENTRANCE" for the timing.
+
+   A settle, not a fade/slide: the same 6px arrival every other
+   "object appears" moment in the archive already uses (see
+   .vitrine__monument / .vitrine__label in archive-vitrine.css).
+   Both properties share .archive-card's own transform transition
+   above rather than a separate --archive-motion-reveal duration, so
+   the artwork, its glass pane and the hover lift all move as one
+   rigid object at one speed — an object arriving, not two layers
+   drifting out of sync.
+
+   .is-entering is added by JS, never present by default: if the
+   script fails, a card simply keeps whatever visibility Horizon
+   already gave it rather than staying invisible forever. transition:
+   none here is what keeps that initial hide instant, so removing the
+   class is the only moment that actually animates. */
+.archive-card.is-entering {
+  transition: none;
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 /* Restraint: the card lifts by 4px. It does not scale, tilt or glow. */
