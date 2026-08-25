@@ -425,14 +425,64 @@ html:has(.archive-os) {
   box-shadow: none !important;
 }
 
+/* On templates whose first section triggers Horizon's own
+   "transparent header" mode (e.g. a full-bleed banner), Horizon
+   takes header-component out of flow (position: absolute) so the
+   banner can occupy the space beneath it. #header-group and <main>
+   are both direct .page-wrapper children sharing the generic z-index:
+   1 set below — same value, so DOM order decides, and <main> (which
+   comes second) paints over the now-overlapping, out-of-flow header.
+   #header-group needs to outrank <main> at that shared level so the
+   header stays on top regardless of which positioning mode Horizon
+   puts it in. */
+.archive-os #header-group {
+  z-index: var(--archive-z-header);
+}
+
 .archive-os header-component {
   position: sticky;
   top: 0;
   z-index: var(--archive-z-header);
-  backdrop-filter: blur(var(--archive-blur-glass));
-  -webkit-backdrop-filter: blur(var(--archive-blur-glass));
-  background: linear-gradient(to bottom, rgba(5, 5, 5, 0.82), rgba(5, 5, 5, 0)) !important;
-  transition: background var(--archive-speed) var(--archive-ease);
+  background: transparent !important;
+}
+
+/* No opaque backing behind the header — the Sanctum shows through it,
+   so nav glyphs need their own contrast rather than borrowing a dark
+   bar. A tight shadow keeps them legible over the room's brighter
+   gold/archway passages without reintroducing a scrim. */
+.archive-os #header-group a,
+.archive-os .header__menu-item,
+.archive-os .menu-drawer__menu-item,
+.archive-os .header-actions__action,
+.archive-os .header__column--left .logo,
+.archive-os .header__heading-logo,
+.archive-os .header__logo-text {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+.archive-os .header-actions__action .svg-wrapper svg,
+.archive-os .header-actions__action svg {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65));
+}
+
+/* Horizon sets --color-account-icon: var(--color-foreground) on
+   .header__row so the account icon "inherits the header's colour" —
+   every other header element gets that same treatment overridden
+   below with an explicit archive token, but this one was missed, so
+   it was still drawing from the header's underlying (light-scheme)
+   foreground: near-black, invisible against the dark canvas even
+   before the opaque backdrop came off. Bring it in line with every
+   other icon here.
+
+   The dark shadow only helps over bright passages; over the room's
+   own darkest patches (e.g. the collection banner) a low-opacity
+   icon can all but disappear into a near-black backdrop. A faint
+   light-side glow gives it a rim to read against dark ground too,
+   without brightening it enough to compete with the room over
+   lighter ground. */
+.archive-os .account-button__icon {
+  color: var(--archive-text-subtle) !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 3px rgba(255, 255, 255, 0.25)) !important;
 }
 
 /* Navigation type.
@@ -749,7 +799,6 @@ html:has(.archive-os) {
 .archive-os footer,
 .archive-os .footer {
   background: transparent !important;
-  border-top: 1px solid var(--archive-line);
   padding-block: var(--archive-space-2xl) var(--archive-space-lg);
   color: var(--archive-text-subtle);
 }
