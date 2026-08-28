@@ -88,6 +88,16 @@
 
   <div class="archive-deck__stage">
     {%- comment -%}
+      RB-001 shell preview (Stage 1). Renders the crystal shell
+      ALONGSIDE the existing case/deck — nothing is replaced yet.
+      Toggle from the theme editor; remove the toggle when RB-001
+      formally supersedes the vitrine stage (Stage 4).
+    {%- endcomment -%}
+    {%- if section.settings.show_rb001_preview -%}
+      {% render 'rb001-player' %}
+    {%- endif -%}
+
+    {%- comment -%}
       The display case. Class names are the vitrine's own, so it
       inherits archive-vitrine.css and is driven by
       archive-vitrine.js with no changes to either.
@@ -231,6 +241,12 @@
         { "value": "right", "label": "Right" }
       ],
       "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rb001_preview",
+      "label": "RB-001 shell preview (Stage 1)",
+      "default": true
     },
     {
       "type": "range",
