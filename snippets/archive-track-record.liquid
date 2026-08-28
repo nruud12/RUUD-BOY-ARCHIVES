@@ -34,6 +34,7 @@
   {
     "id": {{ product.id | json }},
     "title": {{ product.title | json }},
+    "vendor": {{ product.vendor | json }},
     "audio": {{ audio.url | json }},
     "image": {% if product.featured_image %}{{ product.featured_image | image_url: width: 1400 | json }}{% else %}null{% endif %},
     "url": {{ product.url | json }},
