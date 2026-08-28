@@ -1,0 +1,93 @@
+{%- comment -%}
+  ==========================================================
+  ARCHIVEOS — ARCHIVE CATALOG HEAD
+  RUUD BOY ARCHIVES
+
+  Milestone A. Reserves the architectural space for the future
+  Artifact on the collection page — purely structural, no audio,
+  no JS, no artwork. The finished Artifact is being built
+  separately and will occupy .archive-artifact-mount later.
+
+  Rendered as its own section, immediately before "main" (the
+  product grid) in templates/collection.json. Shopify's JSON
+  template system renders sections as siblings, not nested — this
+  cannot literally wrap the grid — so visual continuity comes from
+  sharing .archive-shell / .archive-room with the rest of the
+  archive, not from DOM nesting. Same pattern already used to keep
+  archive-vitrine / archive-deck (the product page's artifact
+  sections) as siblings of their own grid content.
+
+  The mount is deliberately empty: no copy, no default artwork, no
+  "awaiting selection" text. archive-vitrine.liquid already owns
+  that kind of empty-state design and is intentionally not reused
+  here yet — this section only reserves the space and gives it the
+  glass-case surface treatment already established in
+  archive-shell.css ("THE GLASS MATERIAL").
+  ==========================================================
+{%- endcomment -%}
+
+<div class="archive-room archive-room--tight">
+  <div class="archive-shell">
+    <div class="archive-section-head">
+      <div>
+        <p class="archive-eyebrow">{{ section.settings.eyebrow }}</p>
+        <h2 class="archive-section-head__title">{{ section.settings.title }}</h2>
+      </div>
+    </div>
+
+    <div
+      class="archive-artifact-mount archive-glass archive-glass--case"
+      data-artifact-mount
+      aria-hidden="true"
+    ></div>
+  </div>
+</div>
+
+{%- comment -%}
+  Horizon renders every custom section with a default background
+  drawn from settings.color_palette.background (white on this
+  store) unless a section explicitly overrides it — the same
+  pattern already traced through templates/collection.json's
+  "main" section and "filters" block. This section has no
+  background_color setting of its own, so it inherited that
+  default and rendered as a plain white Shopify panel.
+
+  Scoped to .section-archive-catalog-head — the class this
+  section's own schema already puts on its wrapper (see "class"
+  below) — so the fix cannot reach any other section. !important
+  is necessary because Horizon's default is applied with at least
+  the same specificity (frequently as an inline style), which a
+  plain override would lose to.
+{%- endcomment -%}
+{% stylesheet %}
+  .section-archive-catalog-head {
+    background-color: var(--archive-bg) !important;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Archive Catalog Head",
+  "tag": "section",
+  "class": "section-archive-catalog-head",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "The Holdings"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "The Artifact"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Archive Catalog Head"
+    }
+  ]
+}
+{% endschema %}

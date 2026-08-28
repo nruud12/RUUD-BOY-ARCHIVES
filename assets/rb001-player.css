@@ -1,0 +1,488 @@
+/* ==========================================================
+   RB-001 — crystal player shell (Stage 1)
+
+   FRAME-B CALIBRATION MAP — the single source of truth.
+   Shell-relative percentages, measured through the locked
+   Blender camera against the crystal face (10.74 x 4.25
+   world units, cropped render 1743x690). Do not tune these
+   by eye; re-derive from Blender if the shell ever changes.
+
+   zone       left      top       width     height
+   capsule    43.48%    67.60%    30.50%    25.08%
+   prev       47.44%    74.55%     4.41%    11.15%
+   play       54.78%    70.84%     7.36%    18.59%
+   next       65.12%    74.55%     4.41%    11.15%
+   heart      76.99%    74.41%     4.53%    11.45%
+   acquire    82.91%    74.41%    13.98%    11.45%
+   waveform   32.99%    53.36%    62.35%    16.82%
+   ========================================================== */
+
+.rb001 {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
+  max-width: 1100px;
+  margin-inline: auto;
+  aspect-ratio: 1743 / 690;
+  user-select: none;
+}
+
+.rb001__shell {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* ---- zones: absolutely positioned, never sized by content ---- */
+
+.rb001__zone {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Content zones, derived from scene geometry (not eyeballed):
+   artwork  = PI6_ArtworkPanel world bbox (-5.479..-2.595, -1.178..1.706)
+   waveform = the 154 PI6_Wave_* objects, projected: 32.9337 / 53.3705
+              / 62.4835 / 16.8501 — i.e. the shipped values, confirmed
+              by the Stage-3B measurement pass and therefore unchanged.
+
+   identity and time were first taken from the TRACE *design guides*.
+   Stage 3B measured the actual Blender TEXT objects, which sit ~6%
+   left of those guides, and positions each line individually in the
+   STAGE 3B block below. The identity box is now only a positioning
+   context; the time box carries its own measured rect there. */
+.rb001__zone--artwork  { left: 4.01%;  top: 9.86%;  width: 26.85%; height: 67.86%; }
+.rb001__zone--waveform { left: 32.99%; top: 53.36%; width: 62.35%; height: 16.82%; }
+
+.rb001__artwork {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+/* ==========================================================
+   STAGE 3B — CONTENT LAYER, CALIBRATED
+
+   Everything below is CONTENT inside the rendered glass: glyphs,
+   text, artwork, waveform, progress. No panels, borders, shadows
+   or gradients — the Blender shell supplies every physical
+   surface. All sizes are cqw / % of a calibrated box, so content
+   scales with the shell and carries no viewport rules.
+
+   MEASURED FROM BLENDER (read-only pass, projected through the
+   locked camera onto the 1743x690 shell crop). Nothing here was
+   tuned by eye.
+
+   GLYPHS — ratio of the glyph bbox to its housing bbox:
+     object            w x h (world)        housing            w-ratio   h-ratio
+     PI6_Play          0.219866 x 0.274833  PI6_Play Button    0.277339  0.346669
+     PI6_Next          0.140402 x 0.175503  PI6_Next Button    0.295167  0.368959
+     PI6_Previous      0.140402 x 0.175503  (bounds identical to Next)
+     PI6_HeartGlyph    0.195238 x 0.183544  PI6_HeartButton    0.399784  0.375841
+
+   Optical offsets from the housing centre:
+     Play   dx 0          dy 0          (exactly concentric)
+     Next   dx +0.000002  dy 0          (concentric)
+     Prev   concentric — see the note in the snippet
+     Heart  dx 0          dy -0.004815 world = 0.986% of the housing
+            box, downward: the optical centre of U+2661 in Bfont
+
+   TYPE — each line is the bbox of its Blender text object,
+   projected to shell %; font-size is solved from the measured cap
+   height and tracking from the measured run width, exactly as the
+   ACQUIRE label was solved:
+
+     line         object            left%     top%      w%       h%      font(cqw)  track(em)
+     NOW PLAYING  PI6_NowPlaying    38.1241   12.2700   9.3291   2.4173  1.3478     0.0038
+     title        PI6_Title         35.7021   19.6416  13.3665  11.3022  6.2142     0
+     producer     PI6_Artist        35.8230   36.2106  18.9925   2.5969  1.4278     0.1714
+     meta         PI6_Meta_Visible  36.8049   43.0671  11.0484   1.4300  0.7973     0.1871
+     time         PI6_Time          85.0910   11.1296   9.0784   3.5653  1.9073     0 + scaleX
+
+   Cross-checked against the canonical reference render, which
+   agrees within 1.4% of shell width on every line and within
+   0.01% on the producer cap height.
+
+   Blender condenses its type with non-uniform object scale
+   (NOW PLAYING 0.4/0.6, title 1.2/1.4, producer 0.65/0.9, time
+   0.8/1.1). Where that condensation cannot be expressed as
+   tracking without collapsing the letterforms — the time readout —
+   it is reproduced as the measured scaleX instead.
+
+   WHAT THE MEASUREMENT ACTUALLY FIXES. Left, top and cap height are
+   design constants — they are where the crystal puts the line and how
+   tall it stands. The measured WIDTH is not: it is simply how far one
+   product's words happened to run, and the Blender objects carry a
+   single product's text ("ABYSS", "142 BPM     C# MINOR"). Nothing is
+   laid out to the right of these lines before the time readout at
+   85.09%, so the live boxes below run to just short of it and the
+   type keeps its calibrated cap height for every title. The measured
+   widths stay in the table above as the check: with the reference
+   strings the rendered ink must land back on them.
+
+   Only a title long enough to reach the time readout is fitted down,
+   by rb001-ui.js (see fitLine) — never stretched, never letter-crushed.
+   ========================================================== */
+
+.rb001 {
+  /* Measured Blender materials, linear -> sRGB. Kept as tokens so a
+     colour decision is one edit, never a hunt through rules. */
+  /* Palette — measured Blender materials, linear -> sRGB. */
+  --rb001-ink:      rgb(234, 234, 226);  /* PI6_White   */
+  --rb001-ink-warm: rgb(221, 212, 191);  /* PI6_Ivory   */
+  --rb001-magenta:  rgb(255, 33, 196);   /* PI6_Magenta */
+  --rb001-white:    rgb(255, 255, 255);  /* PT6_Previous_Icon_DEFINITIVE_WHITE, pure emission */
+
+  /* Roles. Stage 3C hands the four glyph colours to the CANONICAL
+     REFERENCE, whose control row is one coherent language where
+     Blender's had drifted to three colours across four controls.
+     Sampled off the reference's own glyph cores:
+       prev  rgb(254.5, 254.5, 254.4)
+       play  rgb(254.1, 253.7, 254.0)
+       next  rgb(254.7, 254.6, 254.5)   <- white, not the ivory Blender
+                                           carries on PI6_Next
+       heart rgb(245.3, 111.9, 231.3)   <- the magenta family, read
+                                           lighter by its own bloom
+     No new colour is introduced: every role points at a palette entry
+     already above, so any of these is a one-line decision to revisit. */
+  --rb001-glyph-prev:  var(--rb001-white);
+  --rb001-glyph-play:  var(--rb001-white);
+  --rb001-glyph-next:  var(--rb001-white);
+  --rb001-glyph-heart: var(--rb001-magenta);
+  --rb001-wave:        var(--rb001-magenta);/* PI6_Magenta */
+}
+
+.rb001__artwork.is-showing {
+  opacity: 1;
+  transition: opacity 480ms ease;
+}
+
+/* ---- glyphs: pure marks. No circle, no border, no background.
+       Sized and centred by measured ratio of the housing box. ---- */
+
+.rb001__glyph {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.rb001__glyph path { fill: currentColor; }
+
+/* A stroked glyph draws its weight instead of filling an area. The
+   viewBox already carries half the stroke as padding, so the CSS box
+   still sizes the outer envelope and no geometry moves. */
+.rb001__glyph--stroked path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 17.65;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Scoped to .rb001 so these outrank `.rb001__hit { color: inherit }`
+   further down the file — same class specificity otherwise, and the
+   later rule would win and paint every glyph with the inherited ink. */
+.rb001 .rb001__hit--prev  { color: var(--rb001-glyph-prev); }
+.rb001 .rb001__hit--play  { color: var(--rb001-glyph-play); }
+.rb001 .rb001__hit--next  { color: var(--rb001-glyph-next); }
+.rb001 .rb001__hit--heart { color: var(--rb001-glyph-heart); }
+
+/* Stage 3C: the chevron pair is measured off the REFERENCE, not Blender —
+   34.6% wider and 26.7% shorter than the single triangle it replaces, so
+   the mark reads as one wide gesture rather than a tall arrowhead. Solid
+   body measured at 27 x 20 px on the reference's 74 px housing. */
+.rb001__hit--prev  .rb001__glyph { width: 36.49%; height: 27.03%; }
+.rb001__hit--next  .rb001__glyph { width: 36.49%; height: 27.03%; }
+
+/* Play. Stage 3D hands the BOX to the reference as well, the same call
+   already made for prev/next; the triangle itself is still Blender's.
+   Reference solid body measures 36 x 40 px on its 123 px housing:
+
+     reference  w 0.2927  h 0.3252   aspect 0.900
+     Blender    w 0.2773  h 0.3467   aspect 0.800
+
+   so the mark comes out 5.6% wider and 6.2% shorter. (Stage 3C reported
+   the reference aspect as ~1.0; that came from a measuring window which
+   clipped the triangle's height, and 0.900 is the corrected figure.) */
+.rb001__hit--play  .rb001__glyph { width: 29.27%; height: 32.52%; }
+
+/* Playing-state icon glow — Shopify implementation of the locked Blender
+   treatment (PI6_Play_Icon_Glow, emission (1,.45,.65) x14.5, approved):
+   core reads white/pink at ~243 L (rgb 252,241,245), with a tight halo
+   ~4-6 px beyond the silhouette at shell scale and effectively gone by
+   ~8 px. Shell scale: 1743 px reference width, so 1 px = 0.05738cqw —
+   the drop-shadows below are 0.115cqw/0.23cqw blurs, whose visible
+   extent (~2x blur) lands at ~4 px and ~8 px respectively. drop-shadow
+   follows the triangle's silhouette — no circular halo, no ring — and
+   the values scale with the container, preserving responsive behavior.
+   Static state adds nothing: these rules apply only under .is-playing. */
+.rb001.is-playing .rb001__hit--play { color: rgb(252, 241, 245); }
+.rb001.is-playing .rb001__hit--play .rb001__glyph {
+  filter:
+    drop-shadow(0 0 0.115cqw rgba(255, 235, 242, 0.95))
+    drop-shadow(0 0 0.23cqw  rgba(255, 120, 185, 0.60));
+}
+
+/* Heart: measured 0.986%-of-housing optical drop, and Blender's measured
+   envelope — both unchanged since Stage 3B. Stage 3D changes only the
+   WEIGHT of the outline: the reference's stroke measures 4-6 px on a
+   31 px glyph (0.137 across the near-vertical flanks, where a horizontal
+   scan reads true perpendicular width; 0.194 as the all-row median,
+   inflated where the contour runs diagonally), and 0.15 is taken between
+   them. Bfont's own contour was 0.035 — about a quarter of that. */
+.rb001__hit--heart .rb001__glyph {
+  width: 39.9784%;
+  height: 37.5841%;
+  top: 50.986%;
+}
+
+/* The favorite control is visual only until a favorites system is
+   designed; it must not read as pressable. */
+.rb001__hit--heart:disabled { opacity: 0.9; }
+
+/* ---- type: one calibrated box per Blender text object ---- */
+
+.rb001__zone--identity {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.rb001__line {
+  position: absolute;
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  line-height: 1;
+  white-space: nowrap;
+  font-family: var(--font-body--family, sans-serif);
+  color: var(--rb001-ink);
+  mix-blend-mode: screen;
+}
+
+.rb001__nowplaying {
+  left: 38.1241%; top: 12.2700%; width: 9.3291%; height: 2.4173%;
+  font-size: 1.3478cqw;
+  letter-spacing: 0.0038em;
+  color: var(--rb001-ink-warm);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.rb001.has-track .rb001__nowplaying { opacity: 1; }
+
+/* Blender sets the title in Bebas Neue — a condensed display face.
+   The theme's own display role is --font-heading--family (Barlow
+   Condensed in the live preset), so the title takes that rather than
+   the body face: same role, same proportions. */
+.rb001__title {
+  left: 35.7021%; top: 19.6416%; width: 49.0%; height: 11.3022%;
+  font-family: var(--font-heading--family, var(--font-body--family, sans-serif));
+  font-size: 6.2142cqw;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.rb001__producer {
+  left: 35.8230%; top: 36.2106%; width: 48.9%; height: 2.5969%;
+  font-size: 1.4278cqw;
+  font-weight: 300;
+  letter-spacing: 0.1714em;
+  text-transform: uppercase;
+}
+
+/* Blender's visible metadata line is ONE object, "142 BPM     C# MINOR" —
+   BPM and key separated by five spaces. The gap below is those five
+   spaces at the measured size and tracking. Blender carries no
+   genre/style token; the third span renders only when the product
+   supplies one. */
+.rb001__meta {
+  left: 36.8049%; top: 43.0671%; width: 47.9%; height: 1.4300%;
+  gap: 1.855cqw;
+  font-size: 0.7973cqw;
+  font-weight: 300;
+  letter-spacing: 0.1871em;
+  text-transform: uppercase;
+}
+
+.rb001__meta span:empty { display: none; }
+
+/* PI6_Time is CENTER-aligned in Blender, and condensed 0.8/1.1 by
+   object scale — reproduced as the measured scaleX because tracking
+   would have to go negative to reach the same envelope. */
+.rb001__zone--time {
+  left: 85.0910%; top: 11.1296%; width: 9.0784%; height: 3.5653%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  font-family: var(--font-body--family, sans-serif);
+  font-size: 1.9073cqw;
+  font-weight: 300;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--rb001-ink);
+  mix-blend-mode: screen;
+  font-variant-numeric: tabular-nums;
+}
+
+.rb001__zone--time > span {
+  display: block;
+  transform: scaleX(0.8261);
+}
+
+/* ---- waveform ----
+   Bar geometry measured from the 154 PI6_Wave_* objects:
+     pitch      0.4599% of shell width  (Stage 5 CP1 correction — see
+                the note in rb001-ui.js: the Stage-3B figure averaged in
+                102 hidden PI6_Wave_Interp_* bars and came out too fine.
+                Re-measured off the reference band by autocorrelation.)
+     bar width  0.008675 world = 0.08078% of shell width  (unaffected by
+                that error: the interpolants share the same width)
+     heights    0.019658..0.717862 world = 2.7384%..100% of the band
+   The bars are centred on the band's own centreline (world y
+   -0.502533, the exact midpoint of the measured span), which is what
+   makes the figure read as a mirrored waveform rather than a bar
+   chart. Progress clips the played layer from --rb001-progress. */
+
+.rb001__waveform {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.rb001__wf-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.37912cqw;   /* pitch 0.4599 - bar 0.08078 */
+}
+
+.rb001__wf-bar {
+  flex: 0 0 0.08078cqw;
+  height: calc(2.7384% + var(--h, 0.5) * 97.2616%);
+  border-radius: 0;
+  background: var(--rb001-wave);
+  opacity: 0.22;
+  mix-blend-mode: screen;
+  transform-origin: center;
+}
+
+.rb001__wf-layer--played {
+  clip-path: inset(0 calc(100% - var(--rb001-progress, 0) * 100%) 0 0);
+}
+
+.rb001__wf-layer--played .rb001__wf-bar { opacity: 0.95; }
+
+/* The deck's "room breathing" while sounding — same treatment. */
+.rb001.is-playing .rb001__wf-layer--played .rb001__wf-bar {
+  animation: rb001-wf-breathe 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -37ms);
+}
+
+@keyframes rb001-wf-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.14); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rb001.is-playing .rb001__wf-layer--played .rb001__wf-bar { animation: none; }
+  .rb001__artwork.is-showing { transition: none; }
+  .rb001__nowplaying { transition: none; }
+}
+
+/* ---- hit areas: interaction only, ZERO chrome.
+       The Blender glass is the button. ---- */
+
+.rb001__hit {
+  position: absolute;
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.rb001__hit:disabled { cursor: default; }
+
+.rb001__hit--prev    { left: 47.44%; top: 74.55%; width: 4.41%;  height: 11.15%; border-radius: 50%; }
+.rb001__hit--play    { left: 54.78%; top: 70.84%; width: 7.36%;  height: 18.59%; border-radius: 50%; }
+.rb001__hit--next    { left: 65.12%; top: 74.55%; width: 4.41%;  height: 11.15%; border-radius: 50%; }
+.rb001__hit--heart   { left: 76.99%; top: 74.41%; width: 4.53%;  height: 11.45%; border-radius: 50%; }
+.rb001__hit--acquire { left: 82.91%; top: 74.41%; width: 13.98%; height: 11.45%; border-radius: 50cqw; }
+
+/* Accessibility affordance only — not chrome. */
+.rb001__hit:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.55);
+  outline-offset: -1px;
+}
+
+/* ==========================================================
+   ACQUIRE LICENSE label (Stage 2)
+
+   Reproduces the MEASURED Blender text treatment, not its raw
+   numbers (Blender condenses glyphs x0.667 and tracks 1.8; the
+   web font is full-width, so tracking is solved to land the same
+   measured envelope):
+
+     cap height 0.095160 world = 0.8860% of shell width
+     text run   1.283308 world = 11.949% of shell width
+     padding    0.111871 world =  1.042% per side
+
+   font-size = cap / 0.73 (sans cap ratio) = 1.2137cqw
+   letter-spacing = (11.949 - natural run)/15 chars = 0.055em
+   Verified: glyph run 11.88cqw -> 1.05cqw padding per side.
+   Do not retune by eye; re-derive if the label or pill changes.
+   ========================================================== */
+
+.rb001__hit--acquire {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+.rb001__acquire-label {
+  font-family: var(--font-body--family, sans-serif);
+  font-size: 1.2137cqw;
+  font-weight: 400;
+  letter-spacing: 0.055em;
+  text-indent: 0.055em; /* re-centres the trailing letter-space */
+  white-space: nowrap;
+  color: rgb(214, 217, 224);
+  mix-blend-mode: screen;      /* the crystal shows through the strokes */
+  opacity: 0.85;
+  transition: opacity 120ms ease, color 120ms ease;
+}
+
+/* Restrained states: light caught in existing glass, never new chrome. */
+.rb001__hit--acquire:hover .rb001__acquire-label,
+.rb001__hit--acquire:focus-visible .rb001__acquire-label {
+  opacity: 1;
+  color: rgb(236, 238, 244);
+}
+
+.rb001__hit--acquire:active .rb001__acquire-label {
+  opacity: 0.72;
+}
+
+.rb001__hit--acquire:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.45);
+  outline-offset: -2px;
+  border-radius: 50cqw;
+}

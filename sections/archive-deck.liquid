@@ -20,13 +20,14 @@
   yourself writing variant logic in this file, stop — it belongs
   to the block.
 
-  THE CASE
+  THE CHAMBER (RB-002.1)
 
-  The artwork sits in a vitrine, reusing the homepage display-case
-  markup and therefore archive-vitrine.css and archive-vitrine.js
-  unchanged. The case reacts to playback exactly as it does on the
-  homepage; the controller finds it by [data-vitrine] and needs no
-  knowledge that it is now on a product page.
+  RB-001 is the artifact. The crystal shell is the physical
+  foundation; the player overlay is the authoritative presentation
+  of artwork, title, producer, BPM/key/tags, waveform, time and
+  transport. The Stage-1 vitrine no longer renders here — the
+  display case remains a homepage instrument, and archive-vitrine.js
+  null-guards [data-vitrine] so it no-ops on this page.
 
   WHY THIS IS NOT AN .archive-card
 
@@ -88,125 +89,202 @@
 
   <div class="archive-deck__stage">
     {%- comment -%}
-      The display case. Class names are the vitrine's own, so it
-      inherits archive-vitrine.css and is driven by
-      archive-vitrine.js with no changes to either.
+      RB-002.1 — the Retrieval Chamber. RB-001 is the artifact and the
+      authoritative presentation of title, producer, BPM/key/tags,
+      artwork, waveform, time and transport. The Stage-1 vitrine and
+      audition control are retired from this composition
+      (archive-vitrine.js null-guards [data-vitrine] and no-ops on
+      pages without a case); the display case remains a homepage
+      instrument. The Stage-1 preview toggle is retired with it —
+      RB-001 formally supersedes the vitrine stage.
     {%- endcomment -%}
-    <div class="vitrine__stage" data-vitrine>
-      <div class="vitrine__case">
-        <div class="vitrine__glass" aria-hidden="true"></div>
+    <p class="archive-deck__designation">
+      {%- if archive_no != blank -%}ARCHIVE {{ archive_no }} &middot; {% endif -%}RB-001 PRESERVATION CHAMBER
+    </p>
 
-        <div class="vitrine__artifact">
-          <div class="vitrine__core" aria-hidden="true"></div>
-          <div class="vitrine__fractures" aria-hidden="true"></div>
+    <div class="rb001-chamber" data-rb001-chamber>
+      {% render 'rb001-player' %}
 
-          {%- if artifact.featured_image -%}
-            <img
-              class="vitrine__art"
-              data-vitrine-art
-              src="{{ artifact.featured_image | image_url: width: 1400 }}"
-              alt="{{ artifact.title | escape }}"
-              width="1400"
-              height="1400"
-              fetchpriority="high"
-              decoding="async"
-            >
-          {%- else -%}
-            <div class="vitrine__placeholder" aria-hidden="true">
-              <div class="vitrine__placeholder-mark"></div>
-            </div>
-          {%- endif -%}
+      {%- comment -%}
+        RB-002.3R — the crystal IS the acquisition surface. On ACQUIRE
+        LICENSE the chamber expands and the terms render inside the
+        newly opened glass. The glass continuation is built from
+        slices of the deployed CP5 shell itself (field + edge caps),
+        so the expanded chamber remains one continuous crystal; the
+        shell asset and every rb001 file are untouched.
+      {%- endcomment -%}
+      <div class="rb001-chamber__extension" id="terms-of-retrieval" tabindex="-1" aria-hidden="true">
+        <div class="rb001-chamber__glass" aria-hidden="true">
+          <div class="rb001-chamber__glass-field"
+               style="background-image: url('{{ 'rb001-ext-field-h.png' | asset_url }}');"></div>
+          <div class="rb001-chamber__glass-edge"
+               style="background-image: url('{{ 'rb001-ext-edge-r.png' | asset_url }}');"></div>
+          <div class="rb001-chamber__glass-field--v"
+               style="background-image: url('{{ 'rb001-ext-field-v.png' | asset_url }}');"></div>
+          <div class="rb001-chamber__glass-edge--b"
+               style="background-image: url('{{ 'rb001-ext-edge-b.png' | asset_url }}');"></div>
         </div>
 
-        <div class="vitrine__plinth" aria-hidden="true"></div>
+        <div class="rb001-chamber__interior">
+          <div class="archive-deck__licence">
+            <h2 class="archive-deck__licence-heading">Terms of Retrieval</h2>
+
+            {% content_for 'blocks' %}
+          </div>
+        </div>
       </div>
     </div>
-
-    {%- if audio != blank -%}
-      <button
-        type="button"
-        class="archive-deck__audition"
-        data-archive-play
-        aria-label="Audition {{ artifact.title | escape }}"
-      >
-        <span class="archive-deck__audition-icon" aria-hidden="true">
-          <span class="archive-deck__icon archive-deck__icon--play">
-            {{- 'icon-play.svg' | inline_asset_content -}}
-          </span>
-          <span class="archive-deck__icon archive-deck__icon--pause">
-            {{- 'icon-pause.svg' | inline_asset_content -}}
-          </span>
-        </span>
-        <span class="archive-deck__audition-label">Audition</span>
-      </button>
-    {%- endif -%}
   </div>
+
+  {%- comment -%}
+    RB-002.4 — ARCHIVE INDEX. The SELECT stage of the Retrieval
+    Chamber: an archival rail beneath the chamber, backed by the same
+    data the catalogue feed uses (archive-track-record per product,
+    audio-bearing artifacts only — membership identical to the feed).
+    Every entry is a real .archive-card in the existing bus contract:
+    data-track-id + .archive-track-data + [data-archive-play], so
+    archive-card-ui.js gives selection, seating, is-active/is-playing
+    state and queue order for free — visible cards outrank the feed,
+    so the rail IS the deck's queue, in this exact order. One engine,
+    no new playback system. The Horizon product-recommendations
+    section this supersedes is retired from view in archive-deck.css
+    (the template JSON is deliberately not touched).
+  {%- endcomment -%}
+  <section class="archive-index" aria-label="Archive index">
+    <h2 class="archive-index__head">Archive Index</h2>
+
+    <ol class="archive-index__rail" role="list">
+      {%- for item in collections.all.products limit: 50 -%}
+        {%- capture archive_index_record -%}
+          {%- render 'archive-track-record', product: item -%}
+        {%- endcapture -%}
+        {%- assign archive_index_record = archive_index_record | strip -%}
+
+        {%- if archive_index_record != blank -%}
+          {%- assign item_no = item.metafields.custom.archive.value -%}
+          {%- assign item_bpm = item.metafields.custom.bpm.value -%}
+          {%- assign item_key = item.metafields.custom.key.value -%}
+          {%- assign item_type = item.metafields.custom.type.value -%}
+
+          <li class="archive-card archive-index__entry" data-track-id="{{ item.id }}">
+            <script
+              type="application/json"
+              class="archive-track-data"
+              data-archive-track="{{ item.id }}"
+            >{{ archive_index_record }}</script>
+
+            <button
+              type="button"
+              class="archive-index__main"
+              data-archive-play
+              aria-label="Audition {{ item.title | escape }}"
+            >
+              <span class="archive-index__no">{% if item_no != blank %}{{ item_no }}{% else %}&mdash;{% endif %}</span>
+
+              {%- if item.featured_image -%}
+                <img
+                  class="archive-index__art"
+                  src="{{ item.featured_image | image_url: width: 120 }}"
+                  width="60"
+                  height="60"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                >
+              {%- else -%}
+                <span class="archive-index__art archive-index__art--void" aria-hidden="true"></span>
+              {%- endif -%}
+
+              <span class="archive-index__title">{{ item.title }}</span>
+
+              {%- comment -%}
+                RB-002.4.1 — accession-register columns. Every field
+                renders its cell in every row; a missing value keeps
+                its column as an em-dash rather than letting the row
+                re-flow. Alignment is the register's integrity.
+              {%- endcomment -%}
+              <span class="archive-index__bpm">{% if item_bpm != blank %}{{ item_bpm }} BPM{% else %}&mdash;{% endif %}</span>
+              <span class="archive-index__key">{% if item_key != blank %}{{ item_key }}{% else %}&mdash;{% endif %}</span>
+              <span class="archive-index__type">{% if item_type != blank %}{{ item_type }}{% else %}&mdash;{% endif %}</span>
+
+              <span class="archive-index__state" aria-hidden="true"></span>
+            </button>
+
+            <a
+              class="archive-index__open"
+              href="{{ item.url }}"
+              aria-label="Open {{ item.title | escape }} in the archive"
+            >&#8599;</a>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ol>
+  </section>
 
   <div class="archive-deck__panel">
-    <header class="archive-deck__identity">
-      {%- if archive_no != blank -%}
-        <p class="archive-deck__catalog">Archive {{ archive_no }}</p>
-      {%- endif -%}
-
-      <h1 class="archive-deck__title">{{ artifact.title }}</h1>
-
-      {%- if bpm != blank or musical_key != blank or mood != blank or artifact_type != blank or duration != blank -%}
-        <dl class="archive-deck__spec">
-          {%- if bpm != blank -%}
-            <div class="archive-deck__spec-item">
-              <dt>Tempo</dt>
-              <dd>{{ bpm }} BPM</dd>
-            </div>
-          {%- endif -%}
-
-          {%- if musical_key != blank -%}
-            <div class="archive-deck__spec-item">
-              <dt>Key</dt>
-              <dd>{{ musical_key }}</dd>
-            </div>
-          {%- endif -%}
-
-          {%- if mood != blank -%}
-            <div class="archive-deck__spec-item">
-              <dt>Character</dt>
-              <dd>{{ mood }}</dd>
-            </div>
-          {%- endif -%}
-
-          {%- if artifact_type != blank -%}
-            <div class="archive-deck__spec-item">
-              <dt>Classification</dt>
-              <dd>{{ artifact_type }}</dd>
-            </div>
-          {%- endif -%}
-
-          {%- if duration != blank -%}
-            <div class="archive-deck__spec-item">
-              <dt>Runtime</dt>
-              <dd>{{ duration }}</dd>
-            </div>
-          {%- endif -%}
-        </dl>
-      {%- endif -%}
-    </header>
-
     {%- comment -%}
-      Terms of access. Everything purchasable lives here, and all of
-      it is Horizon's own blocks — price, variant-picker, buy-buttons,
-      description. Ordering is controlled from the theme editor.
-
-      The heading is the one gated moment on this page, so it carries
-      the restricted register (see .claude/VOICE.md). The blocks
-      beneath it keep Horizon's own plain wording, because the last
-      step before Shopify's checkout has to stay legible.
+      RB-002.1 — the duplicate identity presentation (catalog line,
+      display title, spec sheet) is removed; RB-001 carries all of it
+      visually. The h1 remains for document semantics only.
     {%- endcomment -%}
-    <div class="archive-deck__licence">
-      <h2 class="archive-deck__licence-heading">Terms of access</h2>
+    <h1 class="visually-hidden">{{ artifact.title }}</h1>
 
-      {% content_for 'blocks' %}
-    </div>
   </div>
 </section>
+
+<script>
+  /* RB-002.3 — ACQUIRE LICENSE reveals the Terms of Retrieval.
+     Deck-owned progressive enhancement; rb001-ui.js is untouched.
+     The player rewrites the CTA href on trackchange, so the
+     same-page test runs at click time against the current href:
+     the displayed artifact's own page scrolls to terms, any other
+     artifact navigates to its page as before. */
+  (function () {
+    document.addEventListener('click', function (e) {
+      var cta = e.target.closest('[data-rb001-acquire]');
+      if (!cta || cta.tagName !== 'A' || !cta.href) return;
+      var panel = document.getElementById('terms-of-retrieval');
+      if (!panel) return;
+      var here = location.pathname.replace(/\/+$/, '');
+      var there;
+      try { there = new URL(cta.href, location.origin).pathname.replace(/\/+$/, ''); }
+      catch (err) { return; }
+      if (here !== there) return;
+      e.preventDefault();
+      var chamber = cta.closest('[data-rb001-chamber]') || document.querySelector('[data-rb001-chamber]');
+      if (!chamber) return;
+      var open = chamber.classList.toggle('is-expanded');
+      panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+      cta.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!reduced) panel.addEventListener('transitionend', function f() {
+          panel.removeEventListener('transitionend', f); panel.focus({ preventScroll: true });
+        });
+        else panel.focus({ preventScroll: true });
+      }
+    });
+  })();
+
+  /* RB-002.5 — the dock as field monitor. The global player is
+     continuity, not competition: on chamber pages it stands down
+     while RB-001 is on stage and returns when the visitor scrolls
+     past it. Presentation-only — the engine, bus and dock markup
+     are untouched; archive-deck.css holds the one rule this class
+     drives. */
+  (function () {
+    var chamber = document.querySelector('[data-rb001-chamber]');
+    if (!chamber || !('IntersectionObserver' in window)) return;
+    var set = function (onstage) {
+      document.body.classList.toggle('rb001-chamber-onstage', onstage);
+    };
+    var r = chamber.getBoundingClientRect();
+    set(r.bottom > 0 && r.top < window.innerHeight);
+    new IntersectionObserver(function (entries) {
+      set(entries[0].isIntersecting);
+    }, { threshold: 0 }).observe(chamber);
+  })();
+</script>
 
 {% schema %}
 {

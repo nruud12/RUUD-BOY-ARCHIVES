@@ -353,10 +353,6 @@
 ></script>
 
 <script
-  src="{{ 'archive-audio-engine.js' | asset_url }}"
-  type="module"
-></script>
-<script
   src="{{ 'archive-ui.js' | asset_url }}"
   type="module"
 ></script>
@@ -378,6 +374,16 @@
 {%- endcomment -%}
 <script
   src="{{ 'archive-vitrine.js' | asset_url }}"
+  type="module"
+></script>
+
+{%- comment -%}
+  RB-001 crystal player view (Stage 3). A second view of the same
+  bus state — registers with ArchiveOS like every module above and
+  no-ops on pages without a [data-rb001] mount.
+{%- endcomment -%}
+<script
+  src="{{ 'rb001-ui.js' | asset_url }}"
   type="module"
 ></script>
 {% comment %}

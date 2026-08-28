@@ -1,0 +1,132 @@
+{%- doc -%}
+  RB-001 — the crystal player shell (Stage 3: live content).
+
+  ARCHITECTURE (locked): the Blender render is the complete physical
+  interface — crystal, glass housings, capsule, optical edges. This
+  snippet renders that ONE image plus an overlay of empty, transparent
+  hooks. Shopify owns every piece of content; Blender owns every piece
+  of glass. Nothing product-specific may be written into this file.
+
+  Stage 3: assets/rb001-ui.js (loaded from snippets/scripts.liquid)
+  populates every hook from the ArchiveOS bus exactly as
+  archive-ui.js populates the transport deck. This file still renders
+  no product data itself — the record travels over the bus, and the
+  data contract lives in the rb001-ui.js header.
+
+  COORDINATES: every zone is positioned by the Frame-B calibration map
+  in assets/rb001-player.css — shell-relative percentages measured
+  through the locked Blender camera (see the Stage-1 audit). Do not
+  add positioning here, and do not invent percentages there.
+
+  The buttons carry no chrome. The rendered glass IS the button.
+  Stage 3B adds the GLYPHS as content: inline SVG reproductions of the
+  measured Blender glyph objects (PI6_Play / PI6_Next / PI6_Previous /
+  PI6_HeartGlyph), sized and centred by their measured glyph-to-housing
+  ratios. They draw no circles, borders or backgrounds of their own.
+{%- enddoc -%}
+
+{{ 'rb001-player.css' | asset_url | stylesheet_tag }}
+
+<div class="rb001" data-rb001 data-rb001-stage="3d">
+  <img
+    class="rb001__shell"
+    src="{{ 'rb001-shell-collapsed.png' | asset_url }}"
+    alt=""
+    width="1743"
+    height="690"
+    decoding="async"
+    aria-hidden="true"
+  >
+
+  {%- comment -%} ---- content zones (empty hooks, Stage 3 fills them) ---- {%- endcomment -%}
+  <div class="rb001__zone rb001__zone--artwork" aria-hidden="true">
+    {%- comment -%}
+      No src attribute at all until a track is seated. An empty src=""
+      resolves against the page URL, so the browser really does issue a
+      request for the document as an image and logs a failure on every
+      idle shell. The Stage-3B artwork zone starts genuinely empty.
+    {%- endcomment -%}
+    <img class="rb001__artwork is-showing" data-rb001-artwork-a alt="">
+    <img class="rb001__artwork" data-rb001-artwork-b alt="">
+  </div>
+
+  {%- comment -%}
+    IDENTITY. Stage 3B: each line is its own box at the coordinates of
+    the matching Blender text object, measured through the locked camera
+    (see the calibration table in assets/rb001-player.css). The wrapper
+    is a bare positioning context, not a panel.
+  {%- endcomment -%}
+  <div class="rb001__zone rb001__zone--identity">
+    {%- comment -%} Static UI label — not track data. {%- endcomment -%}
+    <p class="rb001__line rb001__nowplaying" aria-hidden="true">NOW PLAYING</p>
+    <h2 class="rb001__line rb001__title" data-rb001-title></h2>
+    <p class="rb001__line rb001__producer" data-rb001-producer></p>
+    <p class="rb001__line rb001__meta">
+      <span data-rb001-bpm></span>
+      <span data-rb001-key></span>
+      <span data-rb001-tags></span>
+    </p>
+  </div>
+
+  <span class="rb001__zone rb001__zone--time" data-rb001-time></span>
+
+  <div class="rb001__zone rb001__zone--waveform">
+    <div class="rb001__waveform" data-rb001-waveform aria-hidden="true"></div>
+  </div>
+
+  {%- comment -%} ---- transparent hit areas over the rendered glass ---- {%- endcomment -%}
+  {%- comment -%}
+    Glyphs, and where each one's authority comes from:
+
+      play   Single triangle, 3 verts (0,1)(1,0.5)(0,0). The SHAPE is
+             Blender's PI6_Play; the box it fills is the reference's,
+             which is wider and shorter (Stage 3D).
+      heart  Purpose-built stroked outline (Stage 3D). Bfont's U+2661
+             contour carried a hairline — 3.5% of the glyph width — where
+             the reference draws a heavy 15% stroke, and a font contour
+             cannot be re-weighted. This is a centreline path stroked to
+             the measured weight; its envelope and optical drop are still
+             PI6_HeartGlyph's.
+      prev
+      next   The CANONICAL REFERENCE, not Blender (Stage 3C). Blender's
+             prev/next are single triangles, but PI6_Previous is a stale
+             object — permanently hidden, and sunk 0.72 units below the
+             glass the other glyphs share — and the reference draws the
+             pair as double chevrons. Each mark is two identical
+             triangles: the second begins at 0.463 of the box and each
+             spans 0.537, so they abut with a 0.074 overlap. Those two
+             figures are the step and span measured off the reference's
+             own ink-per-column profile, and prev is the exact mirror.
+
+    Every size and offset is a ratio of the housing box, so the glyphs
+    scale with the shell and need no viewport rules.
+  {%- endcomment -%}
+  <button type="button" class="rb001__hit rb001__hit--prev" data-rb001-prev aria-label="Previous artifact" disabled><svg class="rb001__glyph" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M1 0L.463 .5L1 1Z"/><path d="M.537 0L0 .5L.537 1Z"/></svg></button>
+  <button type="button" class="rb001__hit rb001__hit--play" data-rb001-play aria-label="Play" disabled><svg class="rb001__glyph" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 0L1 .5L0 1Z"/></svg></button>
+  <button type="button" class="rb001__hit rb001__hit--next" data-rb001-next aria-label="Next artifact" disabled><svg class="rb001__glyph" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 0L.537 .5L0 1Z"/><path d="M.463 0L1 .5L.463 1Z"/></svg></button>
+  {%- comment -%}
+    Favorite is VISUAL ONLY in Stage 3B. There is no favorites mechanism
+    anywhere in the theme, so the control stays disabled rather than
+    growing a private one.
+  {%- endcomment -%}
+  <button type="button" class="rb001__hit rb001__hit--heart" data-rb001-heart aria-pressed="false" aria-label="Favorite" disabled><svg class="rb001__glyph rb001__glyph--stroked" viewBox="-8.82 -8.82 117.65 110.60" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M50 25C50 11.19 61.19 0 75 0C88.81 0 100 11.19 100 25C100 52 62 72 50 92.95C38 72 0 52 0 25C0 11.19 11.19 0 25 0C38.81 0 50 11.19 50 25Z"/></svg></button>
+  {%- comment -%}
+    ACQUIRE LICENSE (Stage 2). Real Shopify text over the rendered
+    glass pill — the glass is the chrome, this element is only text,
+    interaction and accessibility. Label comes from the locale, never
+    hard-coded. Destination: Stage-2 safe fallback is the product URL
+    when Liquid has product context (the current deck mount); Stage 3
+    upgrades data-rb001-acquire to the licence-region scroll/queue
+    behaviour via the ArchiveOS bus. Without product context it stays
+    a disabled control rather than a dead link.
+  {%- endcomment -%}
+  {%- if product -%}
+    <a class="rb001__hit rb001__hit--acquire" data-rb001-acquire href="{{ product.url }}">
+      <span class="rb001__acquire-label">{{ 'actions.acquire_license' | t }}</span>
+    </a>
+  {%- else -%}
+    <button type="button" class="rb001__hit rb001__hit--acquire" data-rb001-acquire disabled>
+      <span class="rb001__acquire-label">{{ 'actions.acquire_license' | t }}</span>
+    </button>
+  {%- endif -%}
+</div>

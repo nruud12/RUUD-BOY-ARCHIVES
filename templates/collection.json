@@ -9,6 +9,84 @@
  */
 {
   "sections": {
+    "section": {
+      "type": "section",
+      "blocks": {
+        "text_tqQTNE": {
+          "type": "text",
+          "name": "t:names.title",
+          "settings": {
+            "text": "<h1>{{ closest.collection.title }}</h1>",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h2",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "text_color": "#ff00ff",
+            "background": true,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 100,
+            "padding-block-end": 0,
+            "padding-inline-start": 40,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_tqQTNE"
+      ],
+      "name": "t:names.heading",
+      "settings": {
+        "content_direction": "row",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "full-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "background_media": "image",
+        "background_color": "{{ settings.color_palette.foreground }}",
+        "video_position": "cover",
+        "background_image": "shopify://shop_images/IMG_4264_2.jpg",
+        "background_image_position": "cover",
+        "toggle_overlay": false,
+        "overlay_color": "#00000061",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_color": "",
+        "border_radius": 0,
+        "padding-block-start": 100,
+        "padding-block-end": 32
+      }
+    },
+    "artifact_head": {
+      "type": "archive-catalog-head",
+      "settings": {
+        "eyebrow": "The Artifact",
+        "title": "The Artifact"
+      }
+    },
+    "holdings_head": {
+      "type": "archive-holdings-head",
+      "settings": {
+        "eyebrow": "The Collection",
+        "title": "The Holdings"
+      }
+    },
     "main": {
       "type": "main-collection",
       "blocks": {
@@ -24,7 +102,7 @@
             "show_filter_label": false,
             "enable_sorting": true,
             "enable_grid_density": false,
-            "background_color": "{{ settings.color_palette.color1 }}",
+            "background_color": "#050505",
             "text_color": "",
             "padding-block-start": 8,
             "padding-block-end": 8,
@@ -83,27 +161,20 @@
         "products_per_page": 24,
         "product_grid_width": "full-width",
         "full_width_on_mobile": true,
-        "columns_gap_horizontal": 1,
-        "columns_gap_vertical": 1,
+        "columns_gap_horizontal": 32,
+        "columns_gap_vertical": 32,
         "padding-inline-start": 0,
         "padding-inline-end": 0,
-        "background_color": "{{ settings.color_palette.color1 }}",
+        "background_color": "#050505",
         "padding-block-start": 0,
         "padding-block-end": 1
-      }
-    },
-    "room_title": {
-      "type": "archive-room-title",
-      "settings": {
-        "eyebrow": "The Holdings",
-        "title": "The Reading Room",
-        "link_label": "",
-        "link": ""
       }
     }
   },
   "order": [
-    "room_title",
+    "section",
+    "artifact_head",
+    "holdings_head",
     "main"
   ]
 }

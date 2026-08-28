@@ -279,6 +279,63 @@ html:has(.archive-os) {
   opacity: 0.45;
 }
 
+/* Facet dropdowns (Availability, Price, BPM, Mood, Key) — the popover
+   surface Horizon floats under each facet label. Same glass/line
+   vocabulary as every other pane in the room instead of the stock
+   popover chrome (theme-setting radius, generic drop shadow). Scoped
+   to the horizontal desktop popover, which is the only place this
+   floating box exists — the mobile/vertical drawer renders the same
+   content inline with no card around it. */
+.archive-os .facets--horizontal .facets__panel-content {
+  background-color: var(--archive-surface-raised);
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-xs);
+  box-shadow: var(--archive-shadow-rest);
+}
+
+/* Facet value pills (BPM, Key — any facet whose values are short
+   enough that Horizon renders them as pills instead of checkboxes).
+   Horizon's default is a rounded-pill SaaS button; the archive has one
+   button language already (see "8. BUTTONS & LINKS") — a hairline
+   outline that fills with light on hover — so the pill borrows it
+   rather than inventing a second control style. Selection is shown by
+   inverting fill, the same convention used for a checked checkbox. */
+.archive-os .facets__pill-label {
+  border-radius: var(--archive-radius-xs);
+  box-shadow: none;
+  border: 1px solid var(--archive-line-strong);
+  color: var(--archive-text-subtle);
+  background-color: transparent;
+  transition:
+    border-color var(--archive-speed) var(--archive-ease),
+    background-color var(--archive-speed) var(--archive-ease),
+    color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-os .facets__pill-input:not(:checked) + .facets__pill-label:hover {
+  border-color: var(--archive-magenta-64);
+  background-color: var(--archive-magenta-08);
+  color: var(--archive-text);
+}
+
+.archive-os .facets__pill-input:checked + .facets__pill-label {
+  border-color: var(--archive-text);
+  background-color: var(--archive-text);
+  color: var(--archive-bg);
+}
+
+/* Per-filter and clear-all actions read as chrome-heavy buttons under
+   Horizon's default skin. They are quiet finding-aid text everywhere
+   else in the archive (see the predictive-search clear button in
+   "11. SEARCH"); give them the same treatment here. */
+.archive-os .clear-filter,
+.archive-os .facets__clear-all-link,
+.archive-os .facets__clear-all {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 /* A room title that opens a page needs to clear the sticky header.
    Mid-page the standard measure is enough; at the top it is not, and
    the caption collided with the navigation. */
@@ -368,14 +425,64 @@ html:has(.archive-os) {
   box-shadow: none !important;
 }
 
+/* On templates whose first section triggers Horizon's own
+   "transparent header" mode (e.g. a full-bleed banner), Horizon
+   takes header-component out of flow (position: absolute) so the
+   banner can occupy the space beneath it. #header-group and <main>
+   are both direct .page-wrapper children sharing the generic z-index:
+   1 set below — same value, so DOM order decides, and <main> (which
+   comes second) paints over the now-overlapping, out-of-flow header.
+   #header-group needs to outrank <main> at that shared level so the
+   header stays on top regardless of which positioning mode Horizon
+   puts it in. */
+.archive-os #header-group {
+  z-index: var(--archive-z-header);
+}
+
 .archive-os header-component {
   position: sticky;
   top: 0;
   z-index: var(--archive-z-header);
-  backdrop-filter: blur(var(--archive-blur-glass));
-  -webkit-backdrop-filter: blur(var(--archive-blur-glass));
-  background: linear-gradient(to bottom, rgba(5, 5, 5, 0.82), rgba(5, 5, 5, 0)) !important;
-  transition: background var(--archive-speed) var(--archive-ease);
+  background: transparent !important;
+}
+
+/* No opaque backing behind the header — the Sanctum shows through it,
+   so nav glyphs need their own contrast rather than borrowing a dark
+   bar. A tight shadow keeps them legible over the room's brighter
+   gold/archway passages without reintroducing a scrim. */
+.archive-os #header-group a,
+.archive-os .header__menu-item,
+.archive-os .menu-drawer__menu-item,
+.archive-os .header-actions__action,
+.archive-os .header__column--left .logo,
+.archive-os .header__heading-logo,
+.archive-os .header__logo-text {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+.archive-os .header-actions__action .svg-wrapper svg,
+.archive-os .header-actions__action svg {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65));
+}
+
+/* Horizon sets --color-account-icon: var(--color-foreground) on
+   .header__row so the account icon "inherits the header's colour" —
+   every other header element gets that same treatment overridden
+   below with an explicit archive token, but this one was missed, so
+   it was still drawing from the header's underlying (light-scheme)
+   foreground: near-black, invisible against the dark canvas even
+   before the opaque backdrop came off. Bring it in line with every
+   other icon here.
+
+   The dark shadow only helps over bright passages; over the room's
+   own darkest patches (e.g. the collection banner) a low-opacity
+   icon can all but disappear into a near-black backdrop. A faint
+   light-side glow gives it a rim to read against dark ground too,
+   without brightening it enough to compete with the room over
+   lighter ground. */
+.archive-os .account-button__icon {
+  color: var(--archive-text-subtle) !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 3px rgba(255, 255, 255, 0.25)) !important;
 }
 
 /* Navigation type.
@@ -474,6 +581,29 @@ html:has(.archive-os) {
   background: rgba(5, 5, 5, 0.9) !important;
 }
 
+/* Mobile menu drawer (snippets/header-drawer.liquid) carries a
+   merchant-configured color-custom-{id} background from the header
+   section's theme-editor settings, left at Horizon's white default —
+   the same class of leftover-demo-colour issue already cleaned out
+   elsewhere (see "3. DE-SHOPIFY"). Link text already resolves
+   correctly via .menu-drawer__menu-item above; only the panel itself
+   needs the canvas restored. Desktop nav is a separate component
+   (.mega-menu__link / .menu__item, styled above) and is unaffected. */
+.archive-os .menu-drawer {
+  background-color: var(--archive-bg);
+}
+
+/* Shared Horizon drawer heading (cart, mobile filters) renders in the
+   theme's stock Anton demo face via the generic .h4 utility — the same
+   face already swapped out everywhere else in the archive (see the
+   search-results heading in "11. SEARCH"). */
+.archive-os .theme-drawer__title {
+  font-family: var(--archive-font-display);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+}
+
 /* ==========================================================
    5. LAYOUT PRIMITIVES
 ========================================================== */
@@ -563,10 +693,6 @@ html:has(.archive-os) {
    Horizon's grid is retained; only its rhythm and skin change.
    Cards get air rather than borders.
 ========================================================== */
-
-.archive-os .product-grid {
-  gap: clamp(1.5rem, 3vw, 3rem) !important;
-}
 
 .archive-os .product-list__content,
 .archive-os .product-grid__card {
@@ -673,7 +799,6 @@ html:has(.archive-os) {
 .archive-os footer,
 .archive-os .footer {
   background: transparent !important;
-  border-top: 1px solid var(--archive-line);
   padding-block: var(--archive-space-2xl) var(--archive-space-lg);
   color: var(--archive-text-subtle);
 }
@@ -726,4 +851,182 @@ html:has(.archive-os) {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ==========================================================
+   11. SEARCH
+
+   Living Archive — Search UI Foundation milestone.
+
+   Two separate stock Horizon components, neither previously
+   touched: the predictive dropdown (snippets/search-modal.liquid,
+   its own {% stylesheet %} plus snippets/predictive-search-styles.liquid)
+   and the standalone results-page input (blocks/_search-input.liquid,
+   rendered inside sections/search-header.liquid's .search-page__header).
+   Both still used Horizon's own --color-* and --padding-* tokens;
+   the results-page heading used Horizon's stock Anton display font,
+   the one surface here that read as a different site.
+
+   Same discipline as "3. DE-SHOPIFY" above: colour, type and
+   spacing only, reusing existing --archive-* tokens exclusively.
+   No layout, radius, or motion changes — the dialog's open/close
+   animation, the dropdown's positioning, and the reset-button
+   logic are all left exactly as Horizon built them. Result cards
+   already render through snippets/product-card.liquid (the same
+   block collection pages use), so they need nothing here.
+========================================================== */
+
+/* ---- Results page: the "SEARCH RESULTS" heading ----
+   Was Anton (Horizon's stock display font) at full weight —
+   swapped for the same display face/tracking every other page
+   title in the archive already uses. */
+.archive-os .search-page__header .text-block h1,
+.archive-os .search-page__header .text-block h2,
+.archive-os .search-page__header .text-block h3 {
+  font-family: var(--archive-font-display);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+  color: var(--archive-text);
+}
+
+/* ---- Results page: standalone search input ---- */
+.archive-os .search-page-input {
+  background-color: var(--archive-surface);
+  border-color: var(--archive-line);
+  color: var(--archive-text);
+  font-family: var(--archive-font-body);
+}
+
+.archive-os .search-page-input::placeholder {
+  color: var(--archive-text-subtle);
+}
+
+.archive-os search-page-input-component .search__icon svg,
+.archive-os search-page-input-component .search__reset-button svg {
+  color: var(--archive-text-subtle);
+}
+
+.archive-os .search-results__no-results,
+.archive-os .predictive-search-results__no-results p {
+  font-family: var(--archive-font-body);
+  color: var(--archive-text-subtle);
+}
+
+/* ---- Predictive dropdown (search-modal.liquid) ---- */
+.archive-os .search-modal__content,
+.archive-os predictive-search-component,
+.archive-os .predictive-search-form__content {
+  background-color: var(--archive-surface);
+}
+
+.archive-os .predictive-search-form__header,
+.archive-os .predictive-search-form__header-inner {
+  background-color: var(--archive-surface-raised);
+  border-color: var(--archive-line);
+}
+
+.archive-os input.search-input {
+  color: var(--archive-text);
+  font-family: var(--archive-font-body);
+}
+
+.archive-os input.search-input::placeholder {
+  color: var(--archive-text-subtle);
+}
+
+.archive-os .predictive-search__icon {
+  color: var(--archive-text-subtle);
+}
+
+/* Finding-aid labels — the same caption treatment as the facets
+   bar in "3. DE-SHOPIFY": caption size, wide tracking, low
+   contrast, no filled background. */
+.archive-os .predictive-search-results__title,
+.archive-os .predictive-search-results__clear.button-unstyled,
+.archive-os .predictive-search__search-button {
+  font-family: var(--archive-font-body);
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-subtle);
+}
+
+.archive-os .predictive-search-results__clear.button-unstyled:hover,
+.archive-os .predictive-search__search-button:hover {
+  color: var(--archive-text);
+}
+
+/* ---- Search Surface Polish ----
+
+   Two follow-ups identified while building the section above.
+
+   1. Pricing. resource-card.liquid renders {% render 'price' %}
+      whenever resource_type == 'product' — true everywhere it's
+      used: the cart drawer, the mega menu, AND both predictive
+      search paths (the empty-state products list and the
+      live-typed resource carousel). Editing resource-card.liquid
+      itself would strip price from the cart drawer too. Both
+      search paths render into the same wrapper class,
+      .predictive-search-results__card, which the cart drawer and
+      mega menu never use — so scoping the hide to that ancestor
+      removes price only from the Living Archive's own search
+      surface, with zero Liquid touched and zero risk to the
+      shared component elsewhere. Card Philosophy: "No purchase
+      controls. No pricing. No licensing." */
+.archive-os .predictive-search-results__card [ref="priceContainer"] {
+  display: none;
+}
+
+/* 2. Geometry. Every border-radius here read from Horizon's
+   generic --style-border-radius-* tokens — the rounded-pill
+   shape that made the input read as a generic site-search box.
+   --search-border-radius is already a single local custom
+   property that .search-modal__content and
+   .predictive-search-form__content-wrapper both read from, so
+   redefining it once here reaches both. The remaining chrome
+   needs a direct override since it reads the global input-radius
+   token directly. --archive-radius-sm is the same value card
+   media already uses — not a new one.
+
+   padding-inline is deliberately untouched on both inputs below:
+   it's coupled to the search icon's absolute-positioned offset,
+   and this is a polish pass, not a layout rebuild. Only the
+   vertical padding — visually "puffy" against the rest of the
+   archive's restraint — moves to the existing --archive-space-xs
+   step. */
+.archive-os .search-modal {
+  --search-border-radius: var(--archive-radius-sm);
+}
+
+.archive-os .predictive-search-form__header,
+.archive-os .predictive-search-form__header-inner,
+.archive-os input.search-input,
+.archive-os .search-page-input {
+  border-radius: var(--archive-radius-sm);
+}
+
+.archive-os input.search-input,
+.archive-os .search-page-input {
+  padding-block: var(--archive-space-xs);
+}
+
+/* ==========================================================
+   12. ARCHIVE CATALOG HEAD — ARTIFACT MOUNT
+
+   sections/archive-catalog-head.liquid, Milestone A. Reserves the
+   collection page's future Artifact space. The mount composes the
+   existing .archive-glass / .archive-glass--case material from
+   "THE GLASS MATERIAL" above — only the size/shape is new here,
+   kept to the minimum needed for the case to read as a real,
+   waiting surface rather than an invisible 0-height div. No
+   colour, border or blur is declared here; that all comes from
+   the glass classes already applied in the markup.
+========================================================== */
+
+.archive-artifact-mount {
+  aspect-ratio: 21 / 9;
+  min-height: 220px;
+  border-radius: var(--archive-radius-sm);
 }

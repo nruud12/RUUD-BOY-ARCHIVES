@@ -21,6 +21,15 @@
          .archive-card__catalog
          .archive-card__title
          .archive-card__details
+         .archive-card__waveform    ← Mini Waveform, see below
+
+   Card Components order per the Founder Package Engineering Bible:
+   Artwork → Beat Name → Metadata → Mini Waveform → Preview. The
+   Preview affordance (.archive-card__overlay) is an always-present
+   overlay ON the artwork, not a later content block, so it cannot
+   literally sit after .archive-card__waveform in the DOM without
+   restructuring the overlay itself — out of scope here. Metadata →
+   Mini Waveform, the unambiguous part of that ordering, is exact.
 ========================================================== */
 
 /* The card sits on the archive canvas, explicitly.
@@ -38,12 +47,58 @@
   height: 100%;
   background-color: var(--archive-bg);
   border: 0;
-  transition: transform var(--archive-speed-slow) var(--archive-ease);
+  transition:
+    transform var(--archive-speed-slow) var(--archive-ease),
+    opacity var(--archive-speed-slow) var(--archive-ease);
+}
+
+/* ==========================================================
+   ENTRANCE — see archive-card-ui.js "ENTRANCE" for the timing.
+
+   A settle, not a fade/slide: the same 6px arrival every other
+   "object appears" moment in the archive already uses (see
+   .vitrine__monument / .vitrine__label in archive-vitrine.css).
+   Both properties share .archive-card's own transform transition
+   above rather than a separate --archive-motion-reveal duration, so
+   the artwork, its glass pane and the hover lift all move as one
+   rigid object at one speed — an object arriving, not two layers
+   drifting out of sync.
+
+   .is-entering is added by JS, never present by default: if the
+   script fails, a card simply keeps whatever visibility Horizon
+   already gave it rather than staying invisible forever. transition:
+   none here is what keeps that initial hide instant, so removing the
+   class is the only moment that actually animates. */
+.archive-card.is-entering {
+  transition: none;
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 /* Restraint: the card lifts by 4px. It does not scale, tilt or glow. */
 .archive-card:hover {
   transform: translateY(-4px);
+}
+
+/* Shopify's contrast-override system (snippets/contrast-override.liquid)
+   writes a per-instance .color-custom-{block.id} rule straight onto
+   .product-card__content, painting it white (settings.color_palette.background)
+   with a smart-contrasted dark text color. That is the "conventional white
+   Shopify product card" backdrop the archive was designed to not have — it
+   sits INSIDE .archive-card, between the outer dark canvas and the record's
+   own "transparent" background, so it wins visually and the record content
+   sat on white instead of the archive canvas.
+
+   [class*="color-custom-"] matches that class regardless of block id, so
+   this covers every card instance without hardcoding one. Two simple
+   selectors here (.archive-card + the attribute selector) outrank
+   contrast-override's single-class rule on specificity alone; !important
+   is added only on background-color because that property is the one
+   actively fought (Shopify may re-emit or reorder that rule), not because
+   specificity is insufficient. */
+.archive-card [class*="color-custom-"] {
+  background-color: var(--archive-bg) !important;
+  color: var(--archive-text);
 }
 
 /* ==========================================================
@@ -55,6 +110,34 @@
   overflow: hidden;
   border-radius: var(--archive-radius-sm);
   background: var(--archive-surface-inset);
+  transition: box-shadow var(--archive-motion-illuminate) var(--archive-ease);
+}
+
+/* The pane over the artifact — reuses the vitrine's own glass
+   material (archive-vitrine.css, .vitrine__glass) rather than
+   inventing a second implementation. Deliberately restrained: it
+   should read as a protective pane over a catalogued object, not
+   as a UI gloss effect — the artwork stays the primary surface.
+
+   Lives on its own pseudo-element, not on .archive-card__media
+   itself, because that element's box-shadow is already claimed by
+   three separate state rules below (hover ring, is-playing ring,
+   is-active ring) — each one replaces the property outright rather
+   than adding to it, so a glass shadow declared there would vanish
+   the instant a card is hovered or played. */
+.archive-card__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--archive-radius-sm);
+  pointer-events: none;
+
+  background: var(--archive-reflect-sheen);
+  box-shadow:
+    var(--archive-glass-interior),
+    inset 0 1px 0 var(--archive-reflect-rim);
+  backdrop-filter: blur(var(--archive-glass-blur-thin));
+  -webkit-backdrop-filter: blur(var(--archive-glass-blur-thin));
 }
 
 .archive-card__media img,
@@ -82,6 +165,25 @@
 .archive-card:hover .card-gallery img {
   transform: scale(1.015);
   filter: brightness(1.08) saturate(1.06);
+}
+
+/* Border becomes subtly illuminated — the same case-lamp moment as
+   the brightening above, not a second effect. Reuses the hairline
+   inset-box-shadow technique established below for is-playing /
+   is-active (a ring, not a layout-shifting border).
+
+   Cyan, not magenta: magenta is reserved exclusively for the
+   active/playing signal (see ACTIVE ARTIFACT below), so a plain
+   hover can never be mistaken for "this beat is playing."
+
+   Same selector specificity as the is-playing / is-active rules
+   below, and this rule comes first in the file — so hovering a card
+   that is already playing or active still shows ITS OWN magenta
+   ring; source order alone lets the more meaningful state win, with
+   no :not() needed. */
+.archive-card:hover .archive-card__media,
+.archive-card:focus-within .archive-card__media {
+  box-shadow: inset 0 0 0 1px var(--archive-cyan-24);
 }
 
 /* ==========================================================
@@ -144,7 +246,16 @@
 
 .archive-play-button:hover {
   background: rgba(18, 18, 18, 0.78);
-  border-color: var(--archive-magenta-64);
+  border-color: var(--archive-cyan-48);
+}
+
+/* Playing beats their own hover: the transport control itself
+   picks up a trace of the active color, at the same restrained
+   alpha as the media ring below. Higher specificity than the
+   plain :hover rule above, so it wins even while the cursor is
+   still resting on the button. */
+.archive-card.is-playing .archive-play-button {
+  border-color: var(--archive-magenta-32);
 }
 
 .archive-play-button__icon {
@@ -214,10 +325,77 @@
 }
 
 /* ==========================================================
+   MINI WAVEFORM
+
+   A deterministic fingerprint of the track, not a progress display —
+   see assets/archive-card-ui.js. It communicates identity, the same
+   way the persistent player's own waveform does (see that file's
+   own "ON THE WAVEFORM" note); it never shows playback position.
+   Always rendered; hover/focus makes it "become active" by reusing
+   archive-wf-breathe (@keyframes, defined in archive-player.css and
+   already loaded globally by snippets/stylesheets.liquid) at its
+   existing 2.4s / --archive-ease-soft timing — the same motion
+   language the full player already uses for "sounding," not a new
+   animation. Bar geometry (3px + 2px gap, the 6%–84% height range,
+   34px row height) is copied unchanged from .archive-player__wf-bar
+   for the same reason: reusing the existing visual language rather
+   than inventing new sizing for the "mini" version.
+========================================================== */
+
+.archive-card__waveform {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 34px;
+  margin-block-start: var(--archive-space-3xs);
+}
+
+.archive-card__waveform-bar {
+  flex: 0 0 3px;
+  height: calc(6% + var(--h, 0.5) * 78%);
+  border-radius: 1px;
+  background: var(--archive-text-faint);
+  opacity: 0.4;
+  transform-origin: center;
+  transition: opacity var(--archive-speed) var(--archive-ease);
+}
+
+.archive-card:hover .archive-card__waveform-bar,
+.archive-card:focus-within .archive-card__waveform-bar {
+  opacity: 0.85;
+  animation: archive-wf-breathe 2.4s var(--archive-ease-soft) infinite;
+  animation-delay: calc(var(--i, 0) * -37ms);
+}
+
+/* The playing beat's fingerprint turns active-color, independent of
+   the cursor — this is the one waveform signal that means "sounding
+   now" rather than "being looked at." Same specificity as the hover
+   rule above; placed after it in source order so a playing card
+   stays magenta even while hovered, instead of reverting to the
+   neutral hover treatment. */
+.archive-card.is-playing .archive-card__waveform-bar {
+  opacity: 0.85;
+  background: var(--archive-magenta-soft);
+  animation: archive-wf-breathe 2.4s var(--archive-ease-soft) infinite;
+  animation-delay: calc(var(--i, 0) * -37ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-card__waveform-bar {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================
    ACTIVE ARTIFACT
 
-   Cyan, hairline, and almost nothing else. The signal that this
-   is the piece currently sounding in the room.
+   Magenta, hairline, and almost nothing else. The signal that this
+   is the piece currently sounding in the room — the one color on
+   the card reserved exclusively for "playing now," so it can never
+   be confused with the neutral cyan hover response above. Kept at
+   low alpha throughout (soft hex for solid text/dot, 16–32 rgba for
+   ring shadows) rather than full-strength magenta or added glow, to
+   stay a marker rather than a neon effect.
 ========================================================== */
 
 .archive-card__status {
@@ -228,7 +406,7 @@
   font-weight: var(--archive-weight-medium);
   letter-spacing: var(--archive-track-label);
   text-transform: uppercase;
-  color: var(--archive-cyan);
+  color: var(--archive-magenta-soft);
 }
 
 .archive-card.is-playing .archive-card__status {
@@ -239,22 +417,24 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--archive-cyan);
+  background: var(--archive-magenta-soft);
   animation: archive-card-pulse 2.4s var(--archive-ease-soft) infinite;
 }
 
 .archive-card.is-playing .archive-card__media {
-  box-shadow: inset 0 0 0 1px var(--archive-cyan-48);
+  box-shadow: inset 0 0 0 1px var(--archive-magenta-32);
 }
 
 .archive-card.is-playing .archive-card__catalog {
-  color: var(--archive-cyan);
+  color: var(--archive-magenta-soft);
 }
 
 /* Selected but paused: the artifact is still the one in the case,
-   so it keeps a trace of the marker without claiming to be playing. */
+   so it keeps a trace of the marker without claiming to be playing.
+   Half the ring strength of is-playing above — a trace, not a
+   restatement of it. */
 .archive-card.is-active:not(.is-playing) .archive-card__media {
-  box-shadow: inset 0 0 0 1px var(--archive-cyan-24);
+  box-shadow: inset 0 0 0 1px var(--archive-magenta-16);
 }
 
 .archive-card.is-active:not(.is-playing) .archive-card__catalog {

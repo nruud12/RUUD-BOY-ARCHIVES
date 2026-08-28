@@ -43,6 +43,14 @@
    */
   const ARTIFACT_HOSTS = '.archive-card, [data-archive-artifact]';
 
+  /* Mini Waveform bar geometry — copied unchanged from archive-ui.js
+     (Bar 3px + gap 2px = pitch 5, matching .archive-player__wf-bar).
+     Reusing the existing player's constants rather than tuning new
+     ones for "mini" is deliberate: see initWaveforms() below. */
+  const BAR_PITCH = 5;
+  const MIN_BARS = 24;
+  const MAX_BARS = 160;
+
   const CardUI = {
     /**
      * The artifact's runtime identity — READ, never stored.
@@ -66,6 +74,9 @@
     init() {
       this.bindClicks();
       this.bindPlayerEvents();
+      this.initWaveforms();
+      this.initEntranceAnimation();
+      this.watchForNewCards();
     },
 
     /**
@@ -112,6 +123,231 @@
          exchange. The page has already rendered this artifact; the
          case must not darken and relight for a piece that never left. */
       player.load(track, { seated: true });
+    },
+
+    /* ------------------------------------------------------
+       MINI WAVEFORM
+
+       A deterministic fingerprint per card — see archive-card.css's
+       own "MINI WAVEFORM" note for the visual side. This duplicates,
+       rather than imports, archive-ui.js's hash → seeded-PRNG →
+       bar-height technique: the two files share no module scope, and
+       the algorithm is small, pure and self-contained, so a shared
+       helper would be new architecture for two call sites, not a
+       genuine simplification. Kept local on purpose.
+
+       No played/progress layer, unlike the persistent player's own
+       waveform: playback position belongs to RB-001 / the persistent
+       player, not the card. Non-interactive — the existing Preview
+       button remains the card's only playback control.
+    ------------------------------------------------------ */
+
+    /** Small deterministic PRNG (mulberry32) — see archive-ui.js. */
+    rng(seed) {
+      let a = seed >>> 0;
+      return () => {
+        a = (a + 0x6d2b79f5) >>> 0;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    },
+
+    hash(value) {
+      const str = String(value == null ? '' : value);
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i += 1) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    },
+
+    /** Bars that comfortably fill the given waveform container. */
+    desiredBarCount(container) {
+      const width = container ? container.clientWidth : 0;
+      if (!width) return MIN_BARS;
+      return Math.max(MIN_BARS, Math.min(MAX_BARS, Math.floor(width / BAR_PITCH)));
+    },
+
+    buildWaveformBars(container, seedValue) {
+      const count = this.desiredBarCount(container);
+      const seed = this.hash(seedValue);
+      const random = this.rng(seed || 1);
+
+      container.textContent = '';
+
+      for (let i = 0; i < count; i += 1) {
+        // Two octaves of noise plus a gentle arch, so the shape reads
+        // as a recording rather than as static — same formula as
+        // archive-ui.js's drawWaveform().
+        const arch = Math.sin((i / count) * Math.PI);
+        const coarse = random();
+        const fine = random();
+        const value = 0.18 + arch * 0.34 + coarse * 0.34 + fine * 0.14;
+        const height = Math.max(0.04, Math.min(1, value));
+
+        const bar = document.createElement('span');
+        bar.className = 'archive-card__waveform-bar';
+        bar.style.setProperty('--i', String(i));
+        bar.style.setProperty('--h', height.toFixed(3));
+        container.appendChild(bar);
+      }
+    },
+
+    /**
+     * Draws bars into every card's waveform container that doesn't
+     * have them yet. Idempotent by design (childElementCount guard),
+     * so it's safe to call again for cards the grid injects later.
+     */
+    initWaveforms() {
+      this.cards().forEach((card) => {
+        const container = card.querySelector('.archive-card__waveform');
+        if (!container || container.childElementCount > 0) return;
+
+        this.buildWaveformBars(container, card.dataset.trackId);
+      });
+    },
+
+    /**
+     * Horizon's paginated-list can inject new cards into the grid
+     * without a page load (see assets/paginated-list.js). bindClicks()
+     * above already covers this for free via document-level event
+     * delegation; drawing bars and observing entrances are proactive
+     * rather than event-driven, so they need their own watcher.
+     */
+    watchForNewCards() {
+      const observer = new MutationObserver(() => {
+        this.initWaveforms();
+        this.initEntranceAnimation();
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    },
+
+    /**
+     * ENTRANCE
+     *
+     * A row of artifacts should read as being catalogued into place,
+     * not as a website section fading in — see archive-card.css for
+     * the actual motion. This method only decides WHEN each card
+     * starts: once, the first time it becomes visible, never again.
+     *
+     * Deliberately visibility-triggered rather than insertion-
+     * triggered: most of an 18-card wall is below the fold on load,
+     * so animating on insertion would finish invisibly before the
+     * visitor ever scrolls to it. IntersectionObserver fires once
+     * immediately for anything already on screen, so the same single
+     * path also covers the initial above-the-fold rows with no
+     * special-casing.
+     *
+     * The hidden state (.is-entering) is applied here, not by CSS
+     * default — if this script fails to run, cards stay exactly as
+     * Horizon rendered them: fully visible, just unanimated. A card
+     * that depends on JS to become visible at all is not an
+     * acceptable failure mode for a decorative effect.
+     *
+     * Idempotent via the entranceObserved flag, the same pattern
+     * initWaveforms() already uses, because watchForNewCards() calls
+     * this on every DOM mutation anywhere in <body> — without it, an
+     * unrelated mutation would re-arm and replay an already-settled
+     * card's entrance, which is exactly the "replays on scroll"
+     * failure the brief calls out.
+     */
+    initEntranceAnimation() {
+      if (!('IntersectionObserver' in window)) return;
+
+      if (!this.entranceObserver) {
+        this.entranceObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              this.entranceObserver.unobserve(entry.target);
+              this.revealCard(entry.target);
+            });
+          },
+          // rootMargin buys a wide margin, but a browser is free to
+          // skip intersection checks entirely during a scroll — a
+          // card whose whole visibility window is crossed between two
+          // checks never reports intersecting at all, and is left at
+          // opacity: 0 permanently. Confirmed reproducible on both a
+          // fast wheel scroll and a "jump to bottom" — margin alone
+          // does not fully close it, hence the scroll-sweep fallback
+          // below, which is the actual guarantee; this just reduces
+          // how often it needs to run.
+          { threshold: 0.1, rootMargin: '400px 0px 400px 0px' }
+        );
+
+        // Fallback for whatever the observer missed above. Checking
+        // on every scroll event (even rAF-throttled) was tried first
+        // and confirmed insufficient: if a single scroll moves the
+        // page farther than a row's own height between two rendered
+        // frames, there is no frame where that row was ever the
+        // "current" state to check against — no per-event handler can
+        // catch a frame that never happened, no matter how often it
+        // runs during the scroll.
+        //
+        // This instead waits for scrolling to actually stop (a scroll
+        // burst re-arms the timer on every event; the sweep only runs
+        // once nothing has fired for 120ms) and checks final resting
+        // state — which sidesteps the problem entirely, because it
+        // never depends on catching an intermediate frame at all, only
+        // on what is genuinely on screen once motion has settled.
+        // Event-driven, not a running clock: idle pages do nothing,
+        // and a scroll session produces exactly one check, not one per
+        // frame. Capture phase so this also catches a nested scroll
+        // container, not only window-level scrolling — scroll events
+        // don't bubble, but they do propagate on capture.
+        let settleTimer = null;
+        window.addEventListener(
+          'scroll',
+          () => {
+            clearTimeout(settleTimer);
+            settleTimer = setTimeout(() => this.sweepEnteringCards(), 120);
+          },
+          { capture: true, passive: true }
+        );
+      }
+
+      this.cards().forEach((card) => {
+        if (card.dataset.entranceObserved) return;
+        card.dataset.entranceObserved = 'true';
+        card.classList.add('is-entering');
+        this.entranceObserver.observe(card);
+      });
+    },
+
+    /** The scroll-settle backstop initEntranceAnimation() arms above. */
+    sweepEnteringCards() {
+      const viewportHeight = window.innerHeight;
+      this.cards().forEach((card) => {
+        if (!card.classList.contains('is-entering')) return;
+        const top = card.getBoundingClientRect().top;
+        if (top < viewportHeight && top > -card.offsetHeight) {
+          this.entranceObserver.unobserve(card);
+          this.revealCard(card);
+        }
+      });
+    },
+
+    /**
+     * Row-mates to this card's left, found by geometry (matching
+     * offsetTop) rather than by which IntersectionObserver callback
+     * happens to deliver entries together — the browser doesn't
+     * guarantee a whole row arrives in one batch, especially on a
+     * fast scroll, so geometry is the only reliable way to keep the
+     * sweep correct regardless of scroll speed or column count (4 on
+     * the homepage, 3 on collection/recommendations, fewer on
+     * mobile — this makes no assumption about any of them).
+     */
+    revealCard(card) {
+      const top = Math.round(card.offsetTop);
+      const rowMates = [...this.cards()]
+        .filter((c) => Math.round(c.offsetTop) === top)
+        .sort((a, b) => a.offsetLeft - b.offsetLeft);
+      const index = Math.max(0, rowMates.indexOf(card));
+
+      setTimeout(() => card.classList.remove('is-entering'), index * 60);
     },
 
     /* ------------------------------------------------------

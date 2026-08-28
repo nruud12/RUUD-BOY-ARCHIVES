@@ -30,22 +30,23 @@
 
   font-family: var(--archive-font-body);
 
-  display: grid;
-  grid-template-columns: var(--deck-case) var(--deck-panel);
-  gap: var(--deck-gap);
+  /* RB-002.1: the Retrieval Chamber is a single centered axis —
+     designation over chamber over terms — not a case/panel split. */
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: var(--deck-gap);
 
   max-width: 1440px;
   margin-inline: auto;
   padding-block: var(--deck-pad-start, 64px) var(--deck-pad-end, 96px);
-  padding-inline: var(--archive-space-lg);
+  /* RB-002.2A: one frame only. This element carries both .archive-deck
+     and .archive-shell, and this later rule overrides the shell's
+     gutter — so it must restate the gutter, not stack a second frame
+     on top of it (the old 40px value did, starving the artifact). */
+  padding-inline: var(--archive-gutter);
 
   box-sizing: border-box;
-}
-
-/* Case on the right, identity first in the reading order. */
-.archive-deck[data-case-position='right'] .archive-deck__stage {
-  order: 2;
 }
 
 /* ----------------------------------------------------------
@@ -59,6 +60,29 @@
   align-items: center;
   gap: var(--archive-space-md);
   min-width: 0;
+  width: 100%;
+}
+
+/* RB-002.1: the chamber sits on the page's central axis at its own
+   locked responsive width (rb001-player.css owns the player itself —
+   this rule only places it). */
+.archive-deck__stage .rb001 {
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* The designation line — engraved archival marking, hairline gold.
+   Gold stays hairline and typographic; never a fill. */
+.archive-deck__designation {
+  margin: 0;
+  font-family: var(--archive-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: rgba(199, 168, 108, 0.85);
+  text-align: center;
+  padding-block-end: var(--archive-space-2xs);
+  border-block-end: 1px solid rgba(199, 168, 108, 0.28);
 }
 
 /* The vitrine sizes itself to its container on the homepage, where
@@ -151,6 +175,10 @@
    identity → specification → terms, and each needs air between it
    and the next or the column reads as a form. */
 .archive-deck__panel {
+  /* RB-002.1: terms follow the chamber on the same centered axis. */
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
   display: flex;
   flex-direction: column;
   gap: var(--archive-space-xl);
@@ -249,23 +277,53 @@
   gap: var(--archive-space-md);
 
   margin-top: var(--archive-space-md);
+
+  /* RB-002.3 — Terms of Retrieval. One framed obsidian ground for the
+     whole acquisition chain: hairline gold structure, monochrome at
+     rest, magenta reserved for the active state. Part of the
+     artifact's chain, not a second card. */
+  padding: var(--archive-space-lg) var(--archive-space-lg) var(--archive-space-xl);
+  background: rgba(8, 8, 10, 0.78);
+  border: 1px solid rgba(199, 168, 108, 0.2);
+  border-radius: 2px;
+}
+
+.archive-deck__licence:focus {
+  outline: none;
 }
 
 /* The one restricted-register moment on the page. Sized as a wall
    label, not a section heading — it announces a condition of access,
    it does not shout. */
-.archive-deck__licence-heading {
+.archive-deck .archive-deck__licence-heading {
   margin: 0;
 
   font-size: var(--archive-type-micro);
   font-weight: var(--archive-weight-medium);
   letter-spacing: var(--archive-track-label);
   text-transform: uppercase;
-  color: var(--archive-text-subtle);
+
+  /* Engraved, not printed: the gold of the room's own markings. */
+  color: rgba(199, 168, 108, 0.85);
+  padding-block-end: var(--archive-space-2xs);
+  border-block-end: 1px solid rgba(199, 168, 108, 0.22);
 }
 
-/* Option group heading — reads as a wall label. */
-.archive-deck__licence .variant-option legend,
+/* Redundant next to "Terms of access" above it — kept for assistive
+   technology (it's the fieldset's accessible group name) but hidden
+   visually, using the same technique as base.css .visually-hidden. */
+.archive-deck__licence .variant-option legend {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .archive-deck__licence .variant-option__swatch-value {
   font-size: var(--archive-type-micro);
   letter-spacing: var(--archive-track-label);
@@ -299,8 +357,9 @@
   /* No outline box. A tier is a shelf in the case: it reads as a
      surface lifted out of the background, and the selected one is
      marked by light rather than by a heavier frame. */
-  border: none;
-  border-radius: var(--archive-radius-md);
+  /* RB-002.3: archival rows — hairline structure, square-cut. */
+  border: 1px solid rgba(199, 168, 108, 0.16);
+  border-radius: 2px;
 
   background: var(--archive-surface);
   color: var(--archive-text-muted);
@@ -344,12 +403,23 @@
 }
 
 .archive-deck__licence .variant-option__button-label:has(:checked)::before {
-  border-inline-start-color: var(--archive-cyan);
+  /* RB-002.3: selection speaks the established magenta state. */
+  border-inline-start-color: var(--archive-magenta);
 }
 
 .archive-deck__licence .variant-option__button-label:has(:focus-visible) {
-  outline: 2px solid var(--archive-cyan);
+  outline: 2px solid var(--archive-magenta);
   outline-offset: 2px;
+}
+
+/* Horizon also renders a __pill child behind the checked label,
+   absolutely positioned to cover the row (variant-picker-styles.liquid:
+   background: var(--color-selected-variant-background)) — a theme
+   accent colour, solid magenta here, unrelated to the cyan-edge
+   selection state above. Horizon already sets pointer-events: none on
+   it, so it carries no behaviour; hiding it is purely cosmetic. */
+.archive-deck__licence .variant-option__button-label__pill {
+  display: none;
 }
 
 /* Editions, not options. A faint roman numeral turns a list of
@@ -376,7 +446,7 @@
 }
 
 .archive-deck__licence .variant-option__button-label:has(:checked) .variant-option__button-label__text::before {
-  color: var(--archive-cyan);
+  color: var(--archive-magenta);
 }
 
 /* Unavailable tiers stay legible — an archive shows what it has
@@ -396,8 +466,20 @@
   font-weight: var(--archive-weight-light);
   line-height: var(--archive-leading-snug);
   letter-spacing: var(--archive-track-body);
-  color: var(--archive-text);
+  /* !important: the price block carries a raw #ff00ff from its theme-
+     editor setting (inline/custom-property level); the archive keeps
+     the ledger monochrome without touching the template JSON. */
+  color: var(--archive-text) !important;
   font-variant-numeric: tabular-nums;
+}
+
+.archive-deck__licence .price * {
+  color: inherit !important;
+}
+
+.archive-deck__licence .compare-at-price {
+  color: var(--archive-text-faint) !important;
+  font-size: 0.6em;
 }
 
 /* --- Buy buttons --- */
@@ -415,15 +497,17 @@
    cyan light rises through it, the same light the case uses when an
    artifact sounds, so the purchase belongs to the interface rather
    than sitting on top of it. */
-.archive-deck__licence .button {
+.archive-deck .archive-deck__licence .button {
   width: 100%;
   min-height: 60px;
   padding-inline: var(--archive-space-md);
 
-  border: none;
-  border-radius: var(--archive-radius-md);
+  /* RB-002.3: the retrieval action — framed in the room's gold,
+     obsidian ground, quieter than the artifact above it. */
+  border: 1px solid rgba(199, 168, 108, 0.34);
+  border-radius: 2px;
 
-  background: var(--archive-surface-raised);
+  background: rgba(12, 12, 14, 0.9);
   color: var(--archive-text);
 
   font-family: var(--archive-font-display);
@@ -440,24 +524,30 @@
     box-shadow var(--archive-speed-slow) var(--archive-ease);
 }
 
-.archive-deck__licence .button:hover {
-  color: var(--archive-cyan);
-  background: var(--archive-surface-raised);
-  box-shadow:
-    inset 0 -1px 0 0 var(--archive-cyan-24),
-    0 0 32px -12px var(--archive-cyan-48);
+.archive-deck .archive-deck__licence .button:hover {
+  /* Active state only: the magenta rises in the type and the frame —
+     no glow, no fill. */
+  color: var(--archive-magenta);
+  border-color: var(--archive-magenta);
+  background: rgba(12, 12, 14, 0.9);
+  box-shadow: none;
 }
 
-.archive-deck__licence .button:focus-visible {
-  outline: 2px solid var(--archive-cyan);
+.archive-deck .archive-deck__licence .button:focus-visible {
+  outline: 2px solid var(--archive-magenta);
   outline-offset: 3px;
 }
 
-.archive-deck__licence .button[disabled] {
+.archive-deck .archive-deck__licence .button[disabled] {
   color: var(--archive-text-faint);
   background: var(--archive-surface);
   box-shadow: none;
   cursor: default;
+}
+
+.archive-deck__licence .shopify-payment-button__button--unbranded {
+  background: var(--archive-surface-raised);
+  color: var(--archive-text);
 }
 
 /* --- Description --- */
@@ -481,8 +571,8 @@
 
 @media (max-width: 860px) {
   .archive-deck {
-    grid-template-columns: minmax(0, 1fr);
-    padding-inline: var(--archive-space-sm);
+    /* RB-002.2A: same single gutter frame at every width. */
+    padding-inline: var(--archive-gutter);
     padding-block: var(--archive-space-lg) var(--archive-space-2xl);
   }
 
@@ -506,5 +596,486 @@
 @media (max-width: 768px) {
   .archive-deck {
     padding-bottom: 180px;
+  }
+}
+
+/* ----------------------------------------------------------
+   RECOMMENDATIONS — MOBILE GRID SPACING
+
+   snippets/resource-list-styles.liquid caps every .resource-list
+   grid's gap to 12px below 749px via --resource-list-mobile-gap-max,
+   regardless of the desktop columns_gap/rows_gap setting. That's the
+   right default for Horizon's generic resource lists (blog grids,
+   collection-list, product-list), but it fights the Holdings Wall's
+   32px rhythm on the one resource-list grid ArchiveOS actually
+   styles. Scoped to the <product-recommendations> element so it
+   cannot reach those other consumers.
+---------------------------------------------------------- */
+
+@media screen and (max-width: 749px) {
+  product-recommendations .resource-list {
+    --resource-list-mobile-gap-max: 9999px;
+  }
+}
+
+@container resource-list (max-width: 749px) {
+  product-recommendations .resource-list {
+    --resource-list-mobile-gap-max: 9999px;
+  }
+}
+
+/* ==========================================================
+   RB-002.3R — THE CRYSTAL EXPANSION
+
+   The chamber is ONE object. Collapsed, it is exactly the deployed
+   CP5 crystal. On ACQUIRE LICENSE it opens: the shell's baked right
+   bevel is clipped away and the glass continues — built from slices
+   of the deployed shell itself (field + edge caps) — with the Terms
+   of Retrieval rendered inside the opened interior. No second
+   container; no panel pretending to be crystal. rb001 files and the
+   shell asset are untouched: the host only places, clips and
+   continues them.
+========================================================== */
+
+.rb001-chamber {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* RB-002.3R.1 — expanded proportion. The crystal grows moderately:
+   1100px collapsed to ~1350px expanded at desktop, centered on the
+   same pedestal axis with the archive gutters preserved. The deck's
+   1440px cap leaves a 1296px column; the expanded chamber is allowed
+   to stand slightly proud of it (still inside the gutters) so the
+   crystal enlarges rather than the face compressing. */
+@media (min-width: 861px) {
+  .rb001-chamber.is-expanded {
+    --chamber-expanded: min(1350px, calc(100vw - 2 * var(--archive-gutter)));
+    width: var(--chamber-expanded);
+    margin-inline: calc((100% - var(--chamber-expanded)) / 2);
+  }
+}
+
+.rb001-chamber .rb001 {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* the crystal's own aspect ratio defines the chamber's height —
+     stretch would distort the locked 1743:690 geometry. */
+  align-self: center;
+}
+
+.rb001-chamber__extension {
+  position: relative;
+  flex: 0 0 0%;
+  overflow: hidden;
+  visibility: hidden;
+  transition: flex-basis 380ms ease, visibility 0s linear 380ms;
+}
+
+.rb001-chamber.is-expanded .rb001-chamber__extension {
+  flex-basis: 38%;
+  visibility: visible;
+  transition: flex-basis 380ms ease;
+  /* height locked to the crystal's: extW/extH = 38 / (62/2.526) */
+  aspect-ratio: 1.5485;
+  align-self: center;
+  /* tuck the continued glass a few px under the clipped shell edge so
+     the junction lands glass-on-glass with no exposed boundary. */
+  margin-inline-start: -22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rb001-chamber__extension,
+  .rb001-chamber.is-expanded .rb001-chamber__extension {
+    transition: none;
+  }
+}
+
+/* While open, the shell's own right bevel is clipped so the glass
+   reads as continuing into the extension. Placement/clipping by the
+   host — rb001-player.css is untouched. */
+.rb001-chamber.is-expanded .rb001 .rb001__shell {
+  clip-path: inset(0 2.4% 0 0);
+}
+
+/* --- the continued glass --- */
+
+.rb001-chamber__glass {
+  position: absolute;
+  /* 2px left bleed: subpixel flex rounding must never expose a dark
+     seam column between shell and continued glass. */
+  inset: 0 0 0 -2px;
+  display: flex;
+}
+
+.rb001-chamber__glass-field {
+  flex: 1 1 auto;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.rb001-chamber__glass-edge {
+  flex: 0 0 14px;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.rb001-chamber__glass-field--v,
+.rb001-chamber__glass-edge--b {
+  display: none;
+}
+
+/* --- the opened interior --- */
+
+.rb001-chamber__interior {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: clamp(16px, 4%, 40px) clamp(20px, 5%, 44px) clamp(16px, 4%, 40px) clamp(16px, 4%, 36px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* Inside the crystal the licence sheds its framed-panel chrome — the
+   glass is the container. Rows and the action go translucent so the
+   optical depth stays visible beneath them. */
+.rb001-chamber .archive-deck__licence {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin-top: 0;
+  gap: var(--archive-space-sm);
+}
+
+.rb001-chamber .archive-deck__licence .variant-option__button-label {
+  background: rgba(10, 10, 13, 0.55);
+  min-height: 48px;
+}
+
+.rb001-chamber .archive-deck__licence .variant-option__button-label:hover,
+.rb001-chamber .archive-deck__licence .variant-option__button-label:has(:checked) {
+  background: rgba(14, 14, 18, 0.7);
+}
+
+.rb001-chamber .archive-deck .archive-deck__licence .button,
+.rb001-chamber .archive-deck__licence .button {
+  background: rgba(10, 10, 13, 0.6);
+  min-height: 52px;
+}
+
+/* --- narrow widths: the crystal opens downward instead --- */
+
+@media (max-width: 860px) {
+  .rb001-chamber {
+    flex-direction: column;
+  }
+
+  .rb001-chamber__extension {
+    flex-basis: auto;
+    width: 100%;
+    max-height: 0;
+    transition: max-height 380ms ease, visibility 0s linear 380ms;
+  }
+
+  .rb001-chamber.is-expanded .rb001-chamber__extension {
+    flex-basis: auto;
+    max-height: 640px;
+    transition: max-height 380ms ease;
+    aspect-ratio: auto;
+    align-self: stretch;
+    margin-inline-start: 0;
+  }
+
+  .rb001-chamber.is-expanded .rb001 .rb001__shell {
+    clip-path: inset(0 0 1.8% 0);
+  }
+
+  .rb001-chamber__glass {
+    flex-direction: column;
+  }
+
+  .rb001-chamber__glass-field,
+  .rb001-chamber__glass-edge {
+    display: none;
+  }
+
+  .rb001-chamber__glass-field--v {
+    display: block;
+    flex: 1 1 auto;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+
+  .rb001-chamber__glass-edge--b {
+    display: block;
+    flex: 0 0 12px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+
+  .rb001-chamber__interior {
+    height: auto;
+    max-height: 640px;
+  }
+}
+
+/* ==========================================================
+   RB-002.4 — ARCHIVE INDEX
+
+   The SELECT stage: an archival retrieval rail beneath the chamber.
+   Obsidian ground, hairline gold structure, archival letterspacing;
+   magenta appears only as the selected/playing state. Entries are
+   real .archive-card queue members (see the section file), so all
+   state classes here are set by archive-card-ui.js.
+========================================================== */
+
+.archive-index {
+  width: 100%;
+  max-width: 1100px;
+  margin-inline: auto;
+}
+
+.archive-index__head {
+  margin: 0 0 var(--archive-space-sm);
+
+  font-size: var(--archive-type-micro);
+  font-weight: var(--archive-weight-medium);
+  font-family: var(--archive-font-mono);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: rgba(199, 168, 108, 0.85);
+
+  padding-block-end: var(--archive-space-2xs);
+  border-block-end: 1px solid rgba(199, 168, 108, 0.22);
+}
+
+.archive-index__rail {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.archive-index__entry {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-block-end: 1px solid rgba(199, 168, 108, 0.12);
+}
+
+/* The row itself is the audition control. */
+.archive-index__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  /* RB-002.4.1 — the register's fixed tracks:
+     no. | art | title | bpm | key | classification | state */
+  grid-template-columns: 3.25em 44px minmax(0, 1fr) 5.5em 3.5em 11em 12px;
+  align-items: center;
+  gap: var(--archive-space-sm);
+
+  padding: var(--archive-space-2xs) var(--archive-space-2xs);
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--archive-text-muted);
+  text-align: start;
+  cursor: pointer;
+  transition: background var(--archive-speed) var(--archive-ease),
+              color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-index__main:hover {
+  background: rgba(18, 18, 20, 0.6);
+  color: var(--archive-text);
+}
+
+.archive-index__main:focus-visible {
+  outline: 2px solid var(--archive-magenta);
+  outline-offset: -2px;
+}
+
+.archive-index__no {
+  font-family: var(--archive-font-mono);
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  color: var(--archive-text-faint);
+}
+
+.archive-index__art {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  display: block;
+}
+
+.archive-index__art--void {
+  display: block;
+  background: rgba(18, 18, 20, 0.8);
+  border: 1px solid rgba(199, 168, 108, 0.12);
+}
+
+.archive-index__title {
+  font-family: var(--archive-font-display);
+  font-size: 14px;
+  letter-spacing: var(--archive-track-display);
+  text-transform: uppercase;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.archive-index__bpm,
+.archive-index__key,
+.archive-index__type {
+  font-family: var(--archive-font-mono);
+  font-size: var(--archive-type-micro);
+  letter-spacing: var(--archive-track-label);
+  text-transform: uppercase;
+  color: var(--archive-text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* numerals read as a ledger when right-aligned */
+.archive-index__bpm {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Selected / playing state — the archive's magenta, nothing louder.
+   Classes are archive-card-ui.js's own contract. */
+.archive-index__state {
+  position: relative;
+  width: 12px;
+  height: 12px;
+}
+
+.archive-index__entry.is-active .archive-index__no,
+.archive-index__entry.is-active .archive-index__title {
+  color: var(--archive-magenta);
+}
+
+.archive-index__entry.is-active {
+  border-inline-start: 2px solid var(--archive-magenta);
+}
+
+.archive-index__entry.is-playing .archive-index__state::before,
+.archive-index__entry.is-playing .archive-index__state::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  width: 2px;
+  height: 10px;
+  background: var(--archive-magenta);
+}
+
+.archive-index__entry.is-playing .archive-index__state::before { left: 3px; }
+.archive-index__entry.is-playing .archive-index__state::after { left: 7px; }
+
+.archive-index__open {
+  flex: 0 0 auto;
+  padding: var(--archive-space-2xs) var(--archive-space-xs);
+  font-family: var(--archive-font-mono);
+  font-size: var(--archive-type-micro);
+  color: var(--archive-text-faint);
+  text-decoration: none;
+  transition: color var(--archive-speed) var(--archive-ease);
+}
+
+.archive-index__open:hover,
+.archive-index__open:focus-visible {
+  color: rgba(199, 168, 108, 0.95);
+  outline-offset: -2px;
+}
+
+/* The Horizon recommendations grid this index supersedes: retired
+   from view on chamber pages only. The template JSON keeps the
+   section; presentation-level supersession, reversible in one line. */
+body:has(.section-archive-deck) .shopify-section:has(product-recommendations) {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  /* RB-002.4.1 — deliberate two-line register row:
+       line 1: no. | art | title | state
+       line 2: metadata in fixed sub-columns beneath the title */
+  .archive-index__main {
+    grid-template-columns: 2.5em 36px minmax(0, 1fr) 12px;
+    grid-template-rows: auto auto;
+    row-gap: 2px;
+  }
+
+  .archive-index__art,
+  .archive-index__art--void {
+    width: 36px;
+    height: 36px;
+    grid-row: 1;
+  }
+
+  .archive-index__no { grid-row: 1; }
+  .archive-index__title { grid-row: 1; grid-column: 3; }
+  .archive-index__state { grid-column: 4; grid-row: 1; }
+
+  .archive-index__bpm,
+  .archive-index__key,
+  .archive-index__type {
+    grid-row: 2;
+    grid-column: 3;
+  }
+
+  /* fixed sub-columns: bpm 0-5em, key 5.75-9em, type from 9.75em */
+  .archive-index__bpm {
+    width: 5em;
+    text-align: start;
+    justify-self: start;
+  }
+
+  .archive-index__key {
+    margin-inline-start: 5.75em;
+    width: 3.5em;
+  }
+
+  .archive-index__type {
+    margin-inline-start: 9.75em;
+  }
+}
+
+/* ==========================================================
+   RB-002.5 — DOCK AS FIELD MONITOR
+
+   Only pages with the chamber ever set this body class, so the
+   dock is untouched everywhere else. While the chamber is on
+   stage the dock stands down below the viewport edge; it returns
+   as the visitor scrolls past. Keyboard focus inside the dock
+   always brings it back — visibility must never trap focus.
+========================================================== */
+
+body.rb001-chamber-onstage .archive-player {
+  transform: translateY(calc(100% + 4px));
+  visibility: hidden;
+  transition: transform 320ms ease, visibility 0s linear 320ms;
+}
+
+body:not(.rb001-chamber-onstage) .archive-player {
+  transition: transform 320ms ease;
+}
+
+body.rb001-chamber-onstage .archive-player:focus-within {
+  transform: none;
+  visibility: visible;
+  transition: transform 320ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.rb001-chamber-onstage .archive-player,
+  body:not(.rb001-chamber-onstage) .archive-player,
+  body.rb001-chamber-onstage .archive-player:focus-within {
+    transition: none;
   }
 }

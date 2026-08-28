@@ -1,0 +1,184 @@
+{%- comment -%}
+  ==========================================================
+  ARCHIVEOS — THE PRESERVATION SANCTUM
+  RUUD BOY ARCHIVES
+
+  The architectural room the archive stands in. Built from seven
+  registered production PNG layers (1536×1024, same canvas) — this
+  section composites them; it does not draw anything. The Archive
+  Seal / RB-001 plaque is already rendered into the back-wall plate
+  and is not recreated here.
+
+  STATUS: master hero. This is the first viewport of the homepage
+  (see templates/index.json, "hero" entry). The seven environment
+  layers below are untouched from the structural-milestone version —
+  only a content layer, a focal-point spotlight and viewport sizing
+  have been added on top, all scoped under .archive-sanctum-hero so
+  the plain environment (.archive-sanctum on its own) still composes
+  the same way anywhere else it might be placed. Does not touch
+  playback beyond reading the existing archive:trackchange /
+  archive:play / archive:pause events archive-player.js already
+  emits.
+
+  Files:
+    sections/archive-sanctum.liquid
+    assets/archive-sanctum.css
+    assets/archive-sanctum.js
+  ==========================================================
+{%- endcomment -%}
+
+{%- comment -%} Self-contained: loads only on pages where this section is actually placed, not sitewide via snippets/stylesheets.liquid. {%- endcomment -%}
+{{ 'archive-sanctum.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'archive-sanctum.js' | asset_url }}" defer></script>
+
+<section class="archive-sanctum-hero" data-sanctum-hero aria-label="{{ shop.name }}">
+  <div class="archive-sanctum" data-sanctum aria-hidden="true">
+    <div class="archive-sanctum__frame">
+      <img
+        class="archive-sanctum__layer archive-sanctum__layer--wall"
+        src="{{ 'sanctum-back-wall.png' | asset_url }}"
+        width="1536"
+        height="1024"
+        alt=""
+        loading="eager"
+        fetchpriority="high"
+      >
+      <img
+        class="archive-sanctum__layer archive-sanctum__layer--columns"
+        src="{{ 'sanctum-columns.png' | asset_url }}"
+        width="1536"
+        height="1024"
+        alt=""
+        loading="eager"
+      >
+      <img
+        class="archive-sanctum__layer archive-sanctum__layer--floor"
+        src="{{ 'sanctum-memory-floor.png' | asset_url }}"
+        width="1536"
+        height="1024"
+        alt=""
+        loading="eager"
+      >
+      <img
+        class="archive-sanctum__layer archive-sanctum__layer--light-shafts"
+        src="{{ 'sanctum-atmosphere-light-shafts.png' | asset_url }}"
+        width="1536"
+        height="1024"
+        alt=""
+        loading="lazy"
+      >
+      <img
+        class="archive-sanctum__layer archive-sanctum__layer--haze"
+        src="{{ 'sanctum-atmosphere-haze.png' | asset_url }}"
+        width="1536"
+        height="1024"
+        alt=""
+        loading="lazy"
+      >
+      <img
+        class="archive-sanctum__layer archive-sanctum__layer--dust"
+        src="{{ 'sanctum-atmosphere-dust.png' | asset_url }}"
+        width="1536"
+        height="1024"
+        alt=""
+        loading="lazy"
+      >
+      <img
+        class="archive-sanctum__layer archive-sanctum__layer--particles"
+        src="{{ 'sanctum-atmosphere-particles.png' | asset_url }}"
+        width="1536"
+        height="1024"
+        alt=""
+        loading="lazy"
+      >
+    </div>
+  </div>
+
+  {%- comment -%}
+    Light, not object: the crest is lit as the room's emblem, a
+    faint beam falls from the ceiling onto the platform, and the
+    platform itself pools the brightest — a stage, not a fabricated
+    RB-001 object layer. Purely decorative — sits between the
+    environment and the content layer.
+  {%- endcomment -%}
+  <div class="archive-sanctum-hero__spotlight" aria-hidden="true"></div>
+
+  {%- comment -%}
+    A plain cinematic vignette (edges recede, centre column stays
+    brightest) — not hiding anything. The wordmark below is small
+    and sits above the crest rather than over it, so the crest's own
+    engraving is meant to read clearly again.
+  {%- endcomment -%}
+  <div class="archive-sanctum-hero__scrim" aria-hidden="true"></div>
+
+  <div class="archive-sanctum-hero__content">
+    {%- comment -%}
+      No foreground heading here on purpose. The wall plate beneath
+      the crest already carries "RUUD BOY ARCHIVES / PRESERVE. HONOR.
+      SHARE. / RB-001" as a physical engraving — that IS the identity
+      in this room. Duplicating it as HTML on top read as a webpage
+      graphic laid over a photo, not an architectural space.
+    {%- endcomment -%}
+    <div class="archive-sanctum-hero__masthead">
+      {%- if section.settings.tagline != blank -%}
+        <p class="archive-sanctum-hero__tagline">{{ section.settings.tagline }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="archive-sanctum-hero__foot">
+      {%- if section.settings.artifact_label != blank -%}
+        <p class="archive-sanctum-hero__artifact">
+          <span class="archive-sanctum-hero__artifact-dot" aria-hidden="true"></span>{{ section.settings.artifact_label }}
+        </p>
+      {%- endif -%}
+
+      {%- if section.settings.cta_label != blank -%}
+        <a class="archive-button archive-sanctum-hero__cta" href="{{ section.settings.cta_link }}">
+          {{ section.settings.cta_label }}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Sanctum",
+  "tag": "section",
+  "class": "section-archive-sanctum",
+  "settings": [
+    { "type": "header", "content": "Hero content" },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "PRESERVE. HONOR. SHARE.",
+      "info": "Leave empty to hide."
+    },
+    {
+      "type": "text",
+      "id": "artifact_label",
+      "label": "Artifact label",
+      "default": "RB-001",
+      "info": "Leave empty to hide."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "default": "ENTER ARCHIVE",
+      "info": "Leave empty to hide the button."
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Button link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sanctum"
+    }
+  ]
+}
+{% endschema %}
